@@ -6,6 +6,9 @@ export type TokenType =
     | "Function"
     | "Boolean"
     
+    | "Array"
+    | "Object"
+
     | "Let"
     | "Const"
     | "If"
