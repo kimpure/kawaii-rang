@@ -24,6 +24,7 @@ export type TokenType =
 
     | "And"
     | "Or"
+    | "Not"
 
     | "Dot"
     | "Comma"
@@ -403,6 +404,27 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "Return",
                 lexeme = 'return'
+            }
+        end
+
+        if identifier == "and" then
+            return {
+                type = "And",
+                lexeme = 'and'
+            }
+        end
+
+        if identifier == "or" then
+            return {
+                type = "Or",
+                lexeme = 'or'
+            }
+        end
+
+        if identifier == "not" then
+            return {
+                type = "Not",
+                lexeme = 'not'
             }
         end
 
