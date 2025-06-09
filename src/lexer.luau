@@ -190,7 +190,7 @@ function lexer.read_identifier(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
-function lexer.lexer(self: Lexer): Token
+function lexer.next_token(self: Lexer): Token
     self:skip_space()
 
     if self:is_end() then
@@ -418,3 +418,5 @@ function lexer.lexer(self: Lexer): Token
 
     error('lexer error : not ast for keyword')
 end
+
+return lexer
