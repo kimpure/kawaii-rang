@@ -5,7 +5,8 @@ export type TokenType =
     | "String"
     | "Function"
     | "Boolean"
-    
+    | "Nil"
+
     | "Array"
     | "Object"
 
@@ -30,10 +31,16 @@ export type TokenType =
     | "Comma"
     | "SemiColon"
     | "Colon"
+    | "NewLine"
 
     | "Equal"
     | "EqualTwo"
     | "NotEqual"
+
+    | "EqualAdd"
+    | "EqualSub"
+    | "EqualMul"
+    | "EqualDiv"
 
     | "LeftChevr"
     | "LeftChevrEqual"
@@ -143,9 +150,6 @@ function lexer.skip_space(self: Lexer)
 
         if char == ' ' or char == '\r' or char == '\t' then
             self:advance()
-        elseif char == '\n' then
-            self.line += 1
-            self:advance()
         else
             break
         end
@@ -205,8 +209,23 @@ function lexer.next_token(self: Lexer): Token
     end
 
     local char = self:advance()
+    
+    if char == '\n' then
+        self.line += 1
+        return {
+            type = "NewLine",
+            lexeme = "\n",
+        }
+    end
 
     if char == '+' then
+        if self:match_next"=" then
+            return {
+                type = "EqualAdd",
+                lexeme = "+=",
+            }
+        end
+
         return {
             type = "Add",
             lexeme = "+",
@@ -214,6 +233,13 @@ function lexer.next_token(self: Lexer): Token
     end
 
     if char == '-' then
+        if self:match_next"=" then
+            return {
+                type = "EqualSub",
+                lexeme = "-=",
+            }
+        end
+
         return {
             type = "Sub",
             lexeme = "-",
@@ -221,6 +247,13 @@ function lexer.next_token(self: Lexer): Token
     end
 
     if char == '*' then
+        if self:match_next"=" then
+            return {
+                type = "EqualMul",
+                lexeme = "*=",
+            }
+        end
+
         return {
             type = "Mul",
             lexeme = "*",
@@ -228,6 +261,13 @@ function lexer.next_token(self: Lexer): Token
     end
 
     if char == '/' then
+        if self:match_next"=" then
+            return {
+                type = "EqualDiv",
+                lexeme = "/=",
+            }
+        end
+
         return {
             type = "Div",
             lexeme = "/",

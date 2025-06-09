@@ -4,7 +4,8 @@ local lexer = require('./lexer')
 export type Token = lexer.Token
 export type TokenType = lexer.TokenType
 
-export type AstType = ast.AstType
+export type AstNode = ast.AstNode
+export type DataType = ast.DataType
 
 local tokens_peekable = {}
 tokens_peekable.__index = tokens_peekable
@@ -30,34 +31,10 @@ function tokens_peekable.next(self: TokensPeekable)
     return self.tokens[self.index - 1]
 end
 
-local function ast_token_type(token_type: TokenType): AstType
-    if token_type == 'Number' then
-        return "Number"
-    end
-
-    if token_type == "Boolean" then
-        return "Boolean"
-    end
-
-    if token_type == "String" then
-        return "String"
-    end
-
-    if token_type == "Array" then
-        return "Array"
-    end
-
-    if token_type == "Object" then
-        return "Object"
-    end
-
-    error('token type not match')
-end
-
 local function parse_let(tokens: TokensPeekable)
-    local name = tokens:next()
-
-    -- local ast_type = ast_token_type(tokens.)
+    local initial_name = tokens:next() 
+    
+    
 end
 
 local function extract_body(tokens: { Token })
