@@ -34,27 +34,31 @@ end
 
 function parser.parse_tuple(self: Parser)
     local parameter_tokens = {}
+    local index = 0
 
     while true do
         local token = self:next()
 
+        --// FIXME: use expression
         parameter_tokens[#parameter_tokens + 1] = token.lexeme
 
+        
         if self:peekable().type ~= 'Comma' then
             break
         else
+            index += 1
             self:next()
         end
     end
 
-    return parameter_tokens
+    return parameter_tokens, index
 end
 
 function parser.parse_parameter(self: Parser)
     if self:next().type == 'LeftParen' then
-        local tuple = self:parse_tuple()
+        local tuple, tuple_index = self:parse_tuple()
 
-        if tuple[1] == ')' then
+        if tuple_index < 1 then
             return {}
         end
 
@@ -71,7 +75,8 @@ function parser.parse_expression(self: Parser): Expression
     local expression: Expression
 
     if token.type == 'Number' or token.type == 'String' or token.type == 'Boolean' or token.type == 'Nil' then
-        return token.type
+        print(token)
+        return token
     end
 
     if token.type == 'Identifier' then
@@ -100,6 +105,7 @@ function parser.parse_expression(self: Parser): Expression
         end
     end
 
+    print(expression)
     return expression
 end
 

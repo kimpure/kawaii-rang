@@ -16,13 +16,25 @@ export type Operator =
     | "LogicalAnd"
     | "LogicalOr"
 
-export type DataType = 
-    | "Number"
-    | "String"
-    | "Boolean"
-    | "Nil"
+export type DataTypeTokens = {
+    line: number,
+    lexme: string,
+    type: "String"
+} | {
+    line: number,
+    lexme: string,
+    type: "Number"
+} | {
+    line: number,
+    lexme: string,
+    type: "Boolean"
+} | {
+    line: number,
+    lexme: string,
+    type: "Nil"
+} 
 
-export type LiteralExpression = DataType
+export type LiteralExpression = DataTypeTokens
 
 export type ParameterNode = {
     name: string,
