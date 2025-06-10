@@ -24,21 +24,17 @@ export type DataType =
 
 export type LiteralExpression = DataType
 
-export type ArrayLiteralExpression = { LiteralExpression }
-
 export type ParameterNode = {
     name: string,
-    initial_value: Expression,
 }
 
 export type FunctionCallExpression = {
-    name: string,
+    name: Expression,
     args: { ParameterNode },
 }
 
 export type VariableExpression = {
     name: string,
-    initial_value: Expression,
 }
 
 export type BinaryExpression = {
@@ -52,9 +48,11 @@ export type IndexAccessExpression = {
     index: Expression
 }
 
+export type ArrayExpression = { Expression }
+
 export type Expression = 
     | LiteralExpression
-    | ArrayLiteralExpression
+    | ArrayExpression
     | FunctionCallExpression
     | VariableExpression
     | BinaryExpression
@@ -86,8 +84,13 @@ export type Statement = {
     Continue: string,
     Return: Expression,
     
-    Variable: VariableExpression,
+    Variable: VariableNode,
     Expression: Expression,
+}
+
+export type VariableNode = {
+    name: string,
+    initial_value: Expression,
 }
 
 export type FunctionNode = {
@@ -101,5 +104,6 @@ export type AstNode =
     | Statement
     | Expression
     | FunctionNode
+    | VariableNode
 
 return {}
