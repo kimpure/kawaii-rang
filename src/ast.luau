@@ -60,32 +60,46 @@ export type Expression =
     | BinaryExpression
     | IndexAccessExpression
 
--- export type Statement = {
---     Print: {
---         name: "print",
---         args: { Expression },
---     },
---     Variable: Variable,
---     If: {
---         condition: Expression,
---         body: { AstNode },
---         else_if_blocks: { AstNode },
---         else_block: { AstNode },
---     },
---     For: {
---         initialization: Expression,
---         condition: Expression,
---         increment: Expression,
---         body: { AstNode },
---     },
---     While: {
---         condition: Expression,
---         body: { AstNode },
---     },
---     Break: string,
---     Continue: string,
---     Return: Expression,
---     Expression: Expression,
--- }
+export type Statement = {
+    Print: {
+        name: "print",
+        args: { Expression },
+    },
+    If: {
+        condition: Expression,
+        body: { AstNode },
+        else_if_blocks: { AstNode },
+        else_block: { AstNode },
+    },
+    For: {
+        initialization: Expression,
+        condition: Expression,
+        increment: Expression,
+        body: { AstNode },
+    },
+    While: {
+        condition: Expression,
+        body: { AstNode },
+    },
+
+    Break: string,
+    Continue: string,
+    Return: Expression,
+    
+    Variable: VariableExpression,
+    Expression: Expression,
+}
+
+export type FunctionNode = {
+    name: string,
+    parameters: { ParameterNode },
+    return_expression: Expression,
+    body: { AstNode }
+}
+
+export type AstNode = 
+    | Statement
+    | Expression
+    | FunctionNode
 
 return {}
