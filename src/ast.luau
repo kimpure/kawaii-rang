@@ -1,39 +1,3 @@
-export type DataType = 
-    | "Number"
-    | "String"
-    | "Function"
-    | "Boolean"
-    | "Nil"
-
-    | "Array"
-    | "Object"
-
-export type FunctionNode = {
-    name: string,
-    parameters: { ParameterNode },
-    return_type: DataType,
-    body: { AstNode },
-}
-
-export type ParameterNode = {
-    name: string,
-    type: DataType,
-    initial_value: string,
-}
-
-export type Expression = 
-    | FunctionCall
-    | Literal
-    | Variable
-    | BinaryExpression
-    | IndexAccess
-    | Grouped
-
-export type Grouped = {
-    type: "Grouped",
-    expression: Expression,
-}
-
 export type Operator = 
     | "Add"
     | "Sub"
@@ -52,21 +16,30 @@ export type Operator =
     | "LogicalAnd"
     | "LogicalOr"
 
-export type Variable = {
-    name: string,
-    value: DataType,
-}
-
-export type FunctionCall = {
-    name: string,
-    args: { Expression }
-}
-
-export type Literal = 
-    | "String"
+export type DataType = 
     | "Number"
+    | "String"
     | "Boolean"
     | "Nil"
+
+export type LiteralExpression = DataType
+
+export type ArrayLiteralExpression = { LiteralExpression }
+
+export type ParameterNode = {
+    name: string,
+    initial_value: Expression,
+}
+
+export type FunctionCallExpression = {
+    name: string,
+    args: { ParameterNode },
+}
+
+export type VariableExpression = {
+    name: string,
+    initial_value: Expression,
+}
 
 export type BinaryExpression = {
     left: Expression,
@@ -74,48 +47,45 @@ export type BinaryExpression = {
     right: Expression,
 }
 
-export type IndexAccess = {
+export type IndexAccessExpression = {
     target: Expression,
     index: Expression
 }
 
-export type ArrayLiteral = { Expression }
+export type Expression = 
+    | LiteralExpression
+    | ArrayLiteralExpression
+    | FunctionCallExpression
+    | VariableExpression
+    | BinaryExpression
+    | IndexAccessExpression
 
-export type VariableNode = {
-    name: string,
-    type: DataType,
-    initial_value: Expression?,
-}
-
-export type Statement = {
-    Print: string,
-    Variable: string,
-    If: {
-        condition: Expression,
-        body: { AstNode },
-        else_if_blocks: { AstNode },
-        else_block: { AstNode },
-    },
-    For: {
-        initialization: Expression,
-        condition: Expression,
-        increment: Expression,
-        body: { AstNode },
-    },
-    While: {
-        condition: Expression,
-        body: { AstNode },
-    },
-    Break: string,
-    Continue: string,
-    Return: Expression,
-    Expression: Expression,
-}
-
-export type AstNode = 
-    | FunctionNode
-    | VariableNode
-    | Expression
-    | Statement
+-- export type Statement = {
+--     Print: {
+--         name: "print",
+--         args: { Expression },
+--     },
+--     Variable: Variable,
+--     If: {
+--         condition: Expression,
+--         body: { AstNode },
+--         else_if_blocks: { AstNode },
+--         else_block: { AstNode },
+--     },
+--     For: {
+--         initialization: Expression,
+--         condition: Expression,
+--         increment: Expression,
+--         body: { AstNode },
+--     },
+--     While: {
+--         condition: Expression,
+--         body: { AstNode },
+--     },
+--     Break: string,
+--     Continue: string,
+--     Return: Expression,
+--     Expression: Expression,
+-- }
 
 return {}
