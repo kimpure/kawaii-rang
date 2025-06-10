@@ -31,7 +31,6 @@ export type TokenType =
     | "Comma"
     | "SemiColon"
     | "Colon"
-    | "NewLine"
 
     | "Equal"
     | "EqualTwo"
@@ -58,6 +57,7 @@ export type TokenType =
 export type Token = {
     type: TokenType,
     lexeme: string,
+    line: number,
 }
 
 local lexer = {}
@@ -150,6 +150,9 @@ function lexer.skip_space(self: Lexer)
 
         if char == ' ' or char == '\r' or char == '\t' then
             self:advance()
+        elseif char == '\n' then
+            self.line += 1
+            self:advance()
         else
             break
         end
@@ -205,30 +208,25 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "Eof",
             lexeme = '',
+            line = self.line,
         }
     end
 
     local char = self:advance()
-    
-    if char == '\n' then
-        self.line += 1
-        return {
-            type = "NewLine",
-            lexeme = "\n",
-        }
-    end
 
     if char == '+' then
         if self:match_next"=" then
             return {
                 type = "EqualAdd",
                 lexeme = "+=",
+                line = self.line,
             }
         end
 
         return {
             type = "Add",
             lexeme = "+",
+            line = self.line,
         }
     end
 
@@ -237,12 +235,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "EqualSub",
                 lexeme = "-=",
+                line = self.line,
             }
         end
 
         return {
             type = "Sub",
             lexeme = "-",
+            line = self.line,
         }
     end
 
@@ -251,12 +251,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "EqualMul",
                 lexeme = "*=",
+                line = self.line,
             }
         end
 
         return {
             type = "Mul",
             lexeme = "*",
+            line = self.line,
         }
     end
 
@@ -265,12 +267,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "EqualDiv",
                 lexeme = "/=",
+                line = self.line,
             }
         end
 
         return {
             type = "Div",
             lexeme = "/",
+            line = self.line,
         }
     end
 
@@ -278,6 +282,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "SemiColon",
             lexeme = ";",
+            line = self.line,
         }
     end
 
@@ -285,6 +290,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "Colon",
             lexeme = ":",
+            line = self.line,
         }
     end
 
@@ -293,12 +299,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "LeftChevrEqual",
                 lexeme = "<=",
+                line = self.line,
             }
         end
 
         return {
             type = "LeftChevr",
             lexeme = "<",
+            line = self.line,
         }
     end
 
@@ -307,12 +315,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "RightChevrEqual",
                 lexeme = ">=",
+                line = self.line,
             }
         end
 
         return {
             type = "RightChevr",
             lexeme = ">",
+            line = self.line,
         }
     end
 
@@ -320,6 +330,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "LeftParen",
             lexeme = "(",
+            line = self.line,
         }
     end
     
@@ -327,6 +338,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "RightParen",
             lexeme = ")",
+            line = self.line,
         }
     end
 
@@ -334,6 +346,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "LeftBrace",
             lexeme = "{",
+            line = self.line,
         }
     end
     
@@ -341,6 +354,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "RightBrace",
             lexeme = "}",
+            line = self.line,
         }
     end
 
@@ -348,6 +362,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "LeftBrack",
             lexeme = "[",
+            line = self.line,
         }
     end
     
@@ -355,6 +370,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "RightBrack",
             lexeme = "]",
+            line = self.line,
         }
     end
 
@@ -362,13 +378,15 @@ function lexer.next_token(self: Lexer): Token
         if self:match_next"=" then
             return {
                 type = "EqualTwo",
-                lexeme = "=="
+                lexeme = "==",
+                line = self.line,
             }
         end
 
         return {
             type = "Equal",
             lexeme = "=",
+            line = self.line,
         }
     end
 
@@ -376,7 +394,8 @@ function lexer.next_token(self: Lexer): Token
         if self:match_next"=" then
             return {
                 type = "NotEqual",
-                lexeme = "!="
+                lexeme = "!=",
+                line = self.line,
             }
         end
     end
@@ -385,6 +404,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "Comma",
             lexeme = ",",
+            line = self.line,
         }
     end
 
@@ -392,6 +412,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "String",
             lexeme = self:read_string(),
+            line = self.line,
         }
     end
 
@@ -401,76 +422,87 @@ function lexer.next_token(self: Lexer): Token
         if identifier == "let" then
             return {
                 type = "Let",
-                lexeme = 'let'
+                lexeme = 'let',
+                line = self.line,
             }
         end
 
         if identifier == "const" then
             return {
                 type = "Const",
-                lexeme = 'const'
+                lexeme = 'const',
+                line = self.line,
             }
         end
 
         if identifier == "if" then
             return {
                 type = "If",
-                lexeme = 'if'
+                lexeme = 'if',
+                line = self.line,
             }
         end
 
         if identifier == "else" then
             return {
                 type = "Else",
-                lexeme = 'else'
+                lexeme = 'else',
+                line = self.line,
             }
         end
 
         if identifier == "while" then
             return {
                 type = "While",
-                lexeme = 'while'
+                lexeme = 'while',
+                line = self.line,
             }
         end
 
         if identifier == "for" then
             return {
                 type = "For",
-                lexeme = 'for'
+                lexeme = 'for',
+                line = self.line,
             }
         end
 
         if identifier == "return" then
             return {
                 type = "Return",
-                lexeme = 'return'
+                lexeme = 'return',
+                line = self.line,
             }
         end
 
         if identifier == "and" then
             return {
                 type = "And",
-                lexeme = 'and'
+                lexeme = 'and',
+                line = self.line,
             }
         end
 
         if identifier == "or" then
             return {
                 type = "Or",
-                lexeme = 'or'
+                lexeme = 'or',
+                line = self.line,
             }
         end
 
         if identifier == "not" then
             return {
                 type = "Not",
-                lexeme = 'not'
+                lexeme = 'not',
+                line = self.line,
             }
         end
 
         return {
             type = "Identifier",
-            lexeme = identifier
+            lexeme = identifier,
+            line = self.line,
         }
     end
 
@@ -478,6 +510,7 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "Number",
             lexeme = self:read_number(),
+            line = self.line,
         }
     end
 

@@ -1,7 +1,8 @@
 local lexer = require('../src/lexer')
+local parser = require('../src/parser')
 
 local source = [[
-let a = "String"
+let a, c = "String"
 
 if not a {
     let b = 10
@@ -10,11 +11,10 @@ if not a {
 
 local l = lexer.new(source)
 
-local st = ''
+local tokens = {}
 
 while not l:is_end() do
-    local tk = l:next_token()
-    st ..= tk.type .. '|'
+    tokens[#tokens + 1] = l:next_token()
 end
 
-print(st)
+parser.extract_body(tokens)
