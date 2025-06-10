@@ -52,7 +52,10 @@ export type Operator =
     | "LogicalAnd"
     | "LogicalOr"
 
-export type Variable = string
+export type Variable = {
+    name: string,
+    value: DataType,
+}
 
 export type FunctionCall = {
     name: string,
@@ -81,7 +84,7 @@ export type ArrayLiteral = { Expression }
 export type VariableNode = {
     name: string,
     type: DataType,
-    initial_value: Expression,
+    initial_value: Expression?,
 }
 
 export type Statement = {

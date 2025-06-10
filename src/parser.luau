@@ -58,7 +58,7 @@ local function parse_initial_tuple(tokens: TokensPeekable)
     return initial_tokens
 end
 
-local function parse_value_tuple(tokens: TokensPeekable)
+local function parse_value_tuple(tokens: TokensPeekable): { Token }
     local initial_tokens = { tokens:peekable() }
     
     if not is_data_type(initial_tokens[1]) then
@@ -78,7 +78,7 @@ local function parse_value_tuple(tokens: TokensPeekable)
     return initial_tokens
 end
 
-local function parse_let(tokens: TokensPeekable)
+local function parse_let(tokens: TokensPeekable): { ast.VariableNode }
     local initial_tokens = parse_initial_tuple(tokens)
 
     if tokens:peekable().type ~= 'Equal' then
@@ -106,6 +106,17 @@ local function parse_let(tokens: TokensPeekable)
     if tokens:peekable().line <= initial_values[#initial_values].line and tokens:peekable().type ~= 'SemiColon' then
         error('line error')
     end
+
+    local ast_nodes = {} :: { ast.VariableNode}
+
+    for i=1, #initial_tokens do
+        ast_nodes[#ast_nodes + 1] = {
+            name = initial_tokens[i].lexeme,
+            type = initial_values[i].type :: ast.DataType,
+        }
+    end
+
+    return ast_nodes
 end
 
 local function extract_body(tokens: { Token })
@@ -120,6 +131,8 @@ local function extract_body(tokens: { Token })
             body[#body + 1] = parse_let(tokens)
         end
     end
+
+    print(body)
 end
 
 return {
