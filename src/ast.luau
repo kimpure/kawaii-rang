@@ -37,7 +37,7 @@ export type DataTypeTokens = {
 export type LiteralExpression = DataTypeTokens
 
 export type ParameterNode = {
-    name: string,
+    name: Expression,
 }
 
 export type FunctionCallExpression = {
