@@ -10,6 +10,7 @@ export type FunctionCallExpression = ast.FunctionCallExpression
 export type IndexAccessExpression = ast.IndexAccessExpression
 export type BinaryExpression = ast.BinaryExpression
 export type GroupedExpression = ast.GroupedExpression
+export type VariableExpression = ast.VariableExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
@@ -101,7 +102,7 @@ function parser.parse_expression_function_call(self: Parser, target_expression: 
             parameters[i] = {
                 expression = parameters[i],
                 type = "ParameterNode"
-            }
+            } :: any
         end
     
         function_expression.args = parameters :: any
@@ -161,32 +162,9 @@ function parser.parse_expression_grouped(self: Parser, expression: Expression): 
     }
 end
 
-function parser.parse_identifier_expression(self: Parser): Expression
-    local expression: Expression = self:next()
+function parser.parse_identifier_expression(self: Parser, expression: Expression?): Expression
+    local expression: Expression = expression or self:next() :: any
 
-    while true do
-        if self:peekable().type == 'LeftBrack' then
-            expression = self:parse_expression_index_access(expression)
-            continue
-        end
-
-        if self:peekable().type == 'LeftParen' then
-            expression = self:parse_expression_function_call(expression)
-            continue
-        end
-
-        if self:is_operator_token() then
-            expression = self:parse_expression_binary(expression)
-            continue
-        end
-
-        break
-    end
-
-    return expression
-end
-
-function parser.parse_identifier_expression_with_expression(self: Parser, expression: Expression): Expression
     while true do
         if self:peekable().type == 'LeftBrack' then
             expression = self:parse_expression_index_access(expression)
@@ -216,6 +194,12 @@ function parser.parse_expression(self: Parser): Expression
         self:next()
     end
 
+    local is_array = self:peekable().type == 'LeftBrace'
+
+    if is_array then
+        self:next()
+    end
+
     local expression: Expression
 
     if self:is_data_type() then
@@ -225,13 +209,13 @@ function parser.parse_expression(self: Parser): Expression
             lexeme = data_type.lexeme,
             line = data_type.line,
             type = 'LiteralExpressions',
-        }
+        } :: any
     else
         expression = self:parse_identifier_expression()
     end
     
     if is_grouped then
-        expression = self:parse_expression_grouped(expression)
+        expression = self:parse_expression_grouped(expression) :: any
 
         if self:peekable().type ~= 'RightParen' then
             error('missing right paren: ' .. self:peekable().lexeme)
@@ -239,7 +223,23 @@ function parser.parse_expression(self: Parser): Expression
 
         self:next()
 
-        expression = self:parse_identifier_expression_with_expression(expression)
+        expression = self:parse_identifier_expression(expression)
+    end
+
+    if is_array then
+        expression = { 
+            args = { expression }, 
+            type = 'ArrayExpression' 
+        }
+        if self:peekable().type == 'Comma' then
+            self:next()
+
+            local args = self:parse_tuple_expression()
+
+            for i=1, #args do
+                (expression::any).args[i + 1] = args[i]
+            end
+        end
     end
 
     return expression

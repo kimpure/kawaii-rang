@@ -67,7 +67,10 @@ export type IndexAccessExpression = {
     type: "IndexAccessExpression",
 }
 
-export type ArrayExpression = { Expression }
+export type ArrayExpression = { 
+    args: { Expression },
+    type: "ArrayExpression", 
+}
 
 export type Expression = 
     | LiteralExpression
