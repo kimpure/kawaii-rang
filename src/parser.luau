@@ -41,6 +41,15 @@ function parser.next(self: Parser)
     return c
 end
 
+function parser.is_data_type(self: Parser)
+    local data_type = self:peekable()
+    return 
+        data_type.type == 'String' or 
+        data_type.type == 'Number' or 
+        data_type.type == 'Boolean' or 
+        data_type.type == 'Nil'
+end
+
 function parser.is_operator_token(self: Parser)
     local operator = self:peekable()
     return operator.type == 'Add' or 
@@ -138,7 +147,7 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
 
     return {
         left = left_expression,
-        right = self:peekable(),
+        right = self:parse_expression(),
         operator = operator.type :: Operator,
         type = "BinaryExpression"
     }
@@ -170,10 +179,8 @@ function parser.parse_identifier_expression(self: Parser)
 end
 
 function parser.parse_expression(self: Parser): Expression
-    local data_type = self:peekable()
-    
-    if data_type.type == 'String' or data_type.type == 'Number' or data_type.type == 'Boolean' or data_type.type == 'Nil' then
-        self:next()
+    if self:is_data_type() then
+        local data_type = self:next()
         return {
             data_type = data_type.type,
             lexeme = data_type.lexeme,
@@ -181,7 +188,7 @@ function parser.parse_expression(self: Parser): Expression
             type = 'LiteralExpressions',
         }
     end
-
+    
     return self:parse_identifier_expression()
 end
 
