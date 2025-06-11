@@ -73,35 +73,6 @@ function parser.parse_tuple_expression(self: Parser): { Expression }
     return expressions
 end
 
-function parser.parse_identifier(self: Parser): ParserIdentifier
-    local identifier = self:next()
-
-    local next_token = self:peekable()
-
-    if identifier.type ~= 'Identifier' then
-        error('identifier not match: ' .. identifier.lexeme)
-    end
-
-    if next_token.type == 'LeftParen' then
-        return {
-            identifier = identifier,
-            type = 'Function',
-        } :: any
-    end
-
-    if next_token.type == 'LeftBrack' then
-        return {
-            identifier = identifier,
-            type = 'IndexAccess',
-        } :: any
-    end
-
-    return {
-        identifier = identifier,
-        type = 'Variable',
-    } :: any
-end
-
 function parser.parse_expression_function_call(self: Parser, target_expression: Expression): FunctionCallExpression
     local function_expression = {
         expression = target_expression,
@@ -174,8 +145,7 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
 end
 
 function parser.parse_identifier_expression(self: Parser)
-    local parse_identifier = self:parse_identifier()
-    local expression: Expression = parse_identifier.identifier
+    local expression: Expression = self:next()
 
     while true do
         if self:peekable().type == 'LeftBrack' then
