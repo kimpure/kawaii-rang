@@ -7,6 +7,7 @@ export type TokenType = lexer.TokenType
 export type Expression = ast.Expression
 export type LiteralExpression = ast.LiteralExpression
 export type FunctionCallExpression = ast.FunctionCallExpression
+export type IndexAccessExpression = ast.IndexAccessExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
@@ -83,7 +84,7 @@ function parser.parse_identifier(self: Parser): ParserIdentifier
     } :: any
 end
 
-function parser.parse_function_deep_call(self: Parser, expression: Expression): FunctionCallExpression
+function parser.parse_deep_function_call(self: Parser, expression: Expression): Expression
     local function_expression = {
         expression = expression,
         args = {},
@@ -109,16 +110,50 @@ function parser.parse_function_deep_call(self: Parser, expression: Expression): 
         if self:peekable().type ~= 'RightParen' then
             error('not close paren of function : ' .. self:peekable().lexeme)
         end
-    
     end
-    
+
     self:next()
 
     if self:peekable().type == 'LeftParen' then
-        return self:parse_function_deep_call(function_expression)
+        return self:parse_deep_function_call(function_expression) :: FunctionCallExpression
+    end
+
+    if self:peekable().type == 'LeftBrack' then
+        return self:parse_deep_index_access(function_expression) :: IndexAccessExpression
     end
 
     return function_expression
+end
+
+function parser.parse_deep_index_access(self: Parser, target: Expression): Expression
+    local index_access_expression = {
+        target = target,
+        type = "IndexAccessExpression",
+    } :: IndexAccessExpression
+
+    if self:next().type ~= 'LeftBrack' then
+        error('is not function : ' .. self:peekable().lexeme)
+    end
+    
+    if self:peekable().type == 'RightBrack' then
+        error('is not index : ' .. self:peekable().lexeme)
+    end
+
+    index_access_expression.index = self:parse_expression()
+
+    if self:next().type ~= 'RightBrack' then
+        error('not close paren of index access : ' .. (index_access_expression.index::any).lexeme)
+    end
+
+    if self:peekable().type == 'LeftBrack' then
+        return self:parse_deep_index_access(index_access_expression) :: IndexAccessExpression
+    end
+
+    if self:peekable().type == 'LeftParen' then
+        return self:parse_deep_function_call(index_access_expression) :: FunctionCallExpression
+    end
+
+    return index_access_expression
 end
 
 function parser.parse_expression(self: Parser): Expression
@@ -135,19 +170,24 @@ function parser.parse_expression(self: Parser): Expression
     end
 
     local identifier_info = self:parse_identifier()
+    local expression: Expression
 
     if identifier_info.type == 'Variable' then
-        return {
+        expression = {
             name = identifier_info.identifier.lexeme,
             type = 'VariableExpression',
         }
     end
 
     if identifier_info.type == 'Function' then
-        return self:parse_function_deep_call(identifier_info.identifier)
+        expression = self:parse_deep_function_call(identifier_info.identifier)
     end
 
-    error('parser error (any)')
+    if identifier_info.type == 'IndexAccess' then
+        expression = self:parse_deep_index_access(identifier_info.identifier)
+    end
+
+    return expression
 end
 
 return parser

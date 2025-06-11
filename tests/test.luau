@@ -1,9 +1,7 @@
 local lexer = require('../src/lexer')
 local parser = require('../src/parser')
 
-local source = [[
-a(asd, "asstr")
-]]
+local source = "\na[asd[1]][2][3](a)\n"
 -- [[
 -- as(qwe, "qwe")(0)()()()()()()
 -- ]]
