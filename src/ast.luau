@@ -79,6 +79,7 @@ export type Expression =
     | VariableExpression
     | BinaryExpression
     | IndexAccessExpression
+    | GroupedExpression
 
 export type Statement = {
     Print: {

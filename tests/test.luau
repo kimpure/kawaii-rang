@@ -1,7 +1,8 @@
 local lexer = require('../src/lexer')
 local parser = require('../src/parser')
 
-local source = '{ "as", { asd }, ww }\n'
+local source = 'a(as)\n'
+-- '{ ("as"), { asd }, ww + 1 }\n'
 -- "(a() < a) + (1) + 2\n"
 -- "\na[asd[1]][2][3](a)"
 -- [[
