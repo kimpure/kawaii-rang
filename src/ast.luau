@@ -1,3 +1,7 @@
+local lexer = require('./lexer')
+
+export type LexerToken = lexer.Token
+
 export type Operator = 
     | "Add"
     | "Sub"
@@ -16,48 +20,46 @@ export type Operator =
     | "LogicalAnd"
     | "LogicalOr"
 
-export type DataTypeTokens = {
-    line: number,
-    lexme: string,
-    type: "String"
-} | {
-    line: number,
-    lexme: string,
-    type: "Number"
-} | {
-    line: number,
-    lexme: string,
-    type: "Boolean"
-} | {
-    line: number,
-    lexme: string,
-    type: "Nil"
-} 
+export type DataTypeTokens = 
+    | "String"
+    | "Number"
+    | "Boolean"
+    | "Nil"
 
-export type LiteralExpression = DataTypeTokens
+export type LiteralExpression = {
+    data_type: DataTypeTokens,
+    lexeme: string,
+    line: number,
+    type: "LiteralExpression",
+}
 
 export type ParameterNode = {
-    name: Expression,
+    expression: Expression,
+    type: "ParameterNode",
 }
 
 export type FunctionCallExpression = {
-    name: Expression,
+    expression: Expression,
     args: { ParameterNode },
+    type: "FunctionCallExpression",
 }
 
 export type VariableExpression = {
     name: string,
+    type: "VariableExpression",
 }
 
 export type BinaryExpression = {
     left: Expression,
     operator: Operator,
     right: Expression,
+    type: "BinaryExpression"
 }
 
 export type IndexAccessExpression = {
     target: Expression,
-    index: Expression
+    index: Expression,
+    type: "IndexAccessExpression",
 }
 
 export type ArrayExpression = { Expression }
@@ -117,5 +119,19 @@ export type AstNode =
     | Expression
     | FunctionNode
     | VariableNode
+
+export type ParserIdentifier = {
+    identifier: {
+        type: string,
+        lexeme: string,
+        line: number,
+    },
+    type: ParserIdentifierToken,
+}
+
+export type ParserIdentifierToken = 
+    | "Function"
+    | "IndexAccess"
+    | "Variable"
 
 return {}

@@ -5,7 +5,13 @@ export type Token = lexer.Token
 export type TokenType = lexer.TokenType
 
 export type Expression = ast.Expression
+export type LiteralExpression = ast.LiteralExpression
+export type FunctionCallExpression = ast.FunctionCallExpression
+
 export type AstNode = ast.AstNode
+export type ParameterNode = ast.ParameterNode
+
+export type ParserIdentifier = ast.ParserIdentifier
 
 local parser = {}
 parser.__index = parser
@@ -32,87 +38,116 @@ function parser.next(self: Parser)
     return c
 end
 
-function parser.parse_tuple(self: Parser)
-    local parameter_tokens = {}
-    local index = 0
-
+function parser.parse_tuple_expression(self: Parser): { Expression }
+    local expressions = {}
+    
     while true do
-        local token = self:next()
+        expressions[#expressions + 1] = self:parse_expression()
 
-        --// FIXME: use expression
-        parameter_tokens[#parameter_tokens + 1] = token.lexeme
-
-        
-        if self:peekable().type ~= 'Comma' then
+        if self:peekable() and self:peekable().type ~= 'Comma' then
             break
-        else
-            index += 1
-            self:next()
         end
-    end
 
-    return parameter_tokens, index
+        self:next()
+    end
+    
+    return expressions
 end
 
-function parser.parse_parameter(self: Parser)
-    if self:next().type == 'LeftParen' then
-        local tuple, tuple_index = self:parse_tuple()
+function parser.parse_identifier(self: Parser): ParserIdentifier
+    local identifier = self:next()
 
-        if tuple_index < 1 then
-            return {}
-        end
+    local next_token = self:peekable()
 
-        if self:next().type == 'RightParen' then
-            return tuple
-        end
+    if identifier.type ~= 'Identifier' then
+        error('identifier not match: ' .. identifier.lexeme)
     end
 
-    error('is not function')
+    if next_token.type == 'LeftParen' then
+        return {
+            identifier = identifier,
+            type = 'Function',
+        } :: any
+    end
+
+    if next_token.type == 'LeftBrack' then
+        return {
+            identifier = identifier,
+            type = 'IndexAccess',
+        } :: any
+    end
+
+    return {
+        identifier = identifier,
+        type = 'Variable',
+    } :: any
+end
+
+function parser.parse_function_deep_call(self: Parser, expression: Expression): FunctionCallExpression
+    local function_expression = {
+        expression = expression,
+        args = {},
+        type = "FunctionCallExpression",
+    } :: FunctionCallExpression
+
+    if self:next().type ~= 'LeftParen' then
+        error('is not function : ' .. self:peekable().lexeme)
+    end
+    
+    if self:peekable().type ~= 'RightParen' then
+        local parameters = self:parse_tuple_expression()
+        
+        for i=1, #parameters do
+            parameters[i] = {
+                expression = parameters[i],
+                type = "ParameterNode"
+            }
+        end
+    
+        function_expression.args = parameters :: any
+    
+        if self:peekable().type ~= 'RightParen' then
+            error('not close paren of function : ' .. self:peekable().lexeme)
+        end
+    
+    end
+    
+    self:next()
+
+    if self:peekable().type == 'LeftParen' then
+        return self:parse_function_deep_call(function_expression)
+    end
+
+    return function_expression
 end
 
 function parser.parse_expression(self: Parser): Expression
-    local token = self:next()
-    local expression: Expression
-
-    if token.type == 'Number' or token.type == 'String' or token.type == 'Boolean' or token.type == 'Nil' then
-        print(token)
-        return token
-    end
-
-    if token.type == 'Identifier' then
-        expression = {
-            name = token.lexeme
+    local token = self:peekable()
+    
+    if token.type == 'String' or token.type == 'Number' or token.type == 'Boolean' or token.type == 'Nil' then
+        self:next()
+        return {
+            data_type = token.type,
+            lexeme = token.lexeme,
+            line = token.line,
+            type = 'LiteralExpressions',
         }
     end
 
-    while self:peekable().type == 'LeftParen' or self:peekable().type == 'LeftBrack' do
-        if self:peekable().type == 'LeftParen' then
-            expression = {
-                name = expression,
-                args = self:parse_parameter(),
-            }
-        end
+    local identifier_info = self:parse_identifier()
 
-        if self:peekable().type == 'LeftBrack' then
-            self:next()
-            expression = {
-                target = {
-                    name = expression,
-                },
-                index = self:parse_expression(),
-            }
-            self:next()
-        end
+    if identifier_info.type == 'Variable' then
+        return {
+            name = identifier_info.identifier.lexeme,
+            type = 'VariableExpression',
+        }
     end
 
-    print(expression)
-    return expression
-end
-
-function parser.parse(self: Parser)
-    while self:peekable() do
-
+    if identifier_info.type == 'Function' then
+        return self:parse_function_deep_call(identifier_info.identifier)
     end
+
+    error('parser error (any)')
 end
 
 return parser
