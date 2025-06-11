@@ -42,28 +42,28 @@ function parser.next(self: Parser)
 end
 
 function parser.is_data_type(self: Parser)
-    local data_type = self:peekable()
+    local data_type = self:peekable().type
     return 
-        data_type.type == 'String' or 
-        data_type.type == 'Number' or 
-        data_type.type == 'Boolean' or 
-        data_type.type == 'Nil'
+        data_type == 'String' or 
+        data_type == 'Number' or 
+        data_type == 'Boolean' or 
+        data_type == 'Nil'
 end
 
 function parser.is_operator_token(self: Parser)
-    local operator = self:peekable()
-    return operator.type == 'Add' or 
-        operator.type == 'Sub' or 
-        operator.type == 'Mul' or 
-        operator.type == 'Div' or 
-        operator.type == 'GreaterEqual' or 
-        operator.type == 'LessEqual' or 
-        operator.type == 'Greater' or 
-        operator.type == 'Less' or 
-        operator.type == 'Equal' or 
-        operator.type == 'NotEqual' or 
-        operator.type == 'And' or 
-        operator.type == 'Or' 
+    local operator_type = self:peekable().type
+    return operator_type == 'Add' or 
+        operator_type == 'Sub' or 
+        operator_type == 'Mul' or 
+        operator_type == 'Div' or 
+        operator_type == 'GreaterEqual' or 
+        operator_type == 'LessEqual' or 
+        operator_type == 'Greater' or 
+        operator_type == 'Less' or 
+        operator_type == 'Equal' or 
+        operator_type == 'NotEqual' or 
+        operator_type == 'And' or 
+        operator_type == 'Or' 
 end
 
 function parser.parse_tuple_expression(self: Parser): { Expression }
@@ -153,7 +153,7 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
     }
 end
 
-function parser.parse_identifier_expression(self: Parser)
+function parser.parse_identifier_expression(self: Parser): Expression
     local expression: Expression = self:next()
 
     while true do
