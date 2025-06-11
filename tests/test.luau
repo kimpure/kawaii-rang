@@ -1,7 +1,7 @@
 local lexer = require('../src/lexer')
 local parser = require('../src/parser')
 
-local source = "a() < a + 1\n"
+local source = "(a() < a) + (1) + 2\n"
 -- "\na[asd[1]][2][3](a)"
 -- [[
 -- as(qwe, "qwe")(0)()()()()()()
@@ -23,4 +23,4 @@ end
 
 local p = parser.new(tokens)
 
-print(p:parse_identifier_expression())
+print(p:parse_expression())

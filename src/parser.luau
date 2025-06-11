@@ -9,6 +9,7 @@ export type LiteralExpression = ast.LiteralExpression
 export type FunctionCallExpression = ast.FunctionCallExpression
 export type IndexAccessExpression = ast.IndexAccessExpression
 export type BinaryExpression = ast.BinaryExpression
+export type GroupedExpression = ast.GroupedExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
@@ -153,6 +154,13 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
     }
 end
 
+function parser.parse_expression_grouped(self: Parser, expression: Expression): GroupedExpression
+    return {
+        expression = expression,
+        type = "GroupedExpression",
+    }
+end
+
 function parser.parse_identifier_expression(self: Parser): Expression
     local expression: Expression = self:next()
 
@@ -178,18 +186,63 @@ function parser.parse_identifier_expression(self: Parser): Expression
     return expression
 end
 
+function parser.parse_identifier_expression_with_expression(self: Parser, expression: Expression): Expression
+    while true do
+        if self:peekable().type == 'LeftBrack' then
+            expression = self:parse_expression_index_access(expression)
+            continue
+        end
+
+        if self:peekable().type == 'LeftParen' then
+            expression = self:parse_expression_function_call(expression)
+            continue
+        end
+
+        if self:is_operator_token() then
+            expression = self:parse_expression_binary(expression)
+            continue
+        end
+
+        break
+    end
+
+    return expression
+end
+
 function parser.parse_expression(self: Parser): Expression
+    local is_grouped = self:peekable().type == 'LeftParen'
+
+    if is_grouped then
+        self:next()
+    end
+
+    local expression: Expression
+
     if self:is_data_type() then
         local data_type = self:next()
-        return {
+        expression = {
             data_type = data_type.type,
             lexeme = data_type.lexeme,
             line = data_type.line,
             type = 'LiteralExpressions',
         }
+    else
+        expression = self:parse_identifier_expression()
     end
     
-    return self:parse_identifier_expression()
+    if is_grouped then
+        expression = self:parse_expression_grouped(expression)
+
+        if self:peekable().type ~= 'RightParen' then
+            error('missing right paren: ' .. self:peekable().lexeme)
+        end
+
+        self:next()
+
+        expression = self:parse_identifier_expression_with_expression(expression)
+    end
+
+    return expression
 end
 
 return parser

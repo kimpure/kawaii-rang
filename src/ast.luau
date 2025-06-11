@@ -38,7 +38,10 @@ export type ParameterNode = {
     type: "ParameterNode",
 }
 
---// TODO: 그룹 { Expressions } (괄호)
+export type GroupedExpression = {
+    expression: Expression,
+    type: "GroupedExpression",
+}
 
 export type FunctionCallExpression = {
     expression: Expression,
