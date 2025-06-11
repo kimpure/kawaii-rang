@@ -8,10 +8,12 @@ export type Expression = ast.Expression
 export type LiteralExpression = ast.LiteralExpression
 export type FunctionCallExpression = ast.FunctionCallExpression
 export type IndexAccessExpression = ast.IndexAccessExpression
+export type BinaryExpression = ast.BinaryExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
 
+export type Operator = ast.Operator
 export type ParserIdentifier = ast.ParserIdentifier
 
 local parser = {}
@@ -37,6 +39,22 @@ function parser.next(self: Parser)
     local c = self.tokens[(self::any)._index]
     ;(self::any)._index += 1
     return c
+end
+
+function parser.is_operator_token(self: Parser)
+    local operator = self:peekable()
+    return operator.type == 'Add' or 
+        operator.type == 'Sub' or 
+        operator.type == 'Mul' or 
+        operator.type == 'Div' or 
+        operator.type == 'GreaterEqual' or 
+        operator.type == 'LessEqual' or 
+        operator.type == 'Greater' or 
+        operator.type == 'Less' or 
+        operator.type == 'Equal' or 
+        operator.type == 'NotEqual' or 
+        operator.type == 'And' or 
+        operator.type == 'Or' 
 end
 
 function parser.parse_tuple_expression(self: Parser): { Expression }
@@ -84,9 +102,9 @@ function parser.parse_identifier(self: Parser): ParserIdentifier
     } :: any
 end
 
-function parser.parse_deep_function_call(self: Parser, expression: Expression): Expression
+function parser.parse_expression_function_call(self: Parser, target_expression: Expression): FunctionCallExpression
     local function_expression = {
-        expression = expression,
+        expression = target_expression,
         args = {},
         type = "FunctionCallExpression",
     } :: FunctionCallExpression
@@ -114,18 +132,10 @@ function parser.parse_deep_function_call(self: Parser, expression: Expression): 
 
     self:next()
 
-    if self:peekable().type == 'LeftParen' then
-        return self:parse_deep_function_call(function_expression) :: FunctionCallExpression
-    end
-
-    if self:peekable().type == 'LeftBrack' then
-        return self:parse_deep_index_access(function_expression) :: IndexAccessExpression
-    end
-
     return function_expression
 end
 
-function parser.parse_deep_index_access(self: Parser, target: Expression): Expression
+function parser.parse_expression_index_access(self: Parser, target: Expression): IndexAccessExpression
     local index_access_expression = {
         target = target,
         type = "IndexAccessExpression",
@@ -145,15 +155,48 @@ function parser.parse_deep_index_access(self: Parser, target: Expression): Expre
         error('not close paren of index access : ' .. (index_access_expression.index::any).lexeme)
     end
 
-    if self:peekable().type == 'LeftBrack' then
-        return self:parse_deep_index_access(index_access_expression) :: IndexAccessExpression
-    end
-
-    if self:peekable().type == 'LeftParen' then
-        return self:parse_deep_function_call(index_access_expression) :: FunctionCallExpression
-    end
-
     return index_access_expression
+end
+
+function parser.parse_expression_binary(self: Parser, left_expression: Expression): BinaryExpression
+    if not self:is_operator_token() then
+        error('is not operator : ' .. self:peekable().lexeme)
+    end
+
+    local operator = self:next()
+
+    return {
+        left = left_expression,
+        right = self:peekable(),
+        operator = operator.type :: Operator,
+        type = "BinaryExpression"
+    }
+end
+
+function parser.parse_identifier_expression(self: Parser)
+    local parse_identifier = self:parse_identifier()
+    local expression: Expression = parse_identifier.identifier
+
+    while true do
+        if self:peekable().type == 'LeftBrack' then
+            expression = self:parse_expression_index_access(expression)
+            continue
+        end
+
+        if self:peekable().type == 'LeftParen' then
+            expression = self:parse_expression_function_call(expression)
+            continue
+        end
+
+        if self:is_operator_token() then
+            expression = self:parse_expression_binary(expression)
+            continue
+        end
+
+        break
+    end
+
+    return expression
 end
 
 function parser.parse_expression(self: Parser): Expression
@@ -169,50 +212,7 @@ function parser.parse_expression(self: Parser): Expression
         }
     end
 
-    local identifier_info = self:parse_identifier()
-    local expression: Expression
-
-    if identifier_info.type == 'Variable' then
-        expression = {
-            name = identifier_info.identifier.lexeme,
-            type = 'VariableExpression',
-        }
-    end
-
-    if identifier_info.type == 'Function' then
-        expression = self:parse_deep_function_call(identifier_info.identifier)
-    end
-
-    if identifier_info.type == 'IndexAccess' then
-        expression = self:parse_deep_index_access(identifier_info.identifier)
-    end
-
-    local operator = self:peekable()
-
-    if 
-        operator.type == 'Add' or 
-        operator.type == 'Sub' or 
-        operator.type == 'Mul' or 
-        operator.type == 'Div' or 
-        operator.type == 'GreaterEqual' or 
-        operator.type == 'LessEqual' or 
-        operator.type == 'Greater' or 
-        operator.type == 'Less' or 
-        operator.type == 'Equal' or 
-        operator.type == 'NotEqual' or 
-        operator.type == 'And' or 
-        operator.type == 'Or' 
-    then
-        self:next()
-        expression = {
-            left = expression,
-            operator = operator.type,
-            right = self:parse_expression(),
-            type = "IndexAccessExpression",
-        }
-    end
-
-    return expression
+    return self:parse_identifier_expression()
 end
 
 return parser
