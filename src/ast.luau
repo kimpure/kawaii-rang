@@ -17,8 +17,8 @@ export type Operator =
     | "Equal"
     | "NotEqual"
     
-    | "LogicalAnd"
-    | "LogicalOr"
+    | "And"
+    | "Or"
 
 export type DataTypeTokens = 
     | "String"

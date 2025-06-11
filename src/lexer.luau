@@ -36,15 +36,16 @@ export type TokenType =
     | "EqualTwo"
     | "NotEqual"
 
+    | "Less"
+    | "LessEqual"
+    | "Greater"
+    | "GreaterEqual"
+
     | "EqualAdd"
     | "EqualSub"
     | "EqualMul"
     | "EqualDiv"
 
-    | "LeftChevr"
-    | "LeftChevrEqual"
-    | "RightChevr"
-    | "RightChevrEqual"
     | "LeftParen"
     | "RightParen"
     | "LeftBrace"
@@ -297,14 +298,14 @@ function lexer.next_token(self: Lexer): Token
     if char == '<' then
         if self:match_next"=" then
             return {
-                type = "LeftChevrEqual",
+                type = "LessEqual",
                 lexeme = "<=",
                 line = self.line,
             }
         end
 
         return {
-            type = "LeftChevr",
+            type = "Less",
             lexeme = "<",
             line = self.line,
         }
@@ -313,14 +314,14 @@ function lexer.next_token(self: Lexer): Token
     if char == '>' then
         if self:match_next"=" then
             return {
-                type = "RightChevrEqual",
+                type = "GreaterEqual",
                 lexeme = ">=",
                 line = self.line,
             }
         end
 
         return {
-            type = "RightChevr",
+            type = "Greater",
             lexeme = ">",
             line = self.line,
         }

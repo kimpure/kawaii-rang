@@ -1,7 +1,8 @@
 local lexer = require('../src/lexer')
 local parser = require('../src/parser')
 
-local source = "\na[asd[1]][2][3](a)\n"
+local source = "a() + a\n"
+-- "\na[asd[1]][2][3](a)"
 -- [[
 -- as(qwe, "qwe")(0)()()()()()()
 -- ]]
@@ -23,11 +24,3 @@ end
 local p = parser.new(tokens)
 
 print(p:parse_expression())
--- print(p:tuple_expression())
-
--- print(parser.parse_expression(p))
--- parser.parse_expression(p)
--- parser.parse_expression(p)
--- parser.parse_expression(p)
-
--- parser.extract_body(tokens)

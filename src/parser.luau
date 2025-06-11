@@ -157,14 +157,14 @@ function parser.parse_deep_index_access(self: Parser, target: Expression): Expre
 end
 
 function parser.parse_expression(self: Parser): Expression
-    local token = self:peekable()
+    local data_type = self:peekable()
     
-    if token.type == 'String' or token.type == 'Number' or token.type == 'Boolean' or token.type == 'Nil' then
+    if data_type.type == 'String' or data_type.type == 'Number' or data_type.type == 'Boolean' or data_type.type == 'Nil' then
         self:next()
         return {
-            data_type = token.type,
-            lexeme = token.lexeme,
-            line = token.line,
+            data_type = data_type.type,
+            lexeme = data_type.lexeme,
+            line = data_type.line,
             type = 'LiteralExpressions',
         }
     end
@@ -185,6 +185,31 @@ function parser.parse_expression(self: Parser): Expression
 
     if identifier_info.type == 'IndexAccess' then
         expression = self:parse_deep_index_access(identifier_info.identifier)
+    end
+
+    local operator = self:peekable()
+
+    if 
+        operator.type == 'Add' or 
+        operator.type == 'Sub' or 
+        operator.type == 'Mul' or 
+        operator.type == 'Div' or 
+        operator.type == 'GreaterEqual' or 
+        operator.type == 'LessEqual' or 
+        operator.type == 'Greater' or 
+        operator.type == 'Less' or 
+        operator.type == 'Equal' or 
+        operator.type == 'NotEqual' or 
+        operator.type == 'And' or 
+        operator.type == 'Or' 
+    then
+        self:next()
+        expression = {
+            left = expression,
+            operator = operator.type,
+            right = self:parse_expression(),
+            type = "IndexAccessExpression",
+        }
     end
 
     return expression
