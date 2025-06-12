@@ -1,2 +1,16 @@
-var { (strict type), (const) } a = ""
+var { (string), (strict type), (const) } a = ""
+
+var { 
+    (function) {
+        (return) {
+            (string)
+        },
+    },
+    (const), 
+    (strict type),
+} = (string) {
+    print string
+    return "print!"
+}
+
 
