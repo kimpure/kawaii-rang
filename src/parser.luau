@@ -453,6 +453,14 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
             end
             continue
         end
+        
+        if token.type == 'Const' then
+            local const_nodes = self:parse_const_node()
+            for i=1, #const_nodes do
+                body[#body + 1] = const_nodes[i]
+            end
+            continue
+        end
 
         if token.type == 'Function' then
             local function_node = self:parse_function_node()
