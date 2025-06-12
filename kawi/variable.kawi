@@ -1,0 +1,5 @@
+var number = 10
+var string = "hello"
+var boolean = true
+var null = nil
+var fn = function() {}
