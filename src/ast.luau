@@ -22,6 +22,12 @@ export type DataTypeTokens =
     | "Boolean"
     | "Nil"
 
+export type DataTypeLexerTokens = {
+    type: DataTypeTokens,
+    lexeme: string,
+    line: number,
+}
+
 export type LiteralExpression = {
     data_type: DataTypeTokens,
     lexeme: string,

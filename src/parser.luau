@@ -21,6 +21,7 @@ export type FunctionNode = ast.FunctionNode
 
 export type Operator = ast.Operator
 export type DataTypeTokens = ast.DataTypeTokens
+export type DataTypeLexerTokens = ast.DataTypeLexerTokens
 
 local parser = {}
 parser.__index = parser
@@ -37,14 +38,18 @@ function parser.new(tokens: { Token }): Parser
     }, parser)
 end
 
-function parser.peekable(self: Parser, ind: number?)
-    return self.tokens[(self::any)._index + (ind or 0)]
+function parser.peekable(self: any, ind: number?): Token
+    return self.tokens[self._index + (ind or 0)]
 end
 
-function parser.next(self: Parser)
-    local c = self.tokens[(self::any)._index]
-    ;(self::any)._index += 1
+function parser.next(self: any): Token
+    local c = self.tokens[self._index]
+    self._index += 1
     return c
+end
+
+function parser.unsafe_next(self: Parser): any
+    return self:next()
 end
 
 function parser.is_data_type(self: Parser)
@@ -154,7 +159,8 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
         error('is not operator : ' .. self:peekable().lexeme)
     end
 
-    local operator: Operator = self:next().type :: Operator
+    
+    local operator: Operator = self:unsafe_next().type
     local right_expressions = self:parse_expression()
     local binary_expression: BinaryExpression = {
         left = left_expression,
@@ -207,9 +213,9 @@ end
 
 function parser.parse_literal_expressions(self: Parser): LiteralExpression
     if self:is_data_type() then
-        local data_type = self:next()
+        local data_type: DataTypeLexerTokens = self:unsafe_next()
         return {
-            data_type = data_type.type :: DataTypeTokens,
+            data_type = data_type.type,
             lexeme = data_type.lexeme,
             type = 'LiteralExpression',
         }
