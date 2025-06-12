@@ -147,14 +147,32 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
         error('is not operator : ' .. self:peekable().lexeme)
     end
 
-    local operator = self:next()
-
-    return {
+    local operator: Operator = self:next().type :: Operator
+    local right_expressions = self:parse_expression()
+    local binary_expression: BinaryExpression = {
         left = left_expression,
-        right = self:parse_expression(),
-        operator = operator.type :: Operator,
+        right = right_expressions,
+        operator = operator,
         type = "BinaryExpression"
     }
+
+    if left_expression.type == 'BinaryExpression' then
+        if ast.operator_token[left_expression.operator] < ast.operator_token[operator] then
+            binary_expression = {
+                left = left_expression.left,
+                right = {
+                    left = left_expression.right,
+                    right = right_expressions,
+                    operator = operator,
+                    type = "BinaryExpression"
+                },
+                operator = left_expression.operator,
+                type = "BinaryExpression",
+            }
+        end
+    end
+
+    return binary_expression
 end
 
 function parser.parse_identifier_expression(self: Parser): Expression
@@ -171,11 +189,6 @@ function parser.parse_identifier_expression(self: Parser): Expression
 
         if self:peekable().type == 'LeftParen' then
             expression = self:parse_expression_function_call(expression)
-            continue
-        end
-
-        if self:is_operator_token() then
-            expression = self:parse_expression_binary(expression)
             continue
         end
 
@@ -255,6 +268,10 @@ function parser.parse_expression(self: Parser): Expression
 
     if token.type == 'Identifier' then
         expression = self:parse_identifier_expression()
+    end
+
+    if self:is_operator_token() then
+        expression = self:parse_expression_binary(expression)
     end
 
     return expression

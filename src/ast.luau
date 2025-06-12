@@ -131,6 +131,24 @@ export type AstNode =
 
 local ast = {}
 
+ast.operator_token = {
+    Add = 1,
+    Sub = 1,
+    
+    Mul = 2,
+    Div = 2,
+
+    GreaterEqual = 3,
+    LessEqual = 3,
+    Greater = 3,
+    Less = 3,
+    EqualTwo = 3,
+    NotEqual = 3,
+
+    And = 4,
+    Or = 4,
+} :: { [Operator]: number }
+
 function ast.nil_expression(line: number): LiteralExpression
     return {
         data_type = 'Nil',
