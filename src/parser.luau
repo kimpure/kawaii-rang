@@ -70,7 +70,7 @@ function parser.is_operator_token(self: Parser)
 end
 
 function parser.parse_tuple_expression(self: Parser): { Expression }
-    local expressions = {}
+    local expressions: { Expression } = {}
     
     while true do
         expressions[#expressions + 1] = self:parse_expression()
@@ -120,23 +120,22 @@ function parser.parse_expression_function_call(self: Parser, target_expression: 
 end
 
 function parser.parse_expression_index_access(self: Parser, target: Expression): IndexAccessExpression
-    local index_access_expression = {
-        target = target,
-        type = "IndexAccessExpression",
-    } :: IndexAccessExpression
-
     if self:next().type ~= 'LeftBrack' then
-        error('is not function : ' .. self:peekable().lexeme)
+        error('is not index access : ' .. self:peekable().lexeme)
     end
     
     if self:peekable().type == 'RightBrack' then
-        error('is not index : ' .. self:peekable().lexeme)
+        error('do close : ' .. self:peekable().lexeme)
     end
 
-    index_access_expression.index = self:parse_expression()
+    local index_access_expression: IndexAccessExpression = {
+        target = target,
+        index = self:parse_expression(),
+        type = "IndexAccessExpression",
+    }
 
     if self:next().type ~= 'RightBrack' then
-        error('not close paren of index access : ' .. (index_access_expression.index::any).lexeme)
+        error('not close paren of index access : ' .. index_access_expression.index.type)
     end
 
     return index_access_expression
@@ -159,7 +158,7 @@ end
 
 function parser.parse_identifier_expression(self: Parser): Expression
     local expression: Expression = {
-        name = self:next().lexeme,
+        token = self:next(),
         type = "VariableExpression",
     }
 

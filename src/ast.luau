@@ -50,7 +50,7 @@ export type FunctionCallExpression = {
 }
 
 export type VariableExpression = {
-    name: string,
+    token: LexerToken,
     type: "VariableExpression",
 }
 
@@ -112,12 +112,12 @@ export type Statement = {
 }
 
 export type VariableNode = {
-    name: string,
+    token: LexerToken,
     initial_value: Expression,
 }
 
 export type FunctionNode = {
-    name: string,
+    token: LexerToken,
     parameters: { ParameterNode },
     return_expression: Expression,
     body: { AstNode }
@@ -128,19 +128,5 @@ export type AstNode =
     | Expression
     | FunctionNode
     | VariableNode
-
-export type ParserIdentifier = {
-    identifier: {
-        type: string,
-        lexeme: string,
-        line: number,
-    },
-    type: ParserIdentifierToken,
-}
-
-export type ParserIdentifierToken = 
-    | "Function"
-    | "IndexAccess"
-    | "Variable"
 
 return {}
