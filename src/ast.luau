@@ -112,7 +112,7 @@ export type Statement = {
 }
 
 export type VariableNode = {
-    identifier_expression: Expression,
+    identifier_expression: VariableExpression,
     initial_value: Expression,
 }
 

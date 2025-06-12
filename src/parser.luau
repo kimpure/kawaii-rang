@@ -70,6 +70,11 @@ function parser.is_operator_token(self: Parser)
         operator_type == 'Or' 
 end
 
+function parser.is_witch(self: Parser): boolean
+    return self:peekable().type == 'SemiColon' 
+        or self:peekable().line > self:peekable(-1).line
+end
+
 function parser.parse_tuple_expression(self: Parser): { Expression }
     local expressions: { Expression } = {}
     
@@ -306,7 +311,7 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
         variable_nodes[i] = variable_node
     end
 
-    if self:peekable().type ~= 'SemiColon' and self:peekable().line <= self:peekable(-1).line then
+    if not self:is_witch() then
         error('parser error: var line witch line: ' .. self:peekable().line)
     end
 
