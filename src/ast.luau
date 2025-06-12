@@ -1,7 +1,3 @@
-local lexer = require('./lexer')
-
-export type LexerToken = lexer.Token
-
 export type Operator = 
     | "Add"
     | "Sub"
@@ -29,7 +25,6 @@ export type DataTypeTokens =
 export type LiteralExpression = {
     data_type: DataTypeTokens,
     lexeme: string,
-    line: number,
     type: "LiteralExpression",
 }
 
@@ -50,7 +45,7 @@ export type FunctionCallExpression = {
 }
 
 export type VariableExpression = {
-    token: LexerToken,
+    expression_name: string,
     type: "VariableExpression",
 }
 
@@ -160,11 +155,10 @@ ast.operator_token = {
     Or = 4,
 } :: { [Operator]: number }
 
-function ast.nil_expression(line: number): LiteralExpression
+function ast.nil_expression(): LiteralExpression
     return {
         data_type = 'Nil',
         lexeme = "nil",
-        line = line,
         type = "LiteralExpression",
     }
 end

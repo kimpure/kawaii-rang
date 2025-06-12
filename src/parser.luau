@@ -184,7 +184,7 @@ end
 
 function parser.parse_identifier_expression(self: Parser): Expression
     local expression: Expression = {
-        token = self:next(),
+        expression_name = self:next().lexeme,
         type = "VariableExpression",
     }
 
@@ -211,7 +211,6 @@ function parser.parse_literal_expressions(self: Parser): LiteralExpression
         return {
             data_type = data_type.type :: DataTypeTokens,
             lexeme = data_type.lexeme,
-            line = data_type.line,
             type = 'LiteralExpression',
         }
     end
@@ -349,7 +348,7 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
 
         local variable_node: VariableNode = {
             identifier_expression = identifier,
-            initial_value = ast.nil_expression(identifier.token.line),
+            initial_value = ast.nil_expression(),
             type = 'VariableNode',
         }
 
@@ -382,7 +381,7 @@ function parser.parse_const_node(self: Parser): { VariableNode }
 
         local const_node: VariableNode = {
             identifier_expression = identifier,
-            initial_value = ast.nil_expression(identifier.token.line),
+            initial_value = ast.nil_expression(),
             type = 'VariableNode',
             is_const = true,
         }
@@ -460,7 +459,7 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
     return {
         body = body,
-        return_expression = return_expression or ast.nil_expression(self:peekable(-1).line)
+        return_expression = return_expression or ast.nil_expression()
     }
 end
 
