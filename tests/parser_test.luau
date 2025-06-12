@@ -26,7 +26,7 @@ local test_source = {
     
     -- print('result: \n', par:parse_expression())
 -- end
-local lex = lexer.new('var a = function (q) {}\n')
+local lex = lexer.new('var a = function (q) { var b = 10 }\n')
     
 local tokens = {}
 

@@ -362,10 +362,6 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
         variable_nodes[i] = variable_node
     end
 
-    if not self:is_witch() then
-        error('parser error: var line witch line: ' .. self:peekable().line)
-    end
-
     return variable_nodes
 end
 
@@ -396,11 +392,41 @@ function parser.parse_function_node(self: Parser): FunctionNode
     return function_node
 end
 
-function parser.parse_ast_node(self: Parser): { body: AstNode, return_expression: Expression }
+function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expression: Expression }
+    local body: { AstNode } = {}
+    local return_expression: Expression
+
+    while true do
+        local token = self:peekable()
+
+        if token.type == 'Var' then
+            local variable_nodes = self:parse_variable_node()
+            for i=1, #variable_nodes do
+                body[#body + 1] = variable_nodes[i]
+            end
+            continue
+        end
+
+        if token.type == 'Function' then
+            local function_node = self:parse_function_node()
+            body[#body + 1] = function_node
+            continue
+        end
+
+        if token.type == 'Return' then
+            self:next()
+            return_expression = self:parse_expression()
+            break
+        end
+
+        if token.type == 'Eof' or token.type == 'RightBrace' then
+            break
+        end
+    end
 
     return {
-        body = 0 :: any,
-        return_expression = 0 :: any
+        body = body,
+        return_expression = return_expression or ast.nil_expression(self:peekable(-1).line)
     }
 end
 
