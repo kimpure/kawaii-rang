@@ -8,7 +8,7 @@ var {
     },
     (const), 
     (strict type),
-} = (string) {
+} print_and_return = (string) {
     print string
     return "print!"
 }
