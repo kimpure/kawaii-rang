@@ -467,6 +467,14 @@ function lexer.next_token(self: Lexer): Token
             }
         end
 
+        if identifier == "function" then
+            return {
+                type = "Function",
+                lexeme = 'function',
+                line = self.line,
+            }
+        end
+
         if identifier == "and" then
             return {
                 type = "And",

@@ -72,6 +72,13 @@ export type ArrayExpression = {
     type: "ArrayExpression", 
 }
 
+export type FunctionExpression = {
+    parameters: { ParameterNode },
+    return_expression: Expression,
+    body: { AstNode },
+    type: "FunctionExpression",
+}
+
 export type Expression = 
     | LiteralExpression
     | ArrayExpression
@@ -80,6 +87,7 @@ export type Expression =
     | BinaryExpression
     | IndexAccessExpression
     | GroupedExpression
+    | FunctionExpression
 
 export type Statement = {
     Print: {
@@ -114,13 +122,15 @@ export type Statement = {
 export type VariableNode = {
     identifier_expression: VariableExpression,
     initial_value: Expression,
+    type: "VariableNode",
 }
 
 export type FunctionNode = {
     identifier_expression: Expression,
     parameters: { ParameterNode },
     return_expression: Expression,
-    body: { AstNode }
+    body: { AstNode },
+    type: "FunctionNode",
 }
 
 export type AstNode = 

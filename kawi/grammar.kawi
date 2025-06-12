@@ -1,1 +1,8 @@
+const strr = ""
 var str = ""
+function fn() {
+
+}
+var a = function() {
+    
+}

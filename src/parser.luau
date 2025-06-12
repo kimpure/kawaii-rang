@@ -12,10 +12,12 @@ export type BinaryExpression = ast.BinaryExpression
 export type GroupedExpression = ast.GroupedExpression
 export type VariableExpression = ast.VariableExpression
 export type ArrayExpression = ast.ArrayExpression
+export type FunctionExpression = ast.FunctionExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
 export type VariableNode = ast.VariableNode
+export type FunctionNode = ast.FunctionNode
 
 export type Operator = ast.Operator
 export type DataTypeTokens = ast.DataTypeTokens
@@ -249,10 +251,54 @@ function parser.parse_array_expression(self: Parser): ArrayExpression
     }
     
     if self:next().type ~= 'RightBrace' then
-        error('is not closed grouped: ' .. self:peekable().lexeme)
+        error('is not closed array: ' .. self:peekable().lexeme)
     end
 
     return array_expression
+end
+
+function parser.parse_function_expression(self: Parser): FunctionExpression
+    if self:next().type ~= 'Function' then
+        error('is not function: ' .. self:peekable().lexeme)
+    end
+    
+    if self:next().type ~= 'LeftParen' then
+        error('function not use left paren')
+    end
+    
+    local parameters: { ParameterNode } = {}
+
+    if self:peekable().type ~= 'RightParen' then
+        local tuple = self:parse_tuple_expression()
+        for i=1, #tuple do
+            parameters[i] = {
+                expression = tuple[i],
+                type = 'ParameterNode',
+            }
+        end
+    end
+
+    if self:next().type ~= 'RightParen' then
+        error('not closed function paren: ' .. self:peekable().lexeme)
+    end
+
+    if self:next().type ~= 'LeftBrace' then
+        error('not used function brace: ' .. self:peekable().lexeme)
+    end
+
+    local ast_nodes = self:parse_ast_node()
+    local function_node: FunctionExpression = {
+        parameters = parameters,
+        body = ast_nodes.body,
+        return_expression = ast_nodes.return_expression,
+        type = 'FunctionExpression',
+    }
+    
+    if self:next().type ~= 'RightBrace' then
+        error('is not closed function: ' .. self:peekable().lexeme)
+    end
+
+    return function_node
 end
 
 function parser.parse_expression(self: Parser): Expression
@@ -273,6 +319,10 @@ function parser.parse_expression(self: Parser): Expression
 
     if token.type == 'Identifier' then
         expression = self:parse_identifier_expression()
+    end
+
+    if token.type == 'Function' then
+        expression = self:parse_function_expression()
     end
 
     if self:is_operator_token() then
@@ -299,7 +349,8 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
 
         local variable_node: VariableNode = {
             identifier_expression = identifier,
-            initial_value = ast.nil_expression(identifier.token.line)
+            initial_value = ast.nil_expression(identifier.token.line),
+            type = 'VariableNode',
         }
 
         if self:peekable().type == 'Equal' then
@@ -316,6 +367,41 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
     end
 
     return variable_nodes
+end
+
+function parser.parse_function_node(self: Parser): FunctionNode
+    if self:next().type ~= 'Function' then
+        error('is not function: ' .. self:peekable().lexeme)
+    end
+    
+    local identifier_expression = self:parse_expression() :: FunctionCallExpression
+
+    if self:next().type ~= 'LeftBrace' then
+        error('function not use left paren')
+    end
+
+    local ast_nodes = self:parse_ast_node()
+    local function_node: FunctionNode = {
+        identifier_expression = identifier_expression.expression,
+        parameters = identifier_expression.args,
+        body = ast_nodes.body,
+        return_expression = ast_nodes.return_expression,
+        type = 'FunctionNode',
+    }
+    
+    if self:next().type ~= 'RightBrace' then
+        error('is not closed function: ' .. self:peekable().lexeme)
+    end
+
+    return function_node
+end
+
+function parser.parse_ast_node(self: Parser): { body: AstNode, return_expression: Expression }
+
+    return {
+        body = 0 :: any,
+        return_expression = 0 :: any
+    }
 end
 
 return parser
