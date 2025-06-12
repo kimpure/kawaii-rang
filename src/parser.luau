@@ -20,15 +20,14 @@ export type VariableNode = ast.VariableNode
 export type FunctionNode = ast.FunctionNode
 
 export type Operator = ast.Operator
+export type OperatorTokens = ast.OperatorTokens
 export type DataTypeTokens = ast.DataTypeTokens
 export type DataTypeLexerTokens = ast.DataTypeLexerTokens
 
 local parser = {}
 parser.__index = parser
 
-export type Parser = typeof(setmetatable({} :: {
-    tokens: { Token },
-}, parser))
+export type Parser = typeof(setmetatable({}, parser))
 
 function parser.new(tokens: { Token }): Parser
     return setmetatable({
@@ -48,8 +47,12 @@ function parser.next(self: any): Token
     return c
 end
 
+function parser.unsafe_peekable(self: Parser, ind: number?): any
+    return parser.peekable(self, ind)
+end
+
 function parser.unsafe_next(self: Parser): any
-    return self:next()
+    return parser.next(self)
 end
 
 function parser.is_data_type(self: Parser)
@@ -61,8 +64,8 @@ function parser.is_data_type(self: Parser)
         data_type == 'Nil'
 end
 
-function parser.is_operator_token(self: Parser)
-    local operator_type = self:peekable().type
+function parser.is_operator_token(self: Parser, token: Token?)
+    local operator_type = token and token.type or self:peekable().type
     return operator_type == 'Add' or 
         operator_type == 'Sub' or 
         operator_type == 'Mul' or 
@@ -160,23 +163,24 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
     end
 
     
-    local operator: Operator = self:unsafe_next().type
+    local operator: OperatorTokens = self:unsafe_next()
+
     local right_expressions = self:parse_expression()
     local binary_expression: BinaryExpression = {
         left = left_expression,
         right = right_expressions,
-        operator = operator,
+        operator = operator.type,
         type = "BinaryExpression"
     }
 
     if left_expression.type == 'BinaryExpression' then
-        if ast.operator_token[left_expression.operator] < ast.operator_token[operator] then
+        if ast.operator_token[left_expression.operator] < ast.operator_token[operator.type] then
             binary_expression = {
                 left = left_expression.left,
                 right = {
                     left = left_expression.right,
                     right = right_expressions,
-                    operator = operator,
+                    operator = operator.type,
                     type = "BinaryExpression"
                 },
                 operator = left_expression.operator,
@@ -409,7 +413,11 @@ function parser.parse_function_node(self: Parser): FunctionNode
         error('is not function: ' .. self:peekable().lexeme)
     end
     
-    local identifier_expression = self:parse_expression() :: FunctionCallExpression
+    local identifier_expression = self:parse_expression()
+
+    if identifier_expression.type ~='FunctionCallExpression' then
+        error('this not function call expression')
+    end
 
     if self:next().type ~= 'LeftBrace' then
         error('function not use left paren')

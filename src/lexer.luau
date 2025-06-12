@@ -110,7 +110,8 @@ function lexer.new(source: string)
 end
 
 function lexer.is_end(self: Lexer)
-    return self.current >= utf8.len(self.source) :: number
+    local len = utf8.len(self.source)
+    return self.current >= (len and len or 0)
 end
 
 function lexer.advance(self: Lexer)

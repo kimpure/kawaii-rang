@@ -28,6 +28,12 @@ export type DataTypeLexerTokens = {
     line: number,
 }
 
+export type OperatorTokens = {
+    type: Operator,
+    lexeme: string,
+    line: number,
+}
+
 export type LiteralExpression = {
     data_type: DataTypeTokens,
     lexeme: string,
@@ -143,7 +149,7 @@ export type AstNode =
 
 local ast = {}
 
-ast.operator_token = {
+local operator_token: { [Operator]: number } = {
     Add = 1,
     Sub = 1,
     
@@ -159,7 +165,9 @@ ast.operator_token = {
 
     And = 4,
     Or = 4,
-} :: { [Operator]: number }
+}
+
+ast.operator_token = operator_token
 
 function ast.nil_expression(): LiteralExpression
     return {
