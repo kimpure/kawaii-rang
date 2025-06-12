@@ -10,8 +10,7 @@ export type TokenType =
     | "Array"
     | "Object"
 
-    | "Let"
-    | "Const"
+    | "Var"
     | "If"
     | "Else"
     | "While"
@@ -420,18 +419,10 @@ function lexer.next_token(self: Lexer): Token
     if is_alphabetic(char) then
         local identifier = self:read_identifier()
 
-        if identifier == "let" then
+        if identifier == "var" then
             return {
-                type = "Let",
-                lexeme = 'let',
-                line = self.line,
-            }
-        end
-
-        if identifier == "const" then
-            return {
-                type = "Const",
-                lexeme = 'const',
+                type = "Var",
+                lexeme = 'var',
                 line = self.line,
             }
         end

@@ -15,6 +15,7 @@ export type ArrayExpression = ast.ArrayExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
+export type VariableNode = ast.VariableNode
 
 export type Operator = ast.Operator
 export type DataTypeTokens = ast.DataTypeTokens
@@ -34,8 +35,8 @@ function parser.new(tokens: { Token }): Parser
     }, parser)
 end
 
-function parser.peekable(self: Parser)
-    return self.tokens[(self::any)._index]
+function parser.peekable(self: Parser, ind: number?)
+    return self.tokens[(self::any)._index + (ind or 0)]
 end
 
 function parser.next(self: Parser)
@@ -63,8 +64,8 @@ function parser.is_operator_token(self: Parser)
         operator_type == 'LessEqual' or 
         operator_type == 'Greater' or 
         operator_type == 'Less' or 
-        operator_type == 'Equal' or 
         operator_type == 'NotEqual' or 
+        operator_type == 'EqualTwo' or 
         operator_type == 'And' or 
         operator_type == 'Or' 
 end
@@ -257,6 +258,42 @@ function parser.parse_expression(self: Parser): Expression
     end
 
     return expression
+end
+
+function parser.parse_variable_node(self: Parser): { VariableNode }
+    if self:next().type ~= 'Var' then
+        error('is not var: ' .. self:peekable().lexeme)
+    end
+
+    local identifiers = self:parse_tuple_expression()
+    local variable_nodes: { VariableNode } = {}
+
+    for i=1, #identifiers do
+        local identifier: Expression = identifiers[i]
+
+        if identifier.type ~= 'VariableExpression' then
+            error('parser error: set variable of ' .. identifier.type)
+        end
+
+        local variable_node: VariableNode = {
+            identifier_expression = identifier,
+            initial_value = ast.nil_expression(identifier.token.line)
+        }
+
+        if self:peekable().type == 'Equal' then
+            self:next()
+        
+            variable_node.initial_value = self:parse_expression()
+        end
+
+        variable_nodes[i] = variable_node
+    end
+
+    if self:peekable().type ~= 'SemiColon' and self:peekable().line <= self:peekable(-1).line then
+        error('parser error: var line witch line: ' .. self:peekable().line)
+    end
+
+    return variable_nodes
 end
 
 return parser

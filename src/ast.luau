@@ -14,7 +14,7 @@ export type Operator =
     | "Greater"
     | "Less"
     
-    | "Equal"
+    | "EqualTwo"
     | "NotEqual"
     
     | "And"
@@ -112,12 +112,12 @@ export type Statement = {
 }
 
 export type VariableNode = {
-    token: LexerToken,
+    identifier_expression: Expression,
     initial_value: Expression,
 }
 
 export type FunctionNode = {
-    token: LexerToken,
+    identifier_expression: Expression,
     parameters: { ParameterNode },
     return_expression: Expression,
     body: { AstNode }
@@ -129,4 +129,15 @@ export type AstNode =
     | FunctionNode
     | VariableNode
 
-return {}
+local ast = {}
+
+function ast.nil_expression(line: number): LiteralExpression
+    return {
+        data_type = 'Nil',
+        lexeme = "nil",
+        line = line,
+        type = "LiteralExpression",
+    }
+end
+
+return ast
