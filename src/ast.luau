@@ -122,6 +122,7 @@ export type Statement = {
 export type VariableNode = {
     identifier_expression: VariableExpression,
     initial_value: Expression,
+    is_const: boolean?,
     type: "VariableNode",
 }
 

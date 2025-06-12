@@ -365,6 +365,40 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
     return variable_nodes
 end
 
+function parser.parse_const_node(self: Parser): { VariableNode }
+    if self:next().type ~= 'Const' then
+        error('is not var: ' .. self:peekable().lexeme)
+    end
+
+    local identifiers = self:parse_tuple_expression()
+    local const_nodes: { VariableNode } = {}
+
+    for i=1, #identifiers do
+        local identifier: Expression = identifiers[i]
+
+        if identifier.type ~= 'VariableExpression' then
+            error('parser error: set variable of ' .. identifier.type)
+        end
+
+        local const_node: VariableNode = {
+            identifier_expression = identifier,
+            initial_value = ast.nil_expression(identifier.token.line),
+            type = 'VariableNode',
+            is_const = true,
+        }
+
+        if self:peekable().type == 'Equal' then
+            self:next()
+        
+            const_node.initial_value = self:parse_expression()
+        end
+
+        const_nodes[i] = const_node
+    end
+
+    return const_nodes
+end
+
 function parser.parse_function_node(self: Parser): FunctionNode
     if self:next().type ~= 'Function' then
         error('is not function: ' .. self:peekable().lexeme)

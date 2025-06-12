@@ -11,6 +11,7 @@ export type TokenType =
     | "Object"
 
     | "Var"
+    | "Const"
     | "If"
     | "Else"
     | "While"
@@ -423,6 +424,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "Var",
                 lexeme = 'var',
+                line = self.line,
+            }
+        end
+
+        if identifier == "const" then
+            return {
+                type = "Const",
+                lexeme = 'const',
                 line = self.line,
             }
         end
