@@ -233,7 +233,6 @@ function parser.parse_array_expression(self: Parser): ArrayExpression
         error('is not closed grouped: ' .. self:peekable().lexeme)
     end
 
-
     return array_expression
 end
 
