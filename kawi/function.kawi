@@ -6,7 +6,7 @@ var b = function() {
 
 }
 
-function c() {
+function c(): string {
     return 0, 1
 }
 

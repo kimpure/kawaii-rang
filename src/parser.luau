@@ -89,6 +89,40 @@ function parser.parse_tuple_expression(self: Parser): { Expression }
     return expressions
 end
 
+function parser.parse_parameter_nodes(self: Parser): { ParameterNode }
+    local expressions: { ParameterNode } = {}
+    
+    while true do
+        local expression = self:parse_expression()
+        local native_expression_type: NativeExpressionType?
+
+        if expression.type ~= 'VariableExpression' then
+            error('parameter node is not variable: ', expression.type)
+        end
+
+        if self:peekable() and self:peekable().type == 'Colon' then
+            self:next()
+
+            native_expression_type = self:parse_native_expression_type()
+        end
+
+        expressions[#expressions + 1] = {
+            expression = expression,
+            native_expression_type = native_expression_type,
+            type = "ParameterNode",
+        }
+        
+        if self:peekable() and self:peekable().type ~= 'Comma' then
+            break
+        end
+
+        self:next()
+    end
+    
+    return expressions
+end
+
+
 function parser.parse_expression_function_call(self: Parser, target_expression: Expression): FunctionCallExpression
     local function_expression: FunctionCallExpression = {
         expression = target_expression,
@@ -183,8 +217,8 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
     return binary_expression
 end
 
-function parser.parse_identifier_expression(self: Parser): Expression
-    local expression: Expression = {
+function parser.parse_identifier_expression(self: Parser): VariableExpression
+    local expression: VariableExpression = {
         expression_name = self:next().lexeme,
         type = "VariableExpression",
     }
@@ -258,30 +292,31 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
     end
     
     local parameters: { ParameterNode } = {}
+    local return_native_type: NativeExpressionType?
 
     if self:peekable().type ~= 'RightParen' then
-        local tuple = self:parse_tuple_expression()
-        for i=1, #tuple do
-            parameters[i] = {
-                expression = tuple[i],
-                type = 'ParameterNode',
-            }
-        end
+        parameters = self:parse_parameter_nodes()
     end
 
     if self:peekable() and self:next().type ~= 'RightParen' then
         error('not closed function paren: ' .. self:peekable().lexeme)
     end
     
+    if self:peekable() and self:peekable().type == 'Colon' then
+        self:next()
+        return_native_type = self:parse_native_expression_type()
+    end
+
     if self:peekable() and self:next().type ~= 'LeftBrace' then
         error('not used function brace: ' .. self:peekable().lexeme)
     end
 
     local ast_nodes = self:parse_ast_node()
-    local function_node: FunctionExpression = {
+    local function_expression: FunctionExpression = {
         parameters = parameters,
         body = ast_nodes.body,
         return_expression = ast_nodes.return_expression,
+        return_native_type = return_native_type,
         type = 'FunctionExpression',
     }
     
@@ -289,7 +324,7 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
         error('is not closed function: ' .. self:peekable().lexeme)
     end
 
-    return function_node
+    return function_expression
 end
 
 function parser.parse_struct_expression(self: Parser): StructExpression
@@ -531,27 +566,44 @@ function parser.parse_function_node(self: Parser): FunctionNode
     if self:next().type ~= 'Function' then
         error('is not function: ' .. self:peekable().lexeme)
     end
-    
-    local identifier_expression = self:parse_expression()
 
-    if identifier_expression.type ~= 'FunctionCallExpression' then
-        error('this not function call expression')
+    local identifier_expression: VariableExpression = self:parse_identifier_expression()
+
+    if self:next().type ~= 'LeftParen' then
+        error('function not use left paren')
+    end
+    
+    local parameters: { ParameterNode } = {}
+    local return_native_type: NativeExpressionType?
+
+    if self:peekable().type ~= 'RightParen' then
+        parameters = self:parse_parameter_nodes()
     end
 
-    if self:next().type ~= 'LeftBrace' then
-        error('function not use left paren')
+    if self:peekable() and self:next().type ~= 'RightParen' then
+        error('not closed function paren: ' .. self:peekable().lexeme)
+    end
+    
+    if self:peekable() and self:peekable().type == 'Colon' then
+        self:next()
+        return_native_type = self:parse_native_expression_type()
+    end
+
+    if self:peekable() and self:next().type ~= 'LeftBrace' then
+        error('not used function brace: ' .. self:peekable().lexeme)
     end
 
     local ast_nodes = self:parse_ast_node()
     local function_node: FunctionNode = {
-        identifier_expression = identifier_expression.expression,
-        parameters = identifier_expression.args,
+        identifier_expression = identifier_expression,
+        parameters = parameters,
         body = ast_nodes.body,
         return_expression = ast_nodes.return_expression,
+        return_native_type = return_native_type,
         type = 'FunctionNode',
     }
     
-    if self:next().type ~= 'RightBrace' then
+    if self:peekable() and self:next().type ~= 'RightBrace' then
         error('is not closed function: ' .. self:peekable().lexeme)
     end
 

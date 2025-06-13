@@ -137,6 +137,7 @@ export type LiteralExpression = {
 
 export type ParameterNode = {
     expression: Expression,
+    native_expression_type: NativeExpressionType?,
     type: "ParameterNode",
 }
 
@@ -177,6 +178,7 @@ export type ArrayExpression = {
 export type FunctionExpression = {
     parameters: { ParameterNode },
     return_expression: { Expression },
+    return_native_type: NativeExpressionType?,
     body: { AstNode },
     type: "FunctionExpression",
 }
@@ -244,9 +246,10 @@ export type VariableNode = {
 }
 
 export type FunctionNode = {
-    identifier_expression: Expression,
+    identifier_expression: VariableExpression,
     parameters: { ParameterNode },
     return_expression: { Expression },
+    return_native_type: NativeExpressionType?,
     body: { AstNode },
     type: "FunctionNode",
 }
