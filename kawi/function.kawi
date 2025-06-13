@@ -2,7 +2,7 @@ const a = function() {
 
 }
 
-const b = function() {
+var b = function() {
 
 }
 

@@ -1,65 +1,6 @@
-export type TokenType = 
-    | "Identifier"
+local ast = require('./ast')
 
-    | "Number"
-    | "String"
-    | "Function"
-    | "Boolean"
-    | "Nil"
-
-    | "Array"
-    | "Object"
-
-    | "Var"
-    | "Const"
-    | "If"
-    | "Else"
-    | "While"
-    | "For"
-    | "Return"
-    
-    | "Add"
-    | "Sub"
-    | "Mul"
-    | "Div"
-
-    | "And"
-    | "Or"
-    | "Not"
-
-    | "Dot"
-    | "Comma"
-    | "SemiColon"
-    | "Colon"
-
-    | "Equal"
-    | "EqualTwo"
-    | "NotEqual"
-
-    | "Less"
-    | "LessEqual"
-    | "Greater"
-    | "GreaterEqual"
-
-    | "EqualAdd"
-    | "EqualSub"
-    | "EqualMul"
-    | "EqualDiv"
-
-    | "LeftParen"
-    | "RightParen"
-    | "LeftBrace"
-    | "RightBrace"
-    | "LeftBrack"
-    | "RightBrack"
-    
-    | "Eof"
-
-export type Token = {
-    type: TokenType,
-    lexeme: string,
-    line: number,
-}
+type Token = ast.LexerToken
 
 local lexer = {}
 lexer.__index = lexer
@@ -110,7 +51,7 @@ function lexer.new(source: string)
 end
 
 function lexer.is_end(self: Lexer)
-    local len = utf8.len(self.source)
+    local len = #self.source
     return self.current >= (len and len or 0)
 end
 

@@ -400,7 +400,7 @@ function parser.parse_function_node(self: Parser): FunctionNode
     
     local identifier_expression = self:parse_expression()
 
-    if identifier_expression.type ~='FunctionCallExpression' then
+    if identifier_expression.type ~= 'FunctionCallExpression' then
         error('this not function call expression')
     end
 
@@ -430,8 +430,12 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
     while true do
         local token = self:peekable()
-        
+
         if not token then
+            break
+        end
+        
+        if token.type == 'Eof' or token.type == 'RightBrace' then
             break
         end
 
@@ -459,11 +463,11 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
         if token.type == 'Return' then
             self:next()
-            return_expression = self:parse_tuple_expression()
-            break
-        end
 
-        if token.type == 'Eof' or token.type == 'RightBrace' then
+            if not (self:peekable().type == 'Eof' or self:peekable().type == 'RightBrace') then
+                return_expression = self:parse_tuple_expression()
+            end
+            
             break
         end
     end
