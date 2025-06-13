@@ -25,7 +25,7 @@ export type FunctionLexerToken = { lexeme: string, line: number, type: "Function
 export type BooleanLexerToken = { lexeme: string, line: number, type: "Boolean" }
 export type NilLexerToken = { lexeme: string, line: number, type: "Nil" }
 export type ArrayLexerToken = { lexeme: string, line: number, type: "Array" }
-export type ObjectLexerToken = { lexeme: string, line: number, type: "Object" }
+export type StructLexerToken = { lexeme: string, line: number, type: "Struct" }
 export type VarLexerToken = { lexeme: string, line: number, type: "Var" }
 export type ConstLexerToken = { lexeme: string, line: number, type: "Const" }
 export type IfLexerToken = { lexeme: string, line: number, type: "If" }
@@ -71,7 +71,7 @@ export type LexerToken =
     | BooleanLexerToken
     | NilLexerToken
     | ArrayLexerToken
-    | ObjectLexerToken
+    | StructLexerToken
     | VarLexerToken
     | ConstLexerToken
     | IfLexerToken
@@ -272,5 +272,4 @@ function ast.nil_expression(): LiteralExpression
     }
 end
 
---// TODO: struct, impl
 return ast

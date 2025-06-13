@@ -52,7 +52,7 @@ end
 
 function lexer.is_end(self: Lexer)
     local len = #self.source
-    return self.current >= (len and len or 0)
+    return self.current >= len
 end
 
 function lexer.advance(self: Lexer)
@@ -150,7 +150,7 @@ function lexer.next_token(self: Lexer): Token
     if self:is_end() then
         return {
             type = "Eof",
-            lexeme = '',
+            lexeme = 'eof',
             line = self.line,
         }
     end
@@ -422,6 +422,14 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "Function",
                 lexeme = 'function',
+                line = self.line,
+            }
+        end
+
+        if identifier == "struct" then
+            return {
+                type = "Struct",
+                lexeme = 'struct',
                 line = self.line,
             }
         end
