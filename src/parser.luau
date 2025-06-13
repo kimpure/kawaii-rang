@@ -1,8 +1,6 @@
 local ast = require('./ast')
-local lexer = require('./lexer')
 
-export type Token = lexer.Token
-export type TokenType = lexer.TokenType
+export type LexerToken = ast.LexerToken
 
 export type Expression = ast.Expression
 export type LiteralExpression = ast.LiteralExpression
@@ -19,17 +17,12 @@ export type ParameterNode = ast.ParameterNode
 export type VariableNode = ast.VariableNode
 export type FunctionNode = ast.FunctionNode
 
-export type Operator = ast.Operator
-export type OperatorTokens = ast.OperatorTokens
-export type DataTypeTokens = ast.DataTypeTokens
-export type DataTypeLexerTokens = ast.DataTypeLexerTokens
-
 local parser = {}
 parser.__index = parser
 
 export type Parser = typeof(setmetatable({}, parser))
 
-function parser.new(tokens: { Token }): Parser
+function parser.new(tokens: { LexerToken }): Parser
     return setmetatable({
         tokens = tokens,
         
@@ -37,22 +30,14 @@ function parser.new(tokens: { Token }): Parser
     }, parser)
 end
 
-function parser.peekable(self: any, ind: number?): Token
+function parser.peekable(self: any, ind: number?): LexerToken
     return self.tokens[self._index + (ind or 0)]
 end
 
-function parser.next(self: any): Token
+function parser.next(self: any): LexerToken
     local c = self.tokens[self._index]
     self._index += 1
     return c
-end
-
-function parser.unsafe_peekable(self: Parser, ind: number?): any
-    return parser.peekable(self, ind)
-end
-
-function parser.unsafe_next(self: Parser): any
-    return parser.next(self)
 end
 
 function parser.is_data_type(self: Parser)
@@ -64,7 +49,7 @@ function parser.is_data_type(self: Parser)
         data_type == 'Nil'
 end
 
-function parser.is_operator_token(self: Parser, token: Token?)
+function parser.is_operator_token(self: Parser, token: LexerToken?)
     local operator_type = token and token.type or self:peekable().type
     return operator_type == 'Add' or 
         operator_type == 'Sub' or 
@@ -163,7 +148,23 @@ function parser.parse_expression_binary(self: Parser, left_expression: Expressio
     end
 
     
-    local operator: OperatorTokens = self:unsafe_next()
+    local operator = self:next()
+
+    if not (operator.type == 'Add' or 
+        operator.type == 'Sub' or 
+        operator.type == 'Mul' or 
+        operator.type == 'Div' or 
+        operator.type == 'GreaterEqual' or 
+        operator.type == 'LessEqual' or 
+        operator.type == 'Greater' or 
+        operator.type == 'Less' or 
+        operator.type == 'NotEqual' or 
+        operator.type == 'EqualTwo' or 
+        operator.type == 'And' or 
+        operator.type == 'Or' ) then
+        
+        error('do not match operator: ' .. operator.lexeme)
+    end
 
     local right_expressions = self:parse_expression()
     local binary_expression: BinaryExpression = {
@@ -217,10 +218,15 @@ end
 
 function parser.parse_literal_expressions(self: Parser): LiteralExpression
     if self:is_data_type() then
-        local data_type: DataTypeLexerTokens = self:unsafe_next()
+        local lexer_token = self:next()
+
+        if not (lexer_token.type == "String" or lexer_token.type == "Number" or lexer_token.type == "Boolean" or lexer_token.type == "Nil") then
+            error('do not match data type: ' .. lexer_token.lexeme)
+        end
+
         return {
-            data_type = data_type.type,
-            lexeme = data_type.lexeme,
+            data_type = lexer_token.type,
+            lexeme = lexer_token.lexeme,
             type = 'LiteralExpression',
         }
     end
@@ -477,7 +483,7 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
     return {
         body = body,
-        return_expression = return_expression or ast.nil_expression()
+        return_expression = return_expression or { ast.nil_expression() }
     }
 end
 
