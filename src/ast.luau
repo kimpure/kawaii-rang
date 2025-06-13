@@ -81,7 +81,7 @@ export type ArrayExpression = {
 
 export type FunctionExpression = {
     parameters: { ParameterNode },
-    return_expression: Expression,
+    return_expression: { Expression },
     body: { AstNode },
     type: "FunctionExpression",
 }
@@ -136,7 +136,7 @@ export type VariableNode = {
 export type FunctionNode = {
     identifier_expression: Expression,
     parameters: { ParameterNode },
-    return_expression: Expression,
+    return_expression: { Expression },
     body: { AstNode },
     type: "FunctionNode",
 }
@@ -176,5 +176,5 @@ function ast.nil_expression(): LiteralExpression
         type = "LiteralExpression",
     }
 end
-
+--// TODO: struct, impl
 return ast

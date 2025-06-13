@@ -431,9 +431,9 @@ function parser.parse_function_node(self: Parser): FunctionNode
     return function_node
 end
 
-function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expression: Expression }
+function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expression: { Expression } }
     local body: { AstNode } = {}
-    local return_expression: Expression
+    local return_expression: { Expression }
 
     while true do
         local token = self:peekable()
@@ -466,7 +466,7 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
         if token.type == 'Return' then
             self:next()
-            return_expression = self:parse_expression()
+            return_expression = self:parse_tuple_expression()
             break
         end
 
