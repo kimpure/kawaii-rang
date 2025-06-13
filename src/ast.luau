@@ -228,10 +228,18 @@ export type Statement = {
     Expression: Expression,
 }
 
+export type NativeExpressionType = 
+    | StructExpression 
+    | VariableExpression 
+    | FunctionExpression
+    | LiteralExpression
+    | ArrayExpression
+
 export type VariableNode = {
     identifier_expression: VariableExpression,
     initial_value: Expression,
     is_const: boolean?,
+    native_expression_type: NativeExpressionType?,
     type: "VariableNode",
 }
 
@@ -283,6 +291,30 @@ function ast.nil_expression(): LiteralExpression
     return {
         data_type = 'Nil',
         lexeme = "nil",
+        type = "LiteralExpression",
+    }
+end
+
+function ast.number_expression(): LiteralExpression
+    return {
+        data_type = 'Number',
+        lexeme = "0",
+        type = "LiteralExpression",
+    }
+end
+
+function ast.string_expression(): LiteralExpression
+    return {
+        data_type = 'String',
+        lexeme = "",
+        type = "LiteralExpression",
+    }
+end
+
+function ast.boolean_expression(): LiteralExpression
+    return {
+        data_type = 'Boolean',
+        lexeme = "true",
         type = "LiteralExpression",
     }
 end

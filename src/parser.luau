@@ -1,6 +1,7 @@
 local ast = require('./ast')
 
 export type LexerToken = ast.LexerToken
+export type NativeExpressionType = ast.NativeExpressionType
 
 export type Expression = ast.Expression
 export type LiteralExpression = ast.LiteralExpression
@@ -413,6 +414,47 @@ function parser.parse_expression(self: Parser): Expression
     return expression
 end
 
+function parser.parse_native_expression_type(self: Parser, expression: Expression?): NativeExpressionType
+    local use_next = expression
+    local expression = expression or self:parse_expression()
+
+    if expression.type == 'FunctionCallExpression' or expression.type == 'IndexAccessExpression' or expression.type == 'BinaryExpression' then
+        error('this is not type expression: ' .. expression.type)
+    end
+
+    if expression.type == 'GroupedExpression' then
+        expression = self:parse_native_expression_type(expression.expression)
+    end
+
+    if expression.type == 'GroupedExpression' then
+        error('this is not type expression: ' .. expression.type)
+    end
+
+    if expression.type == 'ArrayExpression' then
+        for i=1, #expression.args do
+            expression.args[i] = self:parse_native_expression_type(expression.args[i])
+        end
+    end
+
+    if expression.type == 'VariableExpression' then
+        if expression.expression_name == 'number' then
+            expression = ast.number_expression()
+        elseif expression.expression_name == 'string' then
+            expression = ast.string_expression()
+        elseif expression.expression_name == 'boolean' then
+            expression = ast.boolean_expression()
+        elseif expression.expression_name == 'nil' then
+            expression = ast.nil_expression()
+        end
+    end
+
+    if use_next then
+        self:next()
+    end
+
+    return expression
+end
+
 function parser.parse_variable_node(self: Parser): { VariableNode }
     if self:next().type ~= 'Var' then
         error('is not var: ' .. self:peekable().lexeme)
@@ -434,7 +476,12 @@ function parser.parse_variable_node(self: Parser): { VariableNode }
             type = 'VariableNode',
         }
 
-        if self:peekable().type == 'Equal' then
+        if self:peekable().type == 'Colon' then
+            self:next()
+            variable_node.native_expression_type = self:parse_native_expression_type()
+        end
+
+        if self:peekable() and self:peekable().type == 'Equal' then
             self:next()
         
             variable_node.initial_value = self:parse_expression()
