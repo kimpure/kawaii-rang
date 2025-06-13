@@ -1,5 +1,5 @@
 var number = 10
-var string = "hello"
+var string = "으엥"
 var boolean = true
 var null = nil
 var fn = function() {}

@@ -287,11 +287,11 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
         end
     end
 
-    if self:next().type ~= 'RightParen' then
+    if self:peekable() and self:next().type ~= 'RightParen' then
         error('not closed function paren: ' .. self:peekable().lexeme)
     end
-
-    if self:next().type ~= 'LeftBrace' then
+    
+    if self:peekable() and self:next().type ~= 'LeftBrace' then
         error('not used function brace: ' .. self:peekable().lexeme)
     end
 
@@ -303,7 +303,7 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
         type = 'FunctionExpression',
     }
     
-    if self:next().type ~= 'RightBrace' then
+    if self:peekable() and self:next().type ~= 'RightBrace' then
         error('is not closed function: ' .. self:peekable().lexeme)
     end
 
@@ -316,28 +316,20 @@ function parser.parse_expression(self: Parser): Expression
 
     if self:is_data_type() then
         expression = self:parse_literal_expressions()
-    end
-
-    if token.type == 'LeftParen' then
+    elseif token.type == 'LeftParen' then
         expression = self:parse_grouped_expression()
-    end
-
-    if token.type == 'LeftBrace' then
-        expression = self:parse_array_expression()
-    end
-
-    if token.type == 'Identifier' then
+    elseif token.type == 'LeftBrace' then
+            expression = self:parse_array_expression()
+    elseif token.type == 'Identifier' then
         expression = self:parse_identifier_expression()
-    end
-
-    if token.type == 'Function' then
+    elseif token.type == 'Function' then
         expression = self:parse_function_expression()
-    end
-
-    if self:is_operator_token() then
+    elseif self:is_operator_token() then
         expression = self:parse_expression_binary(expression)
+    else
+        error('any parser error (parse expression)')
     end
-
+    
     return expression
 end
 
@@ -445,6 +437,10 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
     while true do
         local token = self:peekable()
+        
+        if not token then
+            break
+        end
 
         if token.type == 'Var' then
             local variable_nodes = self:parse_variable_node()
