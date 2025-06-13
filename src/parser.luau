@@ -187,21 +187,7 @@ function parser.parse_identifier_expression(self: Parser): Expression
         expression_name = self:next().lexeme,
         type = "VariableExpression",
     }
-
-    while true do
-        if self:peekable().type == 'LeftBrack' then
-            expression = self:parse_expression_index_access(expression)
-            continue
-        end
-
-        if self:peekable().type == 'LeftParen' then
-            expression = self:parse_expression_function_call(expression)
-            continue
-        end
-
-        break
-    end
-
+    
     return expression
 end
 
@@ -364,19 +350,60 @@ end
 function parser.parse_expression(self: Parser): Expression
     local token = self:peekable()
     local expression: Expression
-
+    
     if self:is_data_type() then
         expression = self:parse_literal_expressions()
     elseif self:is_operator_token() then
         expression = self:parse_expression_binary(expression)
     elseif token.type == 'LeftParen' then
         expression = self:parse_grouped_expression()
+
+        while true do
+            if self:peekable().type == 'LeftBrack' then
+                expression = self:parse_expression_index_access(expression)
+                continue
+            end
+
+            if self:peekable().type == 'LeftParen' then
+                expression = self:parse_expression_function_call(expression)
+                continue
+            end
+
+            break
+        end
     elseif token.type == 'LeftBrace' then
         expression = self:parse_array_expression()
     elseif token.type == 'Identifier' then
         expression = self:parse_identifier_expression()
+
+        while true do
+            if self:peekable().type == 'LeftBrack' then
+                expression = self:parse_expression_index_access(expression)
+                continue
+            end
+
+            if self:peekable().type == 'LeftParen' then
+                expression = self:parse_expression_function_call(expression)
+                continue
+            end
+
+            break
+        end
     elseif token.type == 'Function' then
         expression = self:parse_function_expression()
+
+        while true do
+            if self:peekable().type == 'LeftBrack' then
+                expression = self:parse_expression_index_access(expression)
+                continue
+            end
+
+            if self:peekable().type == 'LeftParen' then
+                expression = self:parse_expression_function_call(expression)
+                continue
+            end
+        break
+    end
     elseif token.type == 'Struct' then
         expression = self:parse_struct_expression()
     else
@@ -544,7 +571,7 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
     while true do
         local token = self:peekable()
-
+        
         if not token then
             break
         end
@@ -590,6 +617,8 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
             
             break
         end
+
+        error('parser ast any error: ' .. self:peekable().lexeme)
     end
 
     return {
