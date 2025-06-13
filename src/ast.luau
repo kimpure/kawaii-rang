@@ -137,7 +137,7 @@ export type LiteralExpression = {
 
 export type ParameterNode = {
     expression: Expression,
-    native_expression_type: NativeExpressionType?,
+    native_expression_type: NativeType?,
     type: "ParameterNode",
 }
 
@@ -178,7 +178,7 @@ export type ArrayExpression = {
 export type FunctionExpression = {
     parameters: { ParameterNode },
     return_expression: { Expression },
-    return_native_type: NativeExpressionType?,
+    return_native_type: NativeType?,
     body: { AstNode },
     type: "FunctionExpression",
 }
@@ -230,18 +230,49 @@ export type Statement = {
     Expression: Expression,
 }
 
-export type NativeExpressionType = 
-    | StructExpression 
-    | VariableExpression 
-    | FunctionExpression
-    | LiteralExpression
-    | ArrayExpression
+export type NumberNativeType = {
+    type: "NumberNativeType",
+}
+
+export type StringNativeType = {
+    type: "StringNativeType",
+}
+
+export type BooleanNativeType = {
+    type: "BooleanNativeType",
+}
+
+export type NilNativeType = {
+    type: "NilNativeType",
+}
+
+export type DataNativeType = 
+    | NumberNativeType
+    | StringNativeType
+    | BooleanNativeType
+    | NilNativeType
+
+export type FunctionNativeType = {
+    return_type: DataNativeType,
+    parameters: { DataNativeType },
+    type: "FunctionNativeType"
+}
+
+export type ArrayNativeType = { 
+    [number]: NativeType,
+    type: "ArrayNativeType",
+}
+
+export type NativeType =
+    | DataNativeType
+    | FunctionNativeType
+    | ArrayNativeType
 
 export type VariableNode = {
     identifier_expression: VariableExpression,
     initial_value: Expression,
     is_const: boolean?,
-    native_expression_type: NativeExpressionType?,
+    native_expression_type: NativeType?,
     type: "VariableNode",
 }
 
@@ -249,7 +280,7 @@ export type FunctionNode = {
     identifier_expression: VariableExpression,
     parameters: { ParameterNode },
     return_expression: { Expression },
-    return_native_type: NativeExpressionType?,
+    return_native_type: NativeType?,
     body: { AstNode },
     type: "FunctionNode",
 }

@@ -1,7 +1,6 @@
 local ast = require('./ast')
 
 export type LexerToken = ast.LexerToken
-export type NativeExpressionType = ast.NativeExpressionType
 
 export type Expression = ast.Expression
 export type LiteralExpression = ast.LiteralExpression
@@ -19,6 +18,8 @@ export type ParameterNode = ast.ParameterNode
 export type VariableNode = ast.VariableNode
 export type FunctionNode = ast.FunctionNode
 export type StructNode = ast.StructNode
+
+export type NativeType = ast.NativeType
 
 local parser = {}
 parser.__index = parser
@@ -94,7 +95,7 @@ function parser.parse_parameter_nodes(self: Parser): { ParameterNode }
     
     while true do
         local expression = self:parse_expression()
-        local native_expression_type: NativeExpressionType?
+        local native_expression_type: NativeType
 
         if expression.type ~= 'VariableExpression' then
             error('parameter node is not variable: ', expression.type)
@@ -136,6 +137,8 @@ function parser.parse_expression_function_call(self: Parser, target_expression: 
     
     if self:peekable().type ~= 'RightParen' then
         local tuple_expressions = self:parse_tuple_expression()
+
+
         local parameters: { ParameterNode } = {}
         
         for i=1, #tuple_expressions do
@@ -292,7 +295,7 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
     end
     
     local parameters: { ParameterNode } = {}
-    local return_native_type: NativeExpressionType?
+    local return_native_type: NativeType?
 
     if self:peekable().type ~= 'RightParen' then
         parameters = self:parse_parameter_nodes()
@@ -449,16 +452,16 @@ function parser.parse_expression(self: Parser): Expression
     return expression
 end
 
-function parser.parse_native_expression_type(self: Parser, expression: Expression?): NativeExpressionType
-    local use_next = expression
+function parser.parse_native_expression_type(self: Parser, expression: Expression?): NativeType
     local expression = expression or self:parse_expression()
+    local native_type: NativeType
 
-    if expression.type == 'FunctionCallExpression' or expression.type == 'IndexAccessExpression' or expression.type == 'BinaryExpression' then
+    if expression.type == 'IndexAccessExpression' or expression.type == 'BinaryExpression' then
         error('this is not type expression: ' .. expression.type)
     end
 
     if expression.type == 'GroupedExpression' then
-        expression = self:parse_native_expression_type(expression.expression)
+        native_type = self:parse_native_expression_type(expression.expression) 
     end
 
     if expression.type == 'GroupedExpression' then
@@ -466,35 +469,62 @@ function parser.parse_native_expression_type(self: Parser, expression: Expressio
     end
 
     if expression.type == 'ArrayExpression' then
+        native_type = {
+            type = "ArrayNativeType",
+        }
         for i=1, #expression.args do
-            expression.args[i] = self:parse_native_expression_type(expression.args[i])
+            native_type[i] = self:parse_native_expression_type(expression.args[i])
         end
+    end
+
+    if expression.type == 'FunctionCallExpression' then
+        if expression.expression.type ~= 'VariableExpression' then
+            error('this is not type expression: ' .. expression.expression.type)
+        end
+
+        if expression.expression.expression_name ~= 'fn' then
+            error('this is not type expression: ' .. expression.expression.expression_name)
+        end
+
+        local parameters = {}
+
+        for i=1, #expression.args do
+
+        end
+
+        native_type = {
+            type = "NumberNativeType",
+        }
     end
 
     if expression.type == 'VariableExpression' then
         if expression.expression_name == 'number' then
-            expression = ast.number_expression()
+            native_type = {
+                type = "NumberNativeType",
+            }
         elseif expression.expression_name == 'string' then
-            expression = ast.string_expression()
+            native_type = {
+                type = "StringNativeType",
+            }
         elseif expression.expression_name == 'boolean' then
-            expression = ast.boolean_expression()
+            native_type = {
+                type = "BooleanNativeType",
+            }
         elseif expression.expression_name == 'nil' then
-            expression = ast.nil_expression()
+            native_type = {
+                type = "NilNativeType",
+            }
         end
     end
 
-    if use_next then
-        self:next()
-    end
-
-    return expression
+    return native_type
 end
 
 function parser.parse_variable_node(self: Parser): { VariableNode }
     if self:next().type ~= 'Var' then
         error('is not var: ' .. self:peekable().lexeme)
     end
-
+    
     local identifiers = self:parse_tuple_expression()
     local variable_nodes: { VariableNode } = {}
 
@@ -574,7 +604,7 @@ function parser.parse_function_node(self: Parser): FunctionNode
     end
     
     local parameters: { ParameterNode } = {}
-    local return_native_type: NativeExpressionType?
+    local return_native_type: NativeType?
 
     if self:peekable().type ~= 'RightParen' then
         parameters = self:parse_parameter_nodes()
@@ -681,9 +711,11 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
 
         if token.type == 'Var' then
             local variable_nodes = self:parse_variable_node()
+
             for i=1, #variable_nodes do
                 body[#body + 1] = variable_nodes[i]
             end
+
             continue
         end
         
