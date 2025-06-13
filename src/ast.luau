@@ -181,6 +181,12 @@ export type FunctionExpression = {
     type: "FunctionExpression",
 }
 
+export type StructExpression = {
+    parameters: { ParameterNode },
+    body: { [string]: Expression },
+    type: "StructExpression",
+}
+
 export type Expression = 
     | LiteralExpression
     | ArrayExpression
@@ -190,6 +196,7 @@ export type Expression =
     | IndexAccessExpression
     | GroupedExpression
     | FunctionExpression
+    | StructExpression
 
 export type Statement = {
     Print: {
@@ -236,11 +243,19 @@ export type FunctionNode = {
     type: "FunctionNode",
 }
 
+export type StructNode = {
+    identifier_expression: Expression,
+    parameters: { ParameterNode },
+    body: { [string]: Expression },
+    type: "StructNode",
+}
+
 export type AstNode = 
     | Statement
     | Expression
     | FunctionNode
     | VariableNode
+    | StructNode
 
 local ast = {}
 

@@ -11,11 +11,13 @@ export type GroupedExpression = ast.GroupedExpression
 export type VariableExpression = ast.VariableExpression
 export type ArrayExpression = ast.ArrayExpression
 export type FunctionExpression = ast.FunctionExpression
+export type StructExpression = ast.StructExpression
 
 export type AstNode = ast.AstNode
 export type ParameterNode = ast.ParameterNode
 export type VariableNode = ast.VariableNode
 export type FunctionNode = ast.FunctionNode
+export type StructNode = ast.StructNode
 
 local parser = {}
 parser.__index = parser
@@ -303,22 +305,80 @@ function parser.parse_function_expression(self: Parser): FunctionExpression
     return function_node
 end
 
+function parser.parse_struct_expression(self: Parser): StructExpression
+    if self:next().type ~= 'Struct' then
+        error('is not struct: ' .. self:peekable().lexeme)
+    end
+    
+    local parameters: { ParameterNode } = {}
+    
+    if self:peekable().type == 'LeftParen' then
+        self:next()
+
+        if self:peekable().type ~= 'RightParen' then
+            local tuple = self:parse_tuple_expression()
+            for i=1, #tuple do
+                parameters[i] = {
+                    expression = tuple[i],
+                    type = 'ParameterNode',
+                }
+            end
+
+            if self:next().type ~= 'RightParen' then
+                error('not closed struct paren')
+            end
+        else
+            self:next()
+        end
+    end
+
+    if self:next().type ~= 'LeftBrace' then
+        error('function not use left paren')
+    end
+
+    local struct_node: StructExpression = {
+        parameters = parameters,
+        body = {},
+        type = 'StructExpression',
+    }
+    
+    while self:peekable().type ~= 'RightBrace' do
+        local identifier = self:next()
+        
+        if identifier.type ~= 'Identifier' then
+            error('struct key is only identifier: ' .. identifier.lexeme)
+        end
+
+        if self:next().type ~= 'Colon' then
+            error('sruct type is use colon: ' .. self:peekable(-1).type)
+        end
+
+        struct_node.body[identifier.lexeme] = self:parse_expression()
+    end
+
+    self:next()
+
+    return struct_node
+end
+
 function parser.parse_expression(self: Parser): Expression
     local token = self:peekable()
     local expression: Expression
 
     if self:is_data_type() then
         expression = self:parse_literal_expressions()
+    elseif self:is_operator_token() then
+        expression = self:parse_expression_binary(expression)
     elseif token.type == 'LeftParen' then
         expression = self:parse_grouped_expression()
     elseif token.type == 'LeftBrace' then
-            expression = self:parse_array_expression()
+        expression = self:parse_array_expression()
     elseif token.type == 'Identifier' then
         expression = self:parse_identifier_expression()
     elseif token.type == 'Function' then
         expression = self:parse_function_expression()
-    elseif self:is_operator_token() then
-        expression = self:parse_expression_binary(expression)
+    elseif token.type == 'Struct' then
+        expression = self:parse_struct_expression()
     else
         error('any parser error (parse expression)')
     end
@@ -361,11 +421,11 @@ end
 
 function parser.parse_const_node(self: Parser): { VariableNode }
     if self:next().type ~= 'Const' then
-        error('is not var: ' .. self:peekable().lexeme)
+        error('is not const: ' .. self:peekable().lexeme)
     end
 
     local identifiers = self:parse_tuple_expression()
-    local const_nodes: { VariableNode } = {}
+    local variable_nodes: { VariableNode } = {}
 
     for i=1, #identifiers do
         local identifier: Expression = identifiers[i]
@@ -374,23 +434,23 @@ function parser.parse_const_node(self: Parser): { VariableNode }
             error('parser error: set variable of ' .. identifier.type)
         end
 
-        local const_node: VariableNode = {
+        local variable_node: VariableNode = {
             identifier_expression = identifier,
             initial_value = ast.nil_expression(),
-            type = 'VariableNode',
             is_const = true,
+            type = 'VariableNode',
         }
 
         if self:peekable().type == 'Equal' then
             self:next()
         
-            const_node.initial_value = self:parse_expression()
+            variable_node.initial_value = self:parse_expression()
         end
 
-        const_nodes[i] = const_node
+        variable_nodes[i] = variable_node
     end
 
-    return const_nodes
+    return variable_nodes
 end
 
 function parser.parse_function_node(self: Parser): FunctionNode
@@ -422,6 +482,60 @@ function parser.parse_function_node(self: Parser): FunctionNode
     end
 
     return function_node
+end
+
+function parser.parse_struct_node(self: Parser): StructNode
+    if self:next().type ~= 'Struct' then
+        error('is not struct: ' .. self:peekable().lexeme)
+    end
+    
+    local expression = self:parse_expression()
+    local parameters: { ParameterNode } = {}
+    local identifier_expression: VariableExpression
+    
+    if expression.type ~= 'VariableExpression' and expression.type ~= 'FunctionCallExpression' then
+        error('this not struct expression')
+    end
+
+    if expression.type == 'FunctionCallExpression' then
+        if expression.expression.type ~= 'VariableExpression' then
+            error('this not struct expression')
+        end
+
+        parameters = expression.args
+        identifier_expression = expression.expression
+    else
+        identifier_expression = expression
+    end
+
+    if self:next().type ~= 'LeftBrace' then
+        error('function not use left paren')
+    end
+
+    local struct_node: StructNode = {
+        identifier_expression = identifier_expression,
+        parameters = parameters,
+        body = {},
+        type = 'StructNode',
+    }
+    
+    while self:peekable().type ~= 'RightBrace' do
+        local identifier = self:next()
+        
+        if identifier.type ~= 'Identifier' then
+            error('struct key is only identifier: ' .. identifier.lexeme)
+        end
+
+        if self:next().type ~= 'Colon' then
+            error('sruct type is use colon: ' .. self:peekable(-1).type)
+        end
+
+        struct_node.body[identifier.lexeme] = self:parse_expression()
+    end
+
+    self:next()
+
+    return struct_node
 end
 
 function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expression: { Expression } }
@@ -458,6 +572,12 @@ function parser.parse_ast_node(self: Parser): { body: { AstNode }, return_expres
         if token.type == 'Function' then
             local function_node = self:parse_function_node()
             body[#body + 1] = function_node
+            continue
+        end
+
+        if token.type == 'Struct' then
+            local struct_node = self:parse_struct_node()
+            body[#body + 1] = struct_node
             continue
         end
 

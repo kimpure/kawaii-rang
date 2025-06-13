@@ -1,0 +1,15 @@
+struct a {
+    w: a
+}
+
+var b = struct {
+
+}
+
+const c = struct(a) {
+    a: a
+}
+
+struct d(b) {
+    b: b
+} 
