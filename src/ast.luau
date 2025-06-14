@@ -61,6 +61,7 @@ export type LeftBraceLexerToken = { lexeme: string, line: number, type: "LeftBra
 export type RightBraceLexerToken = { lexeme: string, line: number, type: "RightBrace" }
 export type LeftBrackLexerToken = { lexeme: string, line: number, type: "LeftBrack" }
 export type RightBrackLexerToken = { lexeme: string, line: number, type: "RightBrack" }
+export type TypeArrowLexerToken = { lexeme: string, line: number, type: "TypeArrow" }
 export type EofLexerToken = { lexeme: string, line: number, type: "Eof" }
 
 export type LexerToken =
@@ -107,6 +108,7 @@ export type LexerToken =
     | RightBraceLexerToken
     | LeftBrackLexerToken
     | RightBrackLexerToken
+    | TypeArrowLexerToken
     | EofLexerToken
 
 export type DataTypeLexerToken = 

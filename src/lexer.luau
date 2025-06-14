@@ -343,6 +343,16 @@ function lexer.next_token(self: Lexer): Token
         end
     end
 
+    if char == '-' then
+        if self:match_next">" then
+            return {
+                type = "TypeArrow",
+                lexeme = "->",
+                line = self.line,
+            }
+        end
+    end
+
     if char == ',' then
         return {
             type = "Comma",

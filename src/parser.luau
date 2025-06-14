@@ -252,6 +252,15 @@ function parser.parse_grouped_expression(self: Parser): GroupedExpression
         error('is not grouped: ' .. self:peekable().lexeme)
     end
 
+    if self:peekable().type == 'RightParen' then
+        local nil_expression = ast.nil_expression()
+        nil_expression.lexeme = '()'
+        return {
+            expression = nil_expression,
+            type = "GroupedExpression",        
+        }
+    end
+
     local expression = self:parse_expression()
 
     local grouped_expression: GroupedExpression = {
@@ -420,7 +429,6 @@ function parser.parse_expression(self: Parser): Expression
                 expression = self:parse_expression_index_access(expression)
                 continue
             end
-
             if self:peekable().type == 'LeftParen' then
                 expression = self:parse_expression_function_call(expression)
                 continue
@@ -461,7 +469,11 @@ function parser.parse_native_expression_type(self: Parser, expression: Expressio
     end
 
     if expression.type == 'GroupedExpression' then
-        native_type = self:parse_native_expression_type(expression.expression) 
+        if self:peekable().type == 'TypeArrow' then
+
+        else
+            native_type = self:parse_native_expression_type(expression.expression) 
+        end
     end
 
     if expression.type == 'GroupedExpression' then
@@ -477,25 +489,26 @@ function parser.parse_native_expression_type(self: Parser, expression: Expressio
         end
     end
 
-    if expression.type == 'FunctionCallExpression' then
-        if expression.expression.type ~= 'VariableExpression' then
-            error('this is not type expression: ' .. expression.expression.type)
-        end
+    -- if expression.type == 'FunctionCallExpression' then
+    --     if expression.expression.type ~= 'VariableExpression' then
+    --         error('this is not type expression: ' .. expression.expression.type)
+    --     end
 
-        if expression.expression.expression_name ~= 'fn' then
-            error('this is not type expression: ' .. expression.expression.expression_name)
-        end
+    --     if expression.expression.expression_name ~= 'fn' then
+    --         error('this is not type expression: ' .. expression.expression.expression_name)
+    --     end
 
-        local parameters = {}
+    --     local parameters = {}
 
-        for i=1, #expression.args do
+    --     for i=1, #expression.args do
 
-        end
+    --     end
 
-        native_type = {
-            type = "NumberNativeType",
-        }
-    end
+    --     native_type = {
+    --         type = "NumberNativeType",
+    --     }
+
+    -- end
 
     if expression.type == 'VariableExpression' then
         if expression.expression_name == 'number' then
