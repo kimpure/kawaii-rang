@@ -470,25 +470,6 @@ function parser.parse_native_expression_type(self: Parser, expression: Expressio
 
     if expression.type == 'GroupedExpression' then
         if self:peekable().type == 'TypeArrow' then
-
-        else
-            native_type = self:parse_native_expression_type(expression.expression) 
-        end
-    end
-
-    if expression.type == 'GroupedExpression' then
-        error('this is not type expression: ' .. expression.type)
-    end
-
-    if expression.type == 'ArrayExpression' then
-        native_type = {
-            type = "ArrayNativeType",
-        }
-        for i=1, #expression.args do
-            native_type[i] = self:parse_native_expression_type(expression.args[i])
-        end
-    end
-
     -- if expression.type == 'FunctionCallExpression' then
     --     if expression.expression.type ~= 'VariableExpression' then
     --         error('this is not type expression: ' .. expression.expression.type)
@@ -509,6 +490,23 @@ function parser.parse_native_expression_type(self: Parser, expression: Expressio
     --     }
 
     -- end
+        else
+            native_type = self:parse_native_expression_type(expression.expression) 
+        end
+    end
+
+    if expression.type == 'GroupedExpression' then
+        error('this is not type expression: ' .. expression.type)
+    end
+
+    if expression.type == 'ArrayExpression' then
+        native_type = {
+            type = "ArrayNativeType",
+        }
+        for i=1, #expression.args do
+            native_type[i] = self:parse_native_expression_type(expression.args[i])
+        end
+    end
 
     if expression.type == 'VariableExpression' then
         if expression.expression_name == 'number' then
