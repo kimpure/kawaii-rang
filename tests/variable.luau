@@ -1,5 +1,5 @@
-local lexer = require('../src/lexer')
-local parser = require('../src/parser')
+local lexer = require('../ast/lexer')
+local parser = require('../ast/parser')
 local fs = require('@lune/fs')
 
 local variable_source = fs.readFile('kawi/variable.kawi')

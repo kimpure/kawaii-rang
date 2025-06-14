@@ -27,7 +27,6 @@ export type NilLexerToken = { lexeme: string, line: number, type: "Nil" }
 export type ArrayLexerToken = { lexeme: string, line: number, type: "Array" }
 export type StructLexerToken = { lexeme: string, line: number, type: "Struct" }
 export type VarLexerToken = { lexeme: string, line: number, type: "Var" }
-export type ConstLexerToken = { lexeme: string, line: number, type: "Const" }
 export type IfLexerToken = { lexeme: string, line: number, type: "If" }
 export type ElseLexerToken = { lexeme: string, line: number, type: "Else" }
 export type WhileLexerToken = { lexeme: string, line: number, type: "While" }
@@ -41,6 +40,8 @@ export type AndLexerToken = { lexeme: string, line: number, type: "And" }
 export type OrLexerToken = { lexeme: string, line: number, type: "Or" }
 export type NotLexerToken = { lexeme: string, line: number, type: "Not" }
 export type DotLexerToken = { lexeme: string, line: number, type: "Dot" }
+export type DotTwoLexerToken = { lexeme: string, line: number, type: "DotTwo" }
+export type DotThreeLexerToken = { lexeme: string, line: number, type: "DotThree" }
 export type CommaLexerToken = { lexeme: string, line: number, type: "Comma" }
 export type SemiColonLexerToken = { lexeme: string, line: number, type: "SemiColon" }
 export type ColonLexerToken = { lexeme: string, line: number, type: "Colon" }
@@ -61,7 +62,7 @@ export type LeftBraceLexerToken = { lexeme: string, line: number, type: "LeftBra
 export type RightBraceLexerToken = { lexeme: string, line: number, type: "RightBrace" }
 export type LeftBrackLexerToken = { lexeme: string, line: number, type: "LeftBrack" }
 export type RightBrackLexerToken = { lexeme: string, line: number, type: "RightBrack" }
-export type TypeArrowLexerToken = { lexeme: string, line: number, type: "TypeArrow" }
+export type ArrowLexerToken = { lexeme: string, line: number, type: "Arrow" }
 export type EofLexerToken = { lexeme: string, line: number, type: "Eof" }
 
 export type LexerToken =
@@ -74,7 +75,6 @@ export type LexerToken =
     | ArrayLexerToken
     | StructLexerToken
     | VarLexerToken
-    | ConstLexerToken
     | IfLexerToken
     | ElseLexerToken
     | WhileLexerToken
@@ -88,6 +88,8 @@ export type LexerToken =
     | OrLexerToken
     | NotLexerToken
     | DotLexerToken
+    | DotTwoLexerToken
+    | DotThreeLexerToken
     | CommaLexerToken
     | SemiColonLexerToken
     | ColonLexerToken
@@ -108,7 +110,7 @@ export type LexerToken =
     | RightBraceLexerToken
     | LeftBrackLexerToken
     | RightBrackLexerToken
-    | TypeArrowLexerToken
+    | ArrowLexerToken
     | EofLexerToken
 
 export type DataTypeLexerToken = 
@@ -131,228 +133,4 @@ export type OperatorLexerToken =
     | AndLexerToken
     | OrLexerToken
 
-export type LiteralExpression = {
-    data_type: DataTypeTokens,
-    lexeme: string,
-    type: "LiteralExpression",
-}
-
-export type ParameterNode = {
-    expression: Expression,
-    native_expression_type: NativeType?,
-    type: "ParameterNode",
-}
-
-export type GroupedExpression = {
-    expression: Expression,
-    type: "GroupedExpression",
-}
-
-export type FunctionCallExpression = {
-    expression: Expression,
-    args: { ParameterNode },
-    type: "FunctionCallExpression",
-}
-
-export type VariableExpression = {
-    expression_name: string,
-    type: "VariableExpression",
-}
-
-export type BinaryExpression = {
-    left: Expression,
-    operator: Operator,
-    right: Expression,
-    type: "BinaryExpression"
-}
-
-export type IndexAccessExpression = {
-    target: Expression,
-    index: Expression,
-    type: "IndexAccessExpression",
-}
-
-export type ArrayExpression = { 
-    args: { Expression },
-    type: "ArrayExpression", 
-}
-
-export type FunctionExpression = {
-    parameters: { ParameterNode },
-    return_expression: { Expression },
-    return_native_type: NativeType?,
-    body: { AstNode },
-    type: "FunctionExpression",
-}
-
-export type StructExpression = {
-    parameters: { ParameterNode },
-    body: { [string]: Expression },
-    type: "StructExpression",
-}
-
-export type Expression = 
-    | LiteralExpression
-    | ArrayExpression
-    | FunctionCallExpression
-    | VariableExpression
-    | BinaryExpression
-    | IndexAccessExpression
-    | GroupedExpression
-    | FunctionExpression
-    | StructExpression
-
-export type Statement = {
-    Print: {
-        name: "print",
-        args: { Expression },
-    },
-    If: {
-        condition: Expression,
-        body: { AstNode },
-        else_if_blocks: { AstNode },
-        else_block: { AstNode },
-    },
-    For: {
-        initialization: Expression,
-        condition: Expression,
-        increment: Expression,
-        body: { AstNode },
-    },
-    While: {
-        condition: Expression,
-        body: { AstNode },
-    },
-
-    Break: string,
-    Continue: string,
-    Return: Expression,
-    
-    Variable: VariableNode,
-    Expression: Expression,
-}
-
-export type NumberNativeType = {
-    type: "NumberNativeType",
-}
-
-export type StringNativeType = {
-    type: "StringNativeType",
-}
-
-export type BooleanNativeType = {
-    type: "BooleanNativeType",
-}
-
-export type NilNativeType = {
-    type: "NilNativeType",
-}
-
-export type DataNativeType = 
-    | NumberNativeType
-    | StringNativeType
-    | BooleanNativeType
-    | NilNativeType
-
-export type FunctionNativeType = {
-    return_type: DataNativeType,
-    parameters: { DataNativeType },
-    type: "FunctionNativeType"
-}
-
-export type ArrayNativeType = { 
-    [number]: NativeType,
-    type: "ArrayNativeType",
-}
-
-export type NativeType =
-    | DataNativeType
-    | FunctionNativeType
-    | ArrayNativeType
-
-export type VariableNode = {
-    identifier_expression: VariableExpression,
-    initial_value: Expression,
-    is_const: boolean?,
-    native_expression_type: NativeType?,
-    type: "VariableNode",
-}
-
-export type FunctionNode = {
-    identifier_expression: VariableExpression,
-    parameters: { ParameterNode },
-    return_expression: { Expression },
-    return_native_type: NativeType?,
-    body: { AstNode },
-    type: "FunctionNode",
-}
-
-export type StructNode = {
-    identifier_expression: Expression,
-    parameters: { ParameterNode },
-    body: { [string]: Expression },
-    type: "StructNode",
-}
-
-export type AstNode = 
-    | Statement
-    | Expression
-    | FunctionNode
-    | VariableNode
-    | StructNode
-
-local ast = {}
-
-local operator_token: { [Operator]: number } = {
-    Add = 1,
-    Sub = 1,
-    
-    Mul = 2,
-    Div = 2,
-
-    GreaterEqual = 3,
-    LessEqual = 3,
-    Greater = 3,
-    Less = 3,
-    EqualTwo = 3,
-    NotEqual = 3,
-
-    And = 4,
-    Or = 4,
-}
-
-ast.operator_token = operator_token
-
-function ast.nil_expression(): LiteralExpression
-    return {
-        data_type = 'Nil',
-        lexeme = "nil",
-        type = "LiteralExpression",
-    }
-end
-
-function ast.number_expression(): LiteralExpression
-    return {
-        data_type = 'Number',
-        lexeme = "0",
-        type = "LiteralExpression",
-    }
-end
-
-function ast.string_expression(): LiteralExpression
-    return {
-        data_type = 'String',
-        lexeme = "",
-        type = "LiteralExpression",
-    }
-end
-
-function ast.boolean_expression(): LiteralExpression
-    return {
-        data_type = 'Boolean',
-        lexeme = "true",
-        type = "LiteralExpression",
-    }
-end
-
-return ast
+return {}

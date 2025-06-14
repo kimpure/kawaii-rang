@@ -12,4 +12,4 @@ const c = (struct(a) {
 
 struct d(b) {
     b: b
-} 
+}

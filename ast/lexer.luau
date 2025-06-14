@@ -1,6 +1,6 @@
 local ast = require('./ast')
 
-type Token = ast.LexerToken
+type LexerToken = ast.LexerToken
 
 local lexer = {}
 lexer.__index = lexer
@@ -144,7 +144,7 @@ function lexer.read_identifier(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
-function lexer.next_token(self: Lexer): Token
+function lexer.next_token(self: Lexer): LexerToken
     self:skip_space()
 
     if self:is_end() then
@@ -233,6 +233,30 @@ function lexer.next_token(self: Lexer): Token
         return {
             type = "Colon",
             lexeme = ":",
+            line = self.line,
+        }
+    end
+
+    if char == '.' then
+        if self:match_next '.' then
+            if self:match_next '.' then        
+                return {
+                    type = "DotThree",
+                    lexeme = ".",
+                    line = self.line,
+                }
+            end
+
+            return {
+                type = "DotTwo",
+                lexeme = ".",
+                line = self.line,
+            }
+        end
+
+        return {
+            type = "Dot",
+            lexeme = ".",
             line = self.line,
         }
     end
@@ -346,7 +370,7 @@ function lexer.next_token(self: Lexer): Token
     if char == '-' then
         if self:match_next">" then
             return {
-                type = "TypeArrow",
+                type = "Arrow",
                 lexeme = "->",
                 line = self.line,
             }
@@ -376,14 +400,6 @@ function lexer.next_token(self: Lexer): Token
             return {
                 type = "Var",
                 lexeme = 'var',
-                line = self.line,
-            }
-        end
-
-        if identifier == "const" then
-            return {
-                type = "Const",
-                lexeme = 'const',
                 line = self.line,
             }
         end

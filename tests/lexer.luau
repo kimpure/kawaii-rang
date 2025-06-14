@@ -1,4 +1,4 @@
-local lexer = require('../src/lexer')
+local lexer = require('../ast/lexer')
 
 local lex = lexer.new('"짜안"\n')
     
