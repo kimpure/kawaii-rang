@@ -17,3 +17,7 @@ class a(args: any) {
 }
 
 type a = string
+
+type t<T> = T
+
+type a: <T>()
