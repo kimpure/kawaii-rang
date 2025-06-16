@@ -1,0 +1,22 @@
+variable ::= NAME 
+    | prefixexpression '[' expression ']' 
+    | prefixexpression '.' NAME
+
+variablelist ::= variable { ',' variable }
+
+functioncall ::= prefixexpression functionargs
+    | prefixexpression '::' NAME functionargs
+
+prefixexpression ::= variable | functioncallexpression
+
+functionargs ::= '(' [expressionlist] ')'
+
+expressionlist ::= { expression ',' } expression
+
+varstatement ::= 'var' varlist [ '=' args ]
+refixexp | ifelseexp | stringinterp
+
+structargs ::= { NAME ':' Type ',' }  NAME ':' Type [ ',' ]  
+
+structstatement ::= 'struct' NAME '(' [expressionlist] ')' '{' { structargs } '}'
+implstatement ::= 'impl' structstatement '{' block '}'

@@ -1,13 +1,31 @@
-var number = 10
-var string = "으엥"
+var string = "string"
+var number = 1
 var boolean = true
+
+// error (can't set variable name with nil)
+var nil = nil
+
 var null = nil
+
+var object = {
+    arg = 1,
+}
+
+var array = { 1, 2, 3 }
+
+var mixtable = {
+    1,
+    2,
+    3,
+    arg = 1,
+}
+
+// error (can't set variable name with function)
+var function = function() {}
+
 var fn = function() {}
 
-var arr = { "1", 2 }
+// error (can't set variable name with class)
+var class = class() {}
 
-var a: { number }
-
-var b = a(w)
-
-var c: fn() -> ()
+var new_class = class() {}

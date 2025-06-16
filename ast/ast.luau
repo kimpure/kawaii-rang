@@ -25,7 +25,7 @@ export type FunctionLexerToken = { lexeme: string, line: number, type: "Function
 export type BooleanLexerToken = { lexeme: string, line: number, type: "Boolean" }
 export type NilLexerToken = { lexeme: string, line: number, type: "Nil" }
 export type ArrayLexerToken = { lexeme: string, line: number, type: "Array" }
-export type StructLexerToken = { lexeme: string, line: number, type: "Struct" }
+export type ClassLexerToken = { lexeme: string, line: number, type: "Class" }
 export type VarLexerToken = { lexeme: string, line: number, type: "Var" }
 export type IfLexerToken = { lexeme: string, line: number, type: "If" }
 export type ElseLexerToken = { lexeme: string, line: number, type: "Else" }
@@ -73,7 +73,7 @@ export type LexerToken =
     | BooleanLexerToken
     | NilLexerToken
     | ArrayLexerToken
-    | StructLexerToken
+    | ClassLexerToken
     | VarLexerToken
     | IfLexerToken
     | ElseLexerToken

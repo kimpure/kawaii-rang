@@ -452,10 +452,10 @@ function lexer.next_token(self: Lexer): LexerToken
             }
         end
 
-        if identifier == "struct" then
+        if identifier == "class" then
             return {
-                type = "Struct",
-                lexeme = 'struct',
+                type = "Class",
+                lexeme = 'class',
                 line = self.line,
             }
         end
