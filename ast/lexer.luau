@@ -484,6 +484,30 @@ function lexer.next_token(self: Lexer): LexerToken
             }
         end
 
+        if identifier == "extends" then
+            return {
+                type = "Extends",
+                lexeme = 'extends',
+                line = self.line,
+            }
+        end
+
+        if identifier == "type" then
+            return {
+                type = "Type",
+                lexeme = 'type',
+                line = self.line,
+            }
+        end
+
+        if identifier == "pub" then
+            return {
+                type = "Pub",
+                lexeme = 'pub',
+                line = self.line,
+            }
+        end
+
         return {
             type = "Identifier",
             lexeme = identifier,

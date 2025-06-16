@@ -1,0 +1,37 @@
+// 1
+var a = false or 1
+// 1
+var b = nil or 1
+
+// false
+var c = not true
+
+// 1
+var a = true and 1 or 0
+
+// 0
+var b = nil and 1 or 0
+
+// false
+var a = 1 > 2
+
+// true
+var b = 1 < 2
+
+// true
+var a = 1 >= 1
+
+// false
+var b = 3 <= 2
+
+// 3
+var a = 1 + 2
+
+// -1
+var b = 1 - 2
+
+// 2
+var c = 1 * 2
+
+// 0.5
+var d = 1 / 2

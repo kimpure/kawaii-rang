@@ -1,0 +1,38 @@
+class superclass(args={ 
+    apple = "apple" 
+}) {
+    self.apple = args.apple
+
+    function set_apple(self, value) {
+        self.apple = value
+    }
+
+    function get_apple(self) {
+        print(self.apple)
+        return self.apple
+    }
+}
+
+class newclass(args={ 
+    apple = "apple",
+    banana = "banana"
+}) {
+    self = superclass(args)
+
+    class debug(self) {
+        function debug(self) {
+            print(self::get_banana(), self::get_apple())
+        }
+    }
+
+    function set_banana(self, value) {
+        self.banana = value
+    }
+
+    function get_banana(self) {
+        print(self.banana)
+        return self.banana
+    }
+}
+
+var newclass = class() {}

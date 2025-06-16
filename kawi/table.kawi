@@ -1,0 +1,10 @@
+var table = {
+    "arr",
+    "object",
+    key = "value",
+
+    class = class() {},
+
+    class cl() {},
+    function fn() {}
+}

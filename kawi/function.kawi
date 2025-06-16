@@ -1,0 +1,20 @@
+function fn(args) {
+    print(args)
+}
+
+var fn = function(args) {
+    print(args, "in function variable")
+}
+
+function fn(args=0) {
+    print(args, "if args is nil then, args is 0")
+}
+
+function fn(a, b, ...) {
+    print(a, b)
+    return a, b, ...
+}
+
+function fn(...) {
+    return ...
+}

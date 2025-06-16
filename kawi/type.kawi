@@ -1,0 +1,19 @@
+var a: string
+var a: number
+var a: boolean
+var a: nil
+
+var a: () -> ()
+var a: class() { 
+    fn: (self: any) -> ()
+}
+
+function a(arg: any): any {
+
+}
+
+class a(args: any) {
+
+}
+
+type a = string
