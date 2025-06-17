@@ -20,4 +20,14 @@ type a = string
 
 type t<T> = T
 
-type a: <T>()
+type a: <T>(a: T) -> T
+
+function a<T>(a: T): T {
+    
+}
+
+var a = 0 as any
+
+type s<T> = struct(a: T) {
+    a: T,
+}
