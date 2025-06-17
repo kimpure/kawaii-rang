@@ -79,7 +79,7 @@ GenericFuncType ::= "<" Identifier ">" "(" Identifier ":" Type ")" "->" Type
 Identifier      ::= !ReservedWord (Letter { Letter | Digit | "_" })
 ReservedWord    ::= "class" | "function" | "var" | "type" | "if" | "else"
                  | "while" | "for" | "true" | "false" | "nil" | "not"
-                 | "and" | "or" | "as" | "return" | "self"
+                 | "and" | "or" | "as" | "return"
 
 StringLiteral   ::= "\"" { character } "\""
 NumberLiteral   ::= digit { digit } [ "." digit { digit } ]
