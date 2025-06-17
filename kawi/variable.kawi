@@ -29,3 +29,19 @@ var fn = function() {}
 var class = class() {}
 
 var new_class = class() {}
+
+var fn = function() {
+    return function() {
+
+    }
+}
+
+var functioncall = fn()()
+
+var table = { 
+    function() {
+        return { 1, 2 }
+    } 
+}
+
+var indexacces = table()[1]

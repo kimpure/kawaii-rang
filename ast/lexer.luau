@@ -18,7 +18,7 @@ local function is_alphabetic(str: string)
         str == 'b' or 
         str == 'c' or 
         str == 'd' or
-        str == 'e' or 
+        str == 'e' or
         str == 'f' or 
         str == 'g' or 
         str == 'h' or
