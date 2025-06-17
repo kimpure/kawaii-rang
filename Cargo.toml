@@ -1,0 +1,15 @@
+[package]
+name = "kawaii-rang"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+lexer = { path = "ast/lexer" }
+parser = { path = "ast/parser" }
+
+[workspace]
+members = [
+    "ast/lexer", 
+    "ast/parser",
+    ".", 
+]

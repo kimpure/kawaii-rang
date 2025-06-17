@@ -44,4 +44,4 @@ var table = {
     } 
 }
 
-var indexacces = table()[1]
+var indexacces = table[1]()[1]

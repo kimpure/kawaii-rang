@@ -1,0 +1,73 @@
+Program           ::= { Statement }
+
+Statement         ::= VarDecl
+                   | FuncDecl
+                   | ClassDecl
+                   | TypeDecl
+                   | Assignment
+                   | ExpressionStatement
+
+VarDecl           ::= "var" Identifier [ ":" Type ] "=" Expression
+
+FuncDecl          ::= "function" Identifier "(" [ ParamList ] ")" [ ":" Type ] Block
+
+ClassDecl         ::= "class" Identifier [ "(" ArgList ")" ] Block
+
+TypeDecl          ::= "type" Identifier [ TypeParams ] "=" Type
+
+Assignment        ::= Identifier "=" Expression
+
+ExpressionStatement ::= Expression
+
+ParamList         ::= Param { "," Param }
+Param             ::= Identifier [ ":" Type ]
+
+ArgList           ::= "args" "=" "{" { KeyValuePair } "}"
+
+KeyValuePair      ::= Identifier "=" Expression
+
+Block             ::= "{" { Statement } "}"
+
+Expression        ::= Literal
+                   | Identifier
+                   | FunctionExpr
+                   | TableExpr
+                   | IndexAccess
+                   | CallExpr
+                   | UnaryExpr
+                   | BinaryExpr
+                   | "(" Expression ")"
+                   | Expression "as" Type
+
+FunctionExpr      ::= "function" "(" [ ParamList ] ")" Block
+
+TableExpr         ::= "{" { TableElement } "}"
+TableElement      ::= Expression
+                   | Identifier "=" Expression
+
+IndexAccess       ::= Expression "[" Expression "]"
+
+CallExpr          ::= Expression "(" [ ArgListExpr ] ")"
+ArgListExpr       ::= Expression { "," Expression }
+
+UnaryExpr         ::= ("not" | "-") Expression
+BinaryExpr        ::= Expression BinOp Expression
+BinOp             ::= "+" | "-" | "*" | "/" | "==" | "~=" | "<" | ">" | "<=" | ">=" | "and" | "or"
+
+Literal           ::= NumberLiteral | StringLiteral | "true" | "false" | "nil"
+
+Identifier        ::= /* valid identifier, excluding reserved keywords */
+
+Type              ::= "string" | "number" | "boolean" | "nil"
+                   | "(" Type ")" "->" Type
+                   | "class" "(" [ ArgList ] ")" Block
+                   | Identifier
+                   | "struct" "(" FieldList ")"
+                   | "<" Identifier ">" "(" Identifier ":" Identifier ")" "->" Identifier
+
+FieldList         ::= Field { "," Field }
+Field             ::= Identifier ":" Type
+
+TypeParams        ::= "<" Identifier ">"
+
+Comment           ::= "//" .*
