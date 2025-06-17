@@ -1,73 +1,85 @@
-Program           ::= { Statement }
+Program         ::= { Statement }
 
-Statement         ::= VarDecl
-                   | FuncDecl
-                   | ClassDecl
-                   | TypeDecl
-                   | Assignment
-                   | ExpressionStatement
+Statement       ::= VarDecl
+                 | FuncDecl
+                 | ClassDecl
+                 | TypeDecl
+                 | Assignment
+                 | ExpressionStatement
 
-VarDecl           ::= "var" Identifier [ ":" Type ] "=" Expression
+VarDecl         ::= "var" Identifier [ ":" Type ] "=" Expression
 
-FuncDecl          ::= "function" Identifier "(" [ ParamList ] ")" [ ":" Type ] Block
+FuncDecl        ::= "function" Identifier "(" ParamList? ")" Block
 
-ClassDecl         ::= "class" Identifier [ "(" ArgList ")" ] Block
+ClassDecl       ::= "class" Identifier "(" "args" "=" TableExpr ")" Block
+                 | "class" Identifier Block
 
-TypeDecl          ::= "type" Identifier [ TypeParams ] "=" Type
+TypeDecl        ::= "type" Identifier "=" Type
+                 | "type" Identifier ":" GenericFuncType
 
-Assignment        ::= Identifier "=" Expression
+Assignment      ::= Identifier "=" Expression
 
 ExpressionStatement ::= Expression
 
-ParamList         ::= Param { "," Param }
-Param             ::= Identifier [ ":" Type ]
+Block           ::= "{" { Statement } "}"
 
-ArgList           ::= "args" "=" "{" { KeyValuePair } "}"
+ParamList       ::= Param { "," Param }
+Param           ::= Identifier [ ":" Type ]
 
-KeyValuePair      ::= Identifier "=" Expression
+Expression      ::= Literal
+                 | Identifier
+                 | FunctionExpr
+                 | TableExpr
+                 | IndexAccess
+                 | CallExpr
+                 | UnaryExpr
+                 | BinaryExpr
+                 | "(" Expression ")"
+                 | Expression "as" Type
 
-Block             ::= "{" { Statement } "}"
+FunctionExpr    ::= "function" "(" ParamList? ")" Block
 
-Expression        ::= Literal
-                   | Identifier
-                   | FunctionExpr
-                   | TableExpr
-                   | IndexAccess
-                   | CallExpr
-                   | UnaryExpr
-                   | BinaryExpr
-                   | "(" Expression ")"
-                   | Expression "as" Type
+TableExpr       ::= "{" { TableElement } "}"
+TableElement    ::= Expression                      // array-style
+                 | Identifier "=" Expression        // key-value style
 
-FunctionExpr      ::= "function" "(" [ ParamList ] ")" Block
+IndexAccess     ::= Expression "[" Expression "]"
 
-TableExpr         ::= "{" { TableElement } "}"
-TableElement      ::= Expression
-                   | Identifier "=" Expression
+CallExpr        ::= Expression "(" ArgListExpr? ")"
+ArgListExpr     ::= Expression { "," Expression }
 
-IndexAccess       ::= Expression "[" Expression "]"
+UnaryExpr       ::= ("not" | "-") Expression
 
-CallExpr          ::= Expression "(" [ ArgListExpr ] ")"
-ArgListExpr       ::= Expression { "," Expression }
+BinaryExpr      ::= Expression BinOp Expression
+BinOp           ::= "+" | "-" | "*" | "/" 
+                 | ">" | "<" | ">=" | "<=" 
+                 | "==" | "~="
+                 | "and" | "or"
 
-UnaryExpr         ::= ("not" | "-") Expression
-BinaryExpr        ::= Expression BinOp Expression
-BinOp             ::= "+" | "-" | "*" | "/" | "==" | "~=" | "<" | ">" | "<=" | ">=" | "and" | "or"
+Literal         ::= StringLiteral | NumberLiteral | "true" | "false" | "nil"
 
-Literal           ::= NumberLiteral | StringLiteral | "true" | "false" | "nil"
+Type            ::= "string" | "number" | "boolean" | "nil"
+                 | "(" Type ")" "->" Type
+                 | "class" "(" ArgList? ")" Block
+                 | Identifier
+                 | StructType
+                 | GenericType
+                 | FuncType
 
-Identifier        ::= /* valid identifier, excluding reserved keywords */
+GenericType     ::= "<" Identifier ">" Type
 
-Type              ::= "string" | "number" | "boolean" | "nil"
-                   | "(" Type ")" "->" Type
-                   | "class" "(" [ ArgList ] ")" Block
-                   | Identifier
-                   | "struct" "(" FieldList ")"
-                   | "<" Identifier ">" "(" Identifier ":" Identifier ")" "->" Identifier
+StructType      ::= "struct" "(" StructFields ")"
+StructFields    ::= StructField { "," StructField }
+StructField     ::= Identifier ":" Type
 
-FieldList         ::= Field { "," Field }
-Field             ::= Identifier ":" Type
+FuncType        ::= "(" Type ")" "->" Type
 
-TypeParams        ::= "<" Identifier ">"
+GenericFuncType ::= "<" Identifier ">" "(" Identifier ":" Type ")" "->" Type
 
-Comment           ::= "//" .*
+Identifier      ::= !ReservedWord (Letter { Letter | Digit | "_" })
+ReservedWord    ::= "class" | "function" | "var" | "type" | "if" | "else"
+                 | "while" | "for" | "true" | "false" | "nil" | "not"
+                 | "and" | "or" | "as" | "return" | "self"
+
+StringLiteral   ::= "\"" { character } "\""
+NumberLiteral   ::= digit { digit } [ "." digit { digit } ]
