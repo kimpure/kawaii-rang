@@ -1,6 +1,4 @@
-use crate::token;
-use token::Token;
-use token::TokenType;
+use crate::lexer::{Token, TokenType};
 
 use std::{iter::Peekable, str::Chars};
 
@@ -240,7 +238,7 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{lexer::Lexer, token::TokenType};
+    use crate::lexer::{Lexer, TokenType};
 
     fn collect_tokens(mut lex: Lexer) -> Vec<TokenType> {
         let mut tokens = Vec::new();

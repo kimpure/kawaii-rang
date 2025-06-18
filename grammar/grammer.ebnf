@@ -9,13 +9,13 @@ Statement       ::= VarDecl
 
 VarDecl         ::= "var" Identifier [ ":" Type ] "=" Expression
 
-FuncDecl        ::= "function" Identifier "(" ParamList? ")" Block
+FuncDecl        ::= [ "pub" ] function" Identifier "(" ParamList? ")" Block
 
-ClassDecl       ::= "class" Identifier "(" "args" "=" TableExpr ")" Block
-                 | "class" Identifier Block
+ClassDecl       ::= [ "pub" ] "class" Identifier "(" "args" "=" TableExpr ")" Block
+                 | [ "pub" ] "class" Identifier Block
 
-TypeDecl        ::= "type" Identifier "=" Type
-                 | "type" Identifier ":" GenericFuncType
+TypeDecl        ::= [ "pub" ] "type" Identifier "=" Type
+                 | [ "pub" ] "type" Identifier ":" GenericFuncType
 
 Assignment      ::= Identifier "=" Expression
 
