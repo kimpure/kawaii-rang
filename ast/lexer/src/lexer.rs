@@ -320,4 +320,14 @@ mod tests {
             assert!(tokens.contains(&expected), "Missing token {:?}", expected);
         }
     }
+
+    fn debug_lexer(mut lex: Lexer) {
+        let token = lex.next_token();
+        println!("\ntoken type: {:?} | lexeme: {:?}", token.token_type, token.lexeme);
+    }
+
+    #[test]
+    fn number() {
+        debug_lexer(Lexer::new("0123456789"));
+    }
 }
