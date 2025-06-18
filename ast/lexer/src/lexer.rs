@@ -260,7 +260,6 @@ mod tests {
             identifier 123 "string" function true nil class var if else while for return
             + - * / and or not . .. ... , ; : = == != < <= > >= += -= *= /=
             ( ) { } [ ] -> extends type pub
-            eof_marker
         "#;
 
         let lex = Lexer::new(source);
