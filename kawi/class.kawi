@@ -37,4 +37,8 @@ class newclass(args={
     }
 }
 
+var a = newclass()
+
+a::debug()
+
 var newclass = class() {}
