@@ -35,3 +35,17 @@ var c = 1 * 2
 
 // 0.5
 var d = 1 / 2
+
+// false
+if true and false {
+    print(true)
+} else {
+    print(false)
+}
+
+// true
+if true or false {
+    print(true)
+} else {
+    print(false)
+}

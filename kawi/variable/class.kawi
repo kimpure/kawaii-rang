@@ -11,12 +11,12 @@ var new_class = class(a="apple", b: string="banana", c) {
 }
 
 var new_class = class {
-    self {
+    self = {
         a = a,
         b = b,
     }
 
-    function print_self(self, p) {
+    function print_self(self: Self, p: string) {
         print(self.a, self.b, p)
     }
 }

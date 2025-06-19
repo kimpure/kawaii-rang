@@ -1,7 +1,9 @@
 class superclass(args={ 
     apple = "apple" 
 }) {
-    self.apple = args.apple
+    self = {
+        apple = args.apple
+    }
 
     function set_apple(self, value) {
         self.apple = value
@@ -19,7 +21,7 @@ class newclass(args={
 }) {
     self = superclass(args)
 
-    class debug(self) {
+    class debug(self: Self) {
         function debug(self) {
             print(self::get_banana(), self::get_apple())
         }

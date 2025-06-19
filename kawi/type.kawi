@@ -31,3 +31,5 @@ var a = 0 as any
 type s<T> = struct(a: T) {
     a: T,
 }
+
+type s<T extends any> = T
