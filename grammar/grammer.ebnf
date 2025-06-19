@@ -7,7 +7,7 @@ Statement       ::= VarDecl
                  | Assignment
                  | ExpressionStatement
 
-VarDecl         ::= "var" Identifier [ ":" Type ] "=" Expression
+VarDecl         ::= "var" Identifier [ ":" Type ] [ "=" Expression]
 
 FuncDecl        ::= [ "pub" ] function" Identifier "(" ParamList? ")" Block
 
