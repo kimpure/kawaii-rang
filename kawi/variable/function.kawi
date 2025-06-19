@@ -1,0 +1,11 @@
+var new_function = function() {
+    
+}
+
+var new_function = function(a: string, b, c) {
+    
+}
+
+var new_function = function(a="apple", b: string, c) {
+    
+}

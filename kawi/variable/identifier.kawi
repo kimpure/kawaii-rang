@@ -1,0 +1,9 @@
+var str = "string"
+var num = 12345
+var bool = true
+var null = nil
+
+var str: string = "string"
+var num: number = 12345
+var bool: boolean = true
+var null: nil = nil

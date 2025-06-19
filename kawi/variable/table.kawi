@@ -1,0 +1,14 @@
+var table = {}
+
+var array = { 1, 2, 3 }
+
+var object = {
+    a = "apple",
+    b = "banana",
+}
+
+var mix_table = { 
+    1, 2, 3, 
+    a = "apple",
+    b = "banana",
+}

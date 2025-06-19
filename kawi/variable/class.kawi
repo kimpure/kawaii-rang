@@ -1,11 +1,22 @@
+var new_class = class() {
+
+}
+
+var new_class = class(a: string, b, c) {
+
+}
+
+var new_class = class(a="apple", b: string="banana", c) {
+
+}
+
 var new_class = class {
+    self {
+        a = a,
+        b = b,
+    }
 
-}
-
-var new_class = class(a, b, c) {
-
-}
-
-var new_class = class(a="apple", b="banana", c) {
-
+    function print_self(self, p) {
+        print(self.a, self.b, p)
+    }
 }
