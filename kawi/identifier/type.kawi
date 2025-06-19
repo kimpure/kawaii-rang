@@ -33,3 +33,22 @@ type s<T> = struct(a: T) {
 }
 
 type s<T extends any> = T
+
+type a = class() {
+    self: {
+        a: any,
+        b: any,
+    },
+
+    c: (self: Self) -> (),
+}
+
+type b = class() {
+    self: {
+        d: any,
+    },
+
+    f: (self: a) -> (),
+} extends a
+
+type c = number extends any
