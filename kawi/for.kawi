@@ -1,0 +1,16 @@
+for i=1, 10 {
+
+}
+
+for i=1, 10, 2 {
+
+}
+
+var table = {
+    a = "apple",
+    b = "banana"
+}
+
+for key, value in table {
+    print(key, ": ", value)
+}
