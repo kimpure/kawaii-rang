@@ -319,152 +319,157 @@ mod tests {
         }
     }
 
-    fn debug_lexer(mut lex: Lexer) {
+    fn debug_lexer(mut lex: Lexer, token_type: TokenType) {
         let token = lex.next_token();
+
+        if token_type != token.token_type {
+            panic!("not match of token: {}", token.lexeme)
+        }
+
         println!("\ntoken type: {:?} | lexeme: {:?}\n", token.token_type, token.lexeme);
     }
 
     #[test]
     fn number() {
-        debug_lexer(Lexer::new("0123456789"));
+        debug_lexer(Lexer::new("0123456789"), TokenType::Number);
     }
 
     #[test]
     fn string() {
-        debug_lexer(Lexer::new("\"hello world\""));
+        debug_lexer(Lexer::new("\"hello world\""), TokenType::String);
     }
 
     #[test]
     fn identifier() {
-        debug_lexer(Lexer::new("variable"));
+        debug_lexer(Lexer::new("variable"), TokenType::Identifier);
     }
 
     #[test]
     fn function() {
-        debug_lexer(Lexer::new("function"));
+        debug_lexer(Lexer::new("function"), TokenType::Function);
     }
 
     #[test]
     fn boolean() {
-        debug_lexer(Lexer::new("true"));
+        debug_lexer(Lexer::new("true"), TokenType::Boolean);
     }
 
     #[test]
     fn nil() {
-        debug_lexer(Lexer::new("nil"));
+        debug_lexer(Lexer::new("nil"), TokenType::Nil);
     }
 
     #[test]
     fn class() {
-        debug_lexer(Lexer::new("class"));
+        debug_lexer(Lexer::new("class"), TokenType::Class);
     }
 
     #[test]
     fn var() {
-        debug_lexer(Lexer::new("var"));
+        debug_lexer(Lexer::new("var"), TokenType::Var);
     }
 
     #[test]
     fn if_statement() {
-        debug_lexer(Lexer::new("if"));
+        debug_lexer(Lexer::new("if"), TokenType::If);
     }
 
     #[test]
     fn else_statement() {
-        debug_lexer(Lexer::new("else"));
+        debug_lexer(Lexer::new("else"), TokenType::Else);
     }
 
     #[test]
     fn while_loop() {
-        debug_lexer(Lexer::new("while"));
+        debug_lexer(Lexer::new("while"), TokenType::While);
     }
 
     #[test]
     fn for_loop() {
-        debug_lexer(Lexer::new("for"));
+        debug_lexer(Lexer::new("for"), TokenType::For);
     }
 
     #[test]
     fn return_statement() {
-        debug_lexer(Lexer::new("return"));
+        debug_lexer(Lexer::new("return"), TokenType::Return);
     }
 
     #[test]
     fn operators() {
-        debug_lexer(Lexer::new("+"));
-        debug_lexer(Lexer::new("-"));
-        debug_lexer(Lexer::new("*"));
-        debug_lexer(Lexer::new("/"));
+        debug_lexer(Lexer::new("+"), TokenType::Add);
+        debug_lexer(Lexer::new("-"), TokenType::Sub);
+        debug_lexer(Lexer::new("*"), TokenType::Mul);
+        debug_lexer(Lexer::new("/"), TokenType::Div);
     }
 
     #[test]
     fn logical_operators() {
-        debug_lexer(Lexer::new("and"));
-        debug_lexer(Lexer::new("or"));
-        debug_lexer(Lexer::new("not"));
+        debug_lexer(Lexer::new("and"), TokenType::And);
+        debug_lexer(Lexer::new("or"), TokenType::Or);
+        debug_lexer(Lexer::new("not"), TokenType::Not);
     }
 
     #[test]
     fn punctuation() {
-        debug_lexer(Lexer::new("."));
-        debug_lexer(Lexer::new(".."));
-        debug_lexer(Lexer::new("..."));
-        debug_lexer(Lexer::new(","));
-        debug_lexer(Lexer::new(";"));
-        debug_lexer(Lexer::new(":"));
+        debug_lexer(Lexer::new("."), TokenType::Dot);
+        debug_lexer(Lexer::new(".."), TokenType::DotTwo);
+        debug_lexer(Lexer::new("..."), TokenType::DotThree);
+        debug_lexer(Lexer::new(","), TokenType::Comma);
+        debug_lexer(Lexer::new(";"), TokenType::SemiColon);
+        debug_lexer(Lexer::new(":"), TokenType::Colon);
     }
 
     #[test]
     fn comparison_operators() {
-        debug_lexer(Lexer::new("="));
-        debug_lexer(Lexer::new("=="));
-        debug_lexer(Lexer::new("!="));
-        debug_lexer(Lexer::new("<"));
-        debug_lexer(Lexer::new("<="));
-        debug_lexer(Lexer::new(">"));
-        debug_lexer(Lexer::new(">="));
+        debug_lexer(Lexer::new("="), TokenType::Equal);
+        debug_lexer(Lexer::new("=="), TokenType::EqualTwo);
+        debug_lexer(Lexer::new("!="), TokenType::NotEqual);
+        debug_lexer(Lexer::new("<"), TokenType::Less);
+        debug_lexer(Lexer::new("<="), TokenType::LessEqual);
+        debug_lexer(Lexer::new(">"), TokenType::Greater);
+        debug_lexer(Lexer::new(">="), TokenType::GreaterEqual);
     }
 
     #[test]
     fn assignment_operators() {
-        debug_lexer(Lexer::new("+="));
-        debug_lexer(Lexer::new("-="));
-        debug_lexer(Lexer::new("*="));
-        debug_lexer(Lexer::new("/="));
+        debug_lexer(Lexer::new("+="), TokenType::EqualAdd);
+        debug_lexer(Lexer::new("-="), TokenType::EqualSub);
+        debug_lexer(Lexer::new("*="), TokenType::EqualMul);
+        debug_lexer(Lexer::new("/="), TokenType::EqualDiv);
     }
 
     #[test]
     fn brackets() {
-        debug_lexer(Lexer::new("("));
-        debug_lexer(Lexer::new(")"));
-        debug_lexer(Lexer::new("{"));
-        debug_lexer(Lexer::new("}"));
-        debug_lexer(Lexer::new("["));
-        debug_lexer(Lexer::new("]"));
+        debug_lexer(Lexer::new("("), TokenType::LeftParen);
+        debug_lexer(Lexer::new(")"), TokenType::RightParen);
+        debug_lexer(Lexer::new("{"), TokenType::LeftBrace);
+        debug_lexer(Lexer::new("}"), TokenType::RightBrace);
+        debug_lexer(Lexer::new("["), TokenType::LeftBrack);
+        debug_lexer(Lexer::new("]"), TokenType::RightBrack);
     }
 
     #[test]
     fn arrow() {
-        debug_lexer(Lexer::new("=>"));
+        debug_lexer(Lexer::new("->"), TokenType::Arrow);
     }
 
     #[test]
     fn extends() {
-        debug_lexer(Lexer::new("extends"));
+        debug_lexer(Lexer::new("extends"), TokenType::Extends);
     }
 
     #[test]
     fn type_keyword() {
-        debug_lexer(Lexer::new("type"));
+        debug_lexer(Lexer::new("type"), TokenType::Type);
     }
 
     #[test]
     fn pub_keyword() {
-        debug_lexer(Lexer::new("pub"));
+        debug_lexer(Lexer::new("pub"), TokenType::Pub);
     }
 
     #[test]
     fn eof() {
-        debug_lexer(Lexer::new(""));
+        debug_lexer(Lexer::new(""), TokenType::Eof);
     }
 }
