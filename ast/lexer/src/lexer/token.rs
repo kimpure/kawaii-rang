@@ -22,7 +22,6 @@ pub enum TokenType {
     Not,
     Dot,
     DotTwo,
-    DotThree,
     Comma,
     SemiColon,
     Colon,

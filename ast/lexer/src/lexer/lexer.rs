@@ -170,11 +170,7 @@ impl<'a> Lexer<'a> {
             ':' => Token { token_type: TokenType::Colon, lexeme: ":".to_string(), line },
             '.' => {
                 if self.match_char('.') {
-                    if self.match_char('.') {
-                        Token { token_type: TokenType::DotThree, lexeme: "...".to_string(), line }
-                    } else {
-                        Token { token_type: TokenType::DotTwo, lexeme: "..".to_string(), line }
-                    }
+                    Token { token_type: TokenType::DotTwo, lexeme: "..".to_string(), line }
                 } else {
                     Token { token_type: TokenType::Dot, lexeme: ".".to_string(), line }
                 }
@@ -286,7 +282,6 @@ mod tests {
             TokenType::Not,
             TokenType::Dot,
             TokenType::DotTwo,
-            TokenType::DotThree,
             TokenType::Comma,
             TokenType::SemiColon,
             TokenType::Colon,
@@ -413,7 +408,6 @@ mod tests {
     fn punctuation() {
         debug_lexer(Lexer::new("."), TokenType::Dot);
         debug_lexer(Lexer::new(".."), TokenType::DotTwo);
-        debug_lexer(Lexer::new("..."), TokenType::DotThree);
         debug_lexer(Lexer::new(","), TokenType::Comma);
         debug_lexer(Lexer::new(";"), TokenType::SemiColon);
         debug_lexer(Lexer::new(":"), TokenType::Colon);

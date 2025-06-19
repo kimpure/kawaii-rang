@@ -1,0 +1,11 @@
+var new_class = class {
+
+}
+
+var new_class = class(a, b, c) {
+
+}
+
+var new_class = class(a="apple", b="banana", c) {
+
+}
