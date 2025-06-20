@@ -49,6 +49,7 @@ type b = class() {
     } extends a,
 
     f: (self: a) -> (),
+    g: (self: Self) -> (),
 }
 
 type c = number extends any
