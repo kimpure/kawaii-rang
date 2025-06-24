@@ -1,6 +1,7 @@
 local ast = require('./ast')
 
-type LexerToken = ast.LexerToken
+type TokenType = ast.TokenType
+type Token = ast.Token<TokenType>
 
 local lexer = {}
 lexer.__index = lexer
@@ -10,37 +11,6 @@ export type Lexer = typeof(setmetatable({} :: {
     current: number,
     line: number,
 }, lexer))
-
-local function is_alphabetic(str: string)
-    local str = string.lower(str)
-    return 
-        str == 'a' or 
-        str == 'b' or 
-        str == 'c' or 
-        str == 'd' or
-        str == 'e' or
-        str == 'f' or 
-        str == 'g' or 
-        str == 'h' or
-        str == 'i' or 
-        str == 'j' or 
-        str == 'k' or 
-        str == 'l' or
-        str == 'm' or 
-        str == 'n' or 
-        str == 'o' or 
-        str == 'p' or
-        str == 'q' or 
-        str == 'r' or 
-        str == 's' or 
-        str == 't' or
-        str == 'u' or 
-        str == 'v' or 
-        str == 'w' or 
-        str == 'x' or
-        str == 'y' or 
-        str == 'z' 
-end
 
 function lexer.new(source: string)
     return setmetatable({
@@ -134,7 +104,7 @@ function lexer.read_identifier(self: Lexer)
     while not self:is_end() do
         local char = self:peek()
 
-        if tonumber(char) or char == '_' or is_alphabetic(char) then
+        if tonumber(char) or char == '_' or string.find(char, "%A") then
             self:advance()
         else
             break
@@ -144,386 +114,206 @@ function lexer.read_identifier(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
-function lexer.next_token(self: Lexer): LexerToken
+function lexer.next_token(self: Lexer): Token
     self:skip_space()
 
     if self:is_end() then
-        return {
-            type = "Eof",
-            lexeme = 'eof',
-            line = self.line,
-        }
+        return ast.EofToken("Eof", self.line)
     end
 
     local char = self:advance()
 
     if char == '+' then
         if self:match_next"=" then
-            return {
-                type = "EqualAdd",
-                lexeme = "+=",
-                line = self.line,
-            }
+            return ast.EqualAddToken("+=", self.line)
         end
 
-        return {
-            type = "Add",
-            lexeme = "+",
-            line = self.line,
-        }
+        return ast.AddToken("+", self.line)
     end
 
     if char == '-' then
         if self:match_next"=" then
-            return {
-                type = "EqualSub",
-                lexeme = "-=",
-                line = self.line,
-            }
+            return ast.EqualSubToken("-=", self.line)
         end
 
-        return {
-            type = "Sub",
-            lexeme = "-",
-            line = self.line,
-        }
+        return ast.SubToken("-", self.line)
     end
 
     if char == '*' then
         if self:match_next"=" then
-            return {
-                type = "EqualMul",
-                lexeme = "*=",
-                line = self.line,
-            }
+            return ast.EqualMulToken("*=", self.line)
         end
 
-        return {
-            type = "Mul",
-            lexeme = "*",
-            line = self.line,
-        }
+        return ast.MulToken("*", self.line)
     end
 
     if char == '/' then
         if self:match_next"=" then
-            return {
-                type = "EqualDiv",
-                lexeme = "/=",
-                line = self.line,
-            }
+            return ast.EqualDivToken("/=", self.line)
         end
 
-        return {
-            type = "Div",
-            lexeme = "/",
-            line = self.line,
-        }
+        return ast.DivToken("/", self.line)
+    end
+
+    if char == '%' then
+        return ast.RemainderToken("%", self.line)
     end
 
     if char == ';' then
-        return {
-            type = "SemiColon",
-            lexeme = ";",
-            line = self.line,
-        }
+        return ast.SemiColonToken(";", self.line)
     end
 
     if char == ':' then
-        return {
-            type = "Colon",
-            lexeme = ":",
-            line = self.line,
-        }
+        if self:match_next":" then
+            ast.ColonTwoToken("::", self.line)
+        end
+
+        return ast.ColonToken(":", self.line)
     end
 
     if char == '.' then
         if self:match_next '.' then
-            if self:match_next '.' then        
-                return {
-                    type = "DotThree",
-                    lexeme = ".",
-                    line = self.line,
-                }
-            end
-
-            return {
-                type = "DotTwo",
-                lexeme = ".",
-                line = self.line,
-            }
+            return ast.DotTwoToken("..", self.line)
         end
 
-        return {
-            type = "Dot",
-            lexeme = ".",
-            line = self.line,
-        }
+        return ast.DotToken(".", self.line)
     end
 
     if char == '<' then
         if self:match_next"=" then
-            return {
-                type = "LessEqual",
-                lexeme = "<=",
-                line = self.line,
-            }
+            return ast.LessEqualToken("<=", self.line)
         end
 
-        return {
-            type = "Less",
-            lexeme = "<",
-            line = self.line,
-        }
+        return ast.LessToken("<", self.line)
     end
 
     if char == '>' then
         if self:match_next"=" then
-            return {
-                type = "GreaterEqual",
-                lexeme = ">=",
-                line = self.line,
-            }
+            return ast.GreaterEqualToken(">=", self.line)
         end
 
-        return {
-            type = "Greater",
-            lexeme = ">",
-            line = self.line,
-        }
+        return ast.GreaterToken(">", self.line)
     end
 
     if char == '(' then
-        return {
-            type = "LeftParen",
-            lexeme = "(",
-            line = self.line,
-        }
+        return ast.LeftParenToken("(", self.line)
     end
     
     if char == ')' then
-        return {
-            type = "RightParen",
-            lexeme = ")",
-            line = self.line,
-        }
+        return ast.RightParenToken(")", self.line)
     end
 
     if char == '{' then
-        return {
-            type = "LeftBrace",
-            lexeme = "{",
-            line = self.line,
-        }
+        return ast.LeftBraceToken("{", self.line)
     end
     
     if char == '}' then
-        return {
-            type = "RightBrace",
-            lexeme = "}",
-            line = self.line,
-        }
+        return ast.RightBraceToken("}", self.line)
     end
 
     if char == '[' then
-        return {
-            type = "LeftBrack",
-            lexeme = "[",
-            line = self.line,
-        }
+        return ast.LeftBrackToken("[", self.line)
     end
     
     if char == ']' then
-        return {
-            type = "RightBrack",
-            lexeme = "]",
-            line = self.line,
-        }
+        return ast.RightBrackToken("]", self.line)
     end
 
     if char == '=' then
         if self:match_next"=" then
-            return {
-                type = "EqualTwo",
-                lexeme = "==",
-                line = self.line,
-            }
+            return ast.EqualTwoToken("==", self.line)
         end
 
-        return {
-            type = "Equal",
-            lexeme = "=",
-            line = self.line,
-        }
+        return ast.EqualToken("=", self.line)
     end
 
     if char == '!' then
         if self:match_next"=" then
-            return {
-                type = "NotEqual",
-                lexeme = "!=",
-                line = self.line,
-            }
+            return ast.NotEqualToken("!=", self.line)
         end
     end
 
     if char == '-' then
         if self:match_next">" then
-            return {
-                type = "Arrow",
-                lexeme = "->",
-                line = self.line,
-            }
+            return ast.ArrowToken("->", self.line)
         end
     end
 
     if char == ',' then
-        return {
-            type = "Comma",
-            lexeme = ",",
-            line = self.line,
-        }
+        return ast.CommaToken(",", self.line)
     end
 
     if char == '"' then
-        return {
-            type = "String",
-            lexeme = self:read_string(),
-            line = self.line,
-        }
+        return ast.StringToken(self:read_string(), self.line)
     end
 
-    if is_alphabetic(char) then
+    if string.find(char, "%A") then
         local identifier = self:read_identifier()
 
         if identifier == "var" then
-            return {
-                type = "Var",
-                lexeme = 'var',
-                line = self.line,
-            }
+            return ast.VarToken("var", self.line)
         end
 
         if identifier == "if" then
-            return {
-                type = "If",
-                lexeme = 'if',
-                line = self.line,
-            }
+            return ast.IfToken("if", self.line)
         end
 
         if identifier == "else" then
-            return {
-                type = "Else",
-                lexeme = 'else',
-                line = self.line,
-            }
+            return ast.ElseToken("else", self.line)
         end
 
         if identifier == "while" then
-            return {
-                type = "While",
-                lexeme = 'while',
-                line = self.line,
-            }
+            return ast.WhileToken("while", self.line)
         end
 
         if identifier == "for" then
-            return {
-                type = "For",
-                lexeme = 'for',
-                line = self.line,
-            }
+            return ast.ForToken("for", self.line)
         end
 
         if identifier == "return" then
-            return {
-                type = "Return",
-                lexeme = 'return',
-                line = self.line,
-            }
+            return ast.ReturnToken("return", self.line)
         end
 
         if identifier == "function" then
-            return {
-                type = "Function",
-                lexeme = 'function',
-                line = self.line,
-            }
+            return ast.FunctionToken("function", self.line)
         end
 
         if identifier == "class" then
-            return {
-                type = "Class",
-                lexeme = 'class',
-                line = self.line,
-            }
+            return ast.ClassToken("class", self.line)
         end
 
         if identifier == "and" then
-            return {
-                type = "And",
-                lexeme = 'and',
-                line = self.line,
-            }
+            return ast.AndToken("and", self.line)
         end
 
         if identifier == "or" then
-            return {
-                type = "Or",
-                lexeme = 'or',
-                line = self.line,
-            }
+            return ast.OrToken("or", self.line)
         end
 
         if identifier == "not" then
-            return {
-                type = "Not",
-                lexeme = 'not',
-                line = self.line,
-            }
+            return ast.NotToken("not", self.line)
         end
 
         if identifier == "extends" then
-            return {
-                type = "Extends",
-                lexeme = 'extends',
-                line = self.line,
-            }
+            return ast.ExtendsToken("extends", self.line)
         end
 
         if identifier == "type" then
-            return {
-                type = "Type",
-                lexeme = 'type',
-                line = self.line,
-            }
+            return ast.TypeToken("type", self.line)
         end
 
         if identifier == "pub" then
-            return {
-                type = "Pub",
-                lexeme = 'pub',
-                line = self.line,
-            }
+            return ast.PubToken("pub", self.line)
         end
 
-        return {
-            type = "Identifier",
-            lexeme = identifier,
-            line = self.line,
-        }
+        return ast.IdentifierToken(identifier, self.line)
     end
 
     if tonumber(char) then
-        return {
-            type = "Number",
-            lexeme = self:read_number(),
-            line = self.line,
-        }
+        return ast.NumberToken(self:read_number(), self.line)
     end
 
-    error('lexer error : not ast for keyword')
+    error('Unexpected character: ' .. char)
 end
 
 return lexer

@@ -1,144 +1,166 @@
-export type Operator = 
-    | "Add"
-    | "Sub"
-    | "Mul"
-    | "Div"
-    | "GreaterEqual"
-    | "LessEqual"
-    | "Greater"
-    | "Less"
-    | "EqualTwo"
-    | "NotEqual"
-    | "And"
-    | "Or"
-
-export type DataTypeTokens = 
-    | "String"
-    | "Number"
-    | "Boolean"
-    | "Nil"
+export type TokenType = "IdentifierLexerToken"
+    | "NumberLexerToken"
+    | "StringLexerToken"
+    | "FunctionLexerToken"
+    | "BooleanLexerToken"
+    | "NilLexerToken"
+    | "ArrayLexerToken"
+    | "ClassLexerToken"
+    | "VarLexerToken"
+    | "IfLexerToken"
+    | "ElseLexerToken"
+    | "WhileLexerToken"
+    | "ForLexerToken"
+    | "ReturnLexerToken"
+    | "AddLexerToken"
+    | "SubLexerToken"
+    | "MulLexerToken"
+    | "DivLexerToken"
+    | "RemainderLexerToken"
+    | "AndLexerToken"
+    | "OrLexerToken"
+    | "NotLexerToken"
+    | "DotLexerToken"
+    | "DotTwoLexerToken"
+    | "CommaLexerToken"
+    | "SemiColonLexerToken"
+    | "ColonLexerToken"
+    | "ColonTwoLexerToken"
+    | "EqualLexerToken"
+    | "EqualTwoLexerToken"
+    | "NotEqualLexerToken"
+    | "LessLexerToken"
+    | "LessEqualLexerToken"
+    | "GreaterLexerToken"
+    | "GreaterEqualLexerToken"
+    | "EqualAddLexerToken"
+    | "EqualSubLexerToken"
+    | "EqualMulLexerToken"
+    | "EqualDivLexerToken"
+    | "LeftParenLexerToken"
+    | "RightParenLexerToken"
+    | "LeftBraceLexerToken"
+    | "RightBraceLexerToken"
+    | "LeftBrackLexerToken"
+    | "RightBrackLexerToken"
+    | "ArrowLexerToken"
+    | "ExtendsLexerToken"
+    | "TypeLexerToken"
+    | "PubLexerToken"
+    | "EofLexerToken"
 
 export type Token<T> = { lexeme: string, line: number, type: T }
 
-export type IdentifierLexerToken = Token<"Identifier">
-export type NumberLexerToken = Token<"Number">
-export type StringLexerToken = Token<"String">
-export type FunctionLexerToken = Token<"Function">
-export type BooleanLexerToken = Token<"Boolean">
-export type NilLexerToken = Token<"Nil">
-export type ArrayLexerToken = Token<"Array">
-export type ClassLexerToken = Token<"Class">
-export type VarLexerToken = Token<"Var">
-export type IfLexerToken = Token<"If">
-export type ElseLexerToken = Token<"Else">
-export type WhileLexerToken = Token<"While">
-export type ForLexerToken = Token<"For">
-export type ReturnLexerToken = Token<"Return">
-export type AddLexerToken = Token<"Add">
-export type SubLexerToken = Token<"Sub">
-export type MulLexerToken = Token<"Mul">
-export type DivLexerToken = Token<"Div">
-export type AndLexerToken = Token<"And">
-export type OrLexerToken = Token<"Or">
-export type NotLexerToken = Token<"Not">
-export type DotLexerToken = Token<"Dot">
-export type DotTwoLexerToken = Token<"DotTwo">
-export type DotThreeLexerToken = Token<"DotThree">
-export type CommaLexerToken = Token<"Comma">
-export type SemiColonLexerToken = Token<"SemiColon">
-export type ColonLexerToken = Token<"Colon">
-export type EqualLexerToken = Token<"Equal">
-export type EqualTwoLexerToken = Token<"EqualTwo">
-export type NotEqualLexerToken = Token<"NotEqual">
-export type LessLexerToken = Token<"Less">
-export type LessEqualLexerToken = Token<"LessEqual">
-export type GreaterLexerToken = Token<"Greater">
-export type GreaterEqualLexerToken = Token<"GreaterEqual">
-export type EqualAddLexerToken = Token<"EqualAdd">
-export type EqualSubLexerToken = Token<"EqualSub">
-export type EqualMulLexerToken = Token<"EqualMul">
-export type EqualDivLexerToken = Token<"EqualDiv">
-export type LeftParenLexerToken = Token<"LeftParen">
-export type RightParenLexerToken = Token<"RightParen">
-export type LeftBraceLexerToken = Token<"LeftBrace">
-export type RightBraceLexerToken = Token<"RightBrace">
-export type LeftBrackLexerToken = Token<"LeftBrack">
-export type RightBrackLexerToken = Token<"RightBrack">
-export type ArrowLexerToken = Token<"Arrow">
-export type ExtendsLexerToken = Token<"Extends">
-export type TypeLexerToken = Token<"Type">
-export type PubLexerToken = Token<"Pub">
-export type EofLexerToken = Token<"Eof">
+local function createToken(token_type: TokenType): (lexme: string, line: number) -> Token<TokenType>
+    return function(lexeme, line) 
+        return {
+            lexeme = lexeme,
+            type = token_type,
+            line = line,
+        }
+    end
+end
 
-export type LexerToken =
-    | IdentifierLexerToken
-    | NumberLexerToken
-    | StringLexerToken
-    | FunctionLexerToken
-    | BooleanLexerToken
-    | NilLexerToken
-    | ArrayLexerToken
-    | ClassLexerToken
-    | VarLexerToken
-    | IfLexerToken
-    | ElseLexerToken
-    | WhileLexerToken
-    | ForLexerToken
-    | ReturnLexerToken
-    | AddLexerToken
-    | SubLexerToken
-    | MulLexerToken
-    | DivLexerToken
-    | AndLexerToken
-    | OrLexerToken
-    | NotLexerToken
-    | DotLexerToken
-    | DotTwoLexerToken
-    | DotThreeLexerToken
-    | CommaLexerToken
-    | SemiColonLexerToken
-    | ColonLexerToken
-    | EqualLexerToken
-    | EqualTwoLexerToken
-    | NotEqualLexerToken
-    | LessLexerToken
-    | LessEqualLexerToken
-    | GreaterLexerToken
-    | GreaterEqualLexerToken
-    | EqualAddLexerToken
-    | EqualSubLexerToken
-    | EqualMulLexerToken
-    | EqualDivLexerToken
-    | LeftParenLexerToken
-    | RightParenLexerToken
-    | LeftBraceLexerToken
-    | RightBraceLexerToken
-    | LeftBrackLexerToken
-    | RightBrackLexerToken
-    | ArrowLexerToken
-    | ExtendsLexerToken
-    | TypeLexerToken
-    | PubLexerToken
-    | EofLexerToken
+local IdentifierToken = createToken "IdentifierLexerToken"
+local NumberToken = createToken "NumberLexerToken"
+local StringToken = createToken "StringLexerToken"
+local FunctionToken = createToken "FunctionLexerToken"
+local BooleanToken = createToken "BooleanLexerToken"
+local NilToken = createToken "NilLexerToken"
+local ArrayToken = createToken "ArrayLexerToken"
+local ClassToken = createToken "ClassLexerToken"
+local VarToken = createToken "VarLexerToken"
+local IfToken = createToken "IfLexerToken"
+local ElseToken = createToken "ElseLexerToken"
+local WhileToken = createToken "WhileLexerToken"
+local ForToken = createToken "ForLexerToken"
+local ReturnToken = createToken "ReturnLexerToken"
+local AddToken = createToken "AddLexerToken"
+local SubToken = createToken "SubLexerToken"
+local MulToken = createToken "MulLexerToken"
+local DivToken = createToken "DivLexerToken"
+local RemainderToken = createToken "RemainderLexerToken"
+local AndToken = createToken "AndLexerToken"
+local OrToken = createToken "OrLexerToken"
+local NotToken = createToken "NotLexerToken"
+local DotToken = createToken "DotLexerToken"
+local DotTwoToken = createToken "DotTwoLexerToken"
+local CommaToken = createToken "CommaLexerToken"
+local SemiColonToken = createToken "SemiColonLexerToken"
+local ColonToken = createToken "ColonLexerToken"
+local ColonTwoToken = createToken "ColonTwoLexerToken"
+local EqualToken = createToken "EqualLexerToken"
+local EqualTwoToken = createToken "EqualTwoLexerToken"
+local NotEqualToken = createToken "NotEqualLexerToken"
+local LessToken = createToken "LessLexerToken"
+local LessEqualToken = createToken "LessEqualLexerToken"
+local GreaterToken = createToken "GreaterLexerToken"
+local GreaterEqualToken = createToken "GreaterEqualLexerToken"
+local EqualAddToken = createToken "EqualAddLexerToken"
+local EqualSubToken = createToken "EqualSubLexerToken"
+local EqualMulToken = createToken "EqualMulLexerToken"
+local EqualDivToken = createToken "EqualDivLexerToken"
+local LeftParenToken = createToken "LeftParenLexerToken"
+local RightParenToken = createToken "RightParenLexerToken"
+local LeftBraceToken = createToken "LeftBraceLexerToken"
+local RightBraceToken = createToken "RightBraceLexerToken"
+local LeftBrackToken = createToken "LeftBrackLexerToken"
+local RightBrackToken = createToken "RightBrackLexerToken"
+local ArrowToken = createToken "ArrowLexerToken"
+local ExtendsToken = createToken "ExtendsLexerToken"
+local TypeToken = createToken "TypeLexerToken"
+local PubToken = createToken "PubLexerToken"
+local EofToken = createToken "EofLexerToken"
 
-export type DataTypeLexerToken = 
-    | StringLexerToken
-    | NumberLexerToken
-    | BooleanLexerToken
-    | NilLexerToken
-
-export type OperatorLexerToken = 
-    | AddLexerToken
-    | SubLexerToken
-    | MulLexerToken
-    | DivLexerToken
-    | GreaterEqualLexerToken
-    | LessEqualLexerToken
-    | GreaterLexerToken
-    | LessLexerToken
-    | EqualTwoLexerToken
-    | NotEqualLexerToken
-    | AndLexerToken
-    | OrLexerToken
-
-return {}
+return {
+    IdentifierToken = IdentifierToken,
+    NumberToken = NumberToken,
+    StringToken = StringToken,
+    FunctionToken = FunctionToken,
+    BooleanToken = BooleanToken,
+    NilToken = NilToken,
+    ArrayToken = ArrayToken,
+    ClassToken = ClassToken,
+    VarToken = VarToken,
+    IfToken = IfToken,
+    ElseToken = ElseToken,
+    WhileToken = WhileToken,
+    ForToken = ForToken,
+    ReturnToken = ReturnToken,
+    AddToken = AddToken,
+    SubToken = SubToken,
+    MulToken = MulToken,
+    DivToken = DivToken,
+    RemainderToken = RemainderToken,
+    AndToken = AndToken,
+    OrToken = OrToken,
+    NotToken = NotToken,
+    DotToken = DotToken,
+    DotTwoToken = DotTwoToken,
+    CommaToken = CommaToken,
+    SemiColonToken = SemiColonToken,
+    ColonToken = ColonToken,
+    ColonTwoToken = ColonTwoToken,
+    EqualToken = EqualToken,
+    EqualTwoToken = EqualTwoToken,
+    NotEqualToken = NotEqualToken,
+    LessToken = LessToken,
+    LessEqualToken = LessEqualToken,
+    GreaterToken = GreaterToken,
+    GreaterEqualToken = GreaterEqualToken,
+    EqualAddToken = EqualAddToken,
+    EqualSubToken = EqualSubToken,
+    EqualMulToken = EqualMulToken,
+    EqualDivToken = EqualDivToken,
+    LeftParenToken = LeftParenToken,
+    RightParenToken = RightParenToken,
+    LeftBraceToken = LeftBraceToken,
+    RightBraceToken = RightBraceToken,
+    LeftBrackToken = LeftBrackToken,
+    RightBrackToken = RightBrackToken,
+    ArrowToken = ArrowToken,
+    ExtendsToken = ExtendsToken,
+    TypeToken = TypeToken,
+    PubToken = PubToken,
+    EofToken = EofToken,
+}
