@@ -148,13 +148,19 @@ function lexer.read_number(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
+function lexer.skip_comment(self: Lexer)
+    while not self:is_end() and self:peek() ~= '\n' do
+        self:advance()
+    end
+end
+
 function lexer.read_identifier(self: Lexer)
     local start = self.current
 
     while not self:is_end() do
         local char = self:peek()
 
-        if tonumber(char) or char == "_" or string.find(char, "%A") then
+        if tonumber(char) or char == "_" or not string.find(char, "%A") then
             self:advance()
         else
             break
@@ -198,6 +204,12 @@ function lexer.next_token(self: Lexer): Token
     end
 
     if char == "/" then
+        if self:match_next"/" then
+            self:skip_comment()
+
+            return self:next_token()
+        end
+
         if self:match_next"=" then
             return EqualDivToken("/=", self.line)
         end
@@ -297,7 +309,7 @@ function lexer.next_token(self: Lexer): Token
         return StringToken(self:read_string(), self.line)
     end
 
-    if string.find(char, "%A") then
+    if not string.find(char, "%A") then
         local identifier = self:read_identifier()
 
         if identifier == 'true' then
