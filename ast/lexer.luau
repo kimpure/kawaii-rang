@@ -174,33 +174,33 @@ function lexer.next_token(self: Lexer): Token
     self:skip_space()
 
     if self:is_end() then
-        return EofToken("Eof", self.line)
+        return EofToken("Eof", self.line, self.current)
     end
 
     local char = self:advance()
 
     if char == "+" then
         if self:match_next"=" then
-            return EqualAddToken("+=", self.line)
+            return EqualAddToken("+=", self.line, self.current)
         end
 
-        return AddToken("+", self.line)
+        return AddToken("+", self.line, self.current)
     end
 
     if char == "-" then
         if self:match_next"=" then
-            return EqualSubToken("-=", self.line)
+            return EqualSubToken("-=", self.line, self.current)
         end
 
-        return SubToken("-", self.line)
+        return SubToken("-", self.line, self.current)
     end
 
     if char == "*" then
         if self:match_next"=" then
-            return EqualMulToken("*=", self.line)
+            return EqualMulToken("*=", self.line, self.current)
         end
 
-        return MulToken("*", self.line)
+        return MulToken("*", self.line, self.current)
     end
 
     if char == "/" then
@@ -211,180 +211,180 @@ function lexer.next_token(self: Lexer): Token
         end
 
         if self:match_next"=" then
-            return EqualDivToken("/=", self.line)
+            return EqualDivToken("/=", self.line, self.current)
         end
 
-        return DivToken("/", self.line)
+        return DivToken("/", self.line, self.current)
     end
 
     if char == "%" then
-        return RemainderToken("%", self.line)
+        return RemainderToken("%", self.line, self.current)
     end
 
     if char == ";" then
-        return SemiColonToken(";", self.line)
+        return SemiColonToken(";", self.line, self.current)
     end
 
     if char == ":" then
         if self:match_next":" then
-            ColonTwoToken("::", self.line)
+            ColonTwoToken("::", self.line, self.current)
         end
 
-        return ColonToken(":", self.line)
+        return ColonToken(":", self.line, self.current)
     end
 
     if char == "." then
         if self:match_next "." then
-            return DotTwoToken("..", self.line)
+            return DotTwoToken("..", self.line, self.current)
         end
 
-        return DotToken(".", self.line)
+        return DotToken(".", self.line, self.current)
     end
 
     if char == "<" then
         if self:match_next"=" then
-            return LessEqualToken("<=", self.line)
+            return LessEqualToken("<=", self.line, self.current)
         end
 
-        return LessToken("<", self.line)
+        return LessToken("<", self.line, self.current)
     end
 
     if char == ">" then
         if self:match_next"=" then
-            return GreaterEqualToken(">=", self.line)
+            return GreaterEqualToken(">=", self.line, self.current)
         end
 
-        return GreaterToken(">", self.line)
+        return GreaterToken(">", self.line, self.current)
     end
 
     if char == "(" then
-        return LeftParenToken("(", self.line)
+        return LeftParenToken("(", self.line, self.current)
     end
     
     if char == ")" then
-        return RightParenToken(")", self.line)
+        return RightParenToken(")", self.line, self.current)
     end
 
     if char == "{" then
-        return LeftBraceToken("{", self.line)
+        return LeftBraceToken("{", self.line, self.current)
     end
     
     if char == "}" then
-        return RightBraceToken("}", self.line)
+        return RightBraceToken("}", self.line, self.current)
     end
 
     if char == "[" then
-        return LeftBrackToken("[", self.line)
+        return LeftBrackToken("[", self.line, self.current)
     end
     
     if char == "]" then
-        return RightBrackToken("]", self.line)
+        return RightBrackToken("]", self.line, self.current)
     end
 
     if char == "=" then
         if self:match_next"=" then
-            return EqualTwoToken("==", self.line)
+            return EqualTwoToken("==", self.line, self.current)
         end
 
-        return EqualToken("=", self.line)
+        return EqualToken("=", self.line, self.current)
     end
 
     if char == "!" then
         if self:match_next"=" then
-            return NotEqualToken("!=", self.line)
+            return NotEqualToken("!=", self.line, self.current)
         end
     end
 
     if char == "-" then
         if self:match_next">" then
-            return ArrowToken("->", self.line)
+            return ArrowToken("->", self.line, self.current)
         end
     end
 
     if char == "," then
-        return CommaToken(",", self.line)
+        return CommaToken(",", self.line, self.current)
     end
 
     if char == "\"" then
-        return StringToken(self:read_string(), self.line)
+        return StringToken(self:read_string(), self.line, self.current)
     end
 
     if not string.find(char, "%A") then
         local identifier = self:read_identifier()
 
         if identifier == 'true' then
-            return BooleanToken("true", self.line)
+            return BooleanToken("true", self.line, self.current)
         end
         
         if identifier == 'false' then
-            return BooleanToken("false", self.line)
+            return BooleanToken("false", self.line, self.current)
         end
 
         if identifier == 'nil' then
-            return NilToken("nil", self.line)
+            return NilToken("nil", self.line, self.current)
         end
 
         if identifier == "var" then
-            return VarToken("var", self.line)
+            return VarToken("var", self.line, self.current)
         end
 
         if identifier == "if" then
-            return IfToken("if", self.line)
+            return IfToken("if", self.line, self.current)
         end
 
         if identifier == "else" then
-            return ElseToken("else", self.line)
+            return ElseToken("else", self.line, self.current)
         end
 
         if identifier == "while" then
-            return WhileToken("while", self.line)
+            return WhileToken("while", self.line, self.current)
         end
 
         if identifier == "for" then
-            return ForToken("for", self.line)
+            return ForToken("for", self.line, self.current)
         end
 
         if identifier == "return" then
-            return ReturnToken("return", self.line)
+            return ReturnToken("return", self.line, self.current)
         end
 
         if identifier == "function" then
-            return FunctionToken("function", self.line)
+            return FunctionToken("function", self.line, self.current)
         end
 
         if identifier == "class" then
-            return ClassToken("class", self.line)
+            return ClassToken("class", self.line, self.current)
         end
 
         if identifier == "and" then
-            return AndToken("and", self.line)
+            return AndToken("and", self.line, self.current)
         end
 
         if identifier == "or" then
-            return OrToken("or", self.line)
+            return OrToken("or", self.line, self.current)
         end
 
         if identifier == "not" then
-            return NotToken("not", self.line)
+            return NotToken("not", self.line, self.current)
         end
 
         if identifier == "extends" then
-            return ExtendsToken("extends", self.line)
+            return ExtendsToken("extends", self.line, self.current)
         end
 
         if identifier == "type" then
-            return TypeToken("type", self.line)
+            return TypeToken("type", self.line, self.current)
         end
 
         if identifier == "pub" then
-            return PubToken("pub", self.line)
+            return PubToken("pub", self.line, self.current)
         end
 
-        return IdentifierToken(identifier, self.line)
+        return IdentifierToken(identifier, self.line, self.current)
     end
 
     if tonumber(char) then
-        return NumberToken(self:read_number(), self.line)
+        return NumberToken(self:read_number(), self.line, self.current)
     end
 
     error("Unexpected character: " .. char)

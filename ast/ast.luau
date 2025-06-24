@@ -48,14 +48,20 @@ export type TokenType = "IdentifierLexerToken"
     | "PubLexerToken"
     | "EofLexerToken"
 
-export type Token<T> = { lexeme: string, line: number, type: T }
+export type Token<T> = { 
+    type: T,
+    lexeme: string, 
+    line: number, 
+    column: number,
+}
 
-local function createToken(token_type: TokenType): (lexme: string, line: number) -> Token<TokenType>
-    return function(lexeme, line) 
+local function createToken(token_type: TokenType): (lexme: string, line: number, column: number) -> Token<TokenType>
+    return function(lexeme, line, column) 
         return {
             lexeme = lexeme,
             type = token_type,
             line = line,
+            column = column,
         }
     end
 end
