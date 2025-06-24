@@ -1,5 +1,55 @@
 local ast = require("./ast")
 
+local IdentifierToken = ast.IdentifierToken
+local NumberToken = ast.NumberToken
+local StringToken = ast.StringToken
+local FunctionToken = ast.FunctionToken
+local BooleanToken = ast.BooleanToken
+local NilToken = ast.NilToken
+local ClassToken = ast.ClassToken
+local VarToken = ast.VarToken
+local IfToken = ast.IfToken
+local ElseToken = ast.ElseToken
+local WhileToken = ast.WhileToken
+local ForToken = ast.ForToken
+local ReturnToken = ast.ReturnToken
+local AddToken = ast.AddToken
+local SubToken = ast.SubToken
+local MulToken = ast.MulToken
+local DivToken = ast.DivToken
+local RemainderToken = ast.RemainderToken
+local AndToken = ast.AndToken
+local OrToken = ast.OrToken
+local NotToken = ast.NotToken
+local DotToken = ast.DotToken
+local DotTwoToken = ast.DotTwoToken
+local CommaToken = ast.CommaToken
+local SemiColonToken = ast.SemiColonToken
+local ColonToken = ast.ColonToken
+local ColonTwoToken = ast.ColonTwoToken
+local EqualToken = ast.EqualToken
+local EqualTwoToken = ast.EqualTwoToken
+local NotEqualToken = ast.NotEqualToken
+local LessToken = ast.LessToken
+local LessEqualToken = ast.LessEqualToken
+local GreaterToken = ast.GreaterToken
+local GreaterEqualToken = ast.GreaterEqualToken
+local EqualAddToken = ast.EqualAddToken
+local EqualSubToken = ast.EqualSubToken
+local EqualMulToken = ast.EqualMulToken
+local EqualDivToken = ast.EqualDivToken
+local LeftParenToken = ast.LeftParenToken
+local RightParenToken = ast.RightParenToken
+local LeftBraceToken = ast.LeftBraceToken
+local RightBraceToken = ast.RightBraceToken
+local LeftBrackToken = ast.LeftBrackToken
+local RightBrackToken = ast.RightBrackToken
+local ArrowToken = ast.ArrowToken
+local ExtendsToken = ast.ExtendsToken
+local TypeToken = ast.TypeToken
+local PubToken = ast.PubToken
+local EofToken = ast.EofToken
+
 type TokenType = ast.TokenType
 type Token = ast.Token<TokenType>
 
@@ -118,199 +168,211 @@ function lexer.next_token(self: Lexer): Token
     self:skip_space()
 
     if self:is_end() then
-        return ast.EofToken("Eof", self.line)
+        return EofToken("Eof", self.line)
     end
 
     local char = self:advance()
 
     if char == "+" then
         if self:match_next"=" then
-            return ast.EqualAddToken("+=", self.line)
+            return EqualAddToken("+=", self.line)
         end
 
-        return ast.AddToken("+", self.line)
+        return AddToken("+", self.line)
     end
 
     if char == "-" then
         if self:match_next"=" then
-            return ast.EqualSubToken("-=", self.line)
+            return EqualSubToken("-=", self.line)
         end
 
-        return ast.SubToken("-", self.line)
+        return SubToken("-", self.line)
     end
 
     if char == "*" then
         if self:match_next"=" then
-            return ast.EqualMulToken("*=", self.line)
+            return EqualMulToken("*=", self.line)
         end
 
-        return ast.MulToken("*", self.line)
+        return MulToken("*", self.line)
     end
 
     if char == "/" then
         if self:match_next"=" then
-            return ast.EqualDivToken("/=", self.line)
+            return EqualDivToken("/=", self.line)
         end
 
-        return ast.DivToken("/", self.line)
+        return DivToken("/", self.line)
     end
 
     if char == "%" then
-        return ast.RemainderToken("%", self.line)
+        return RemainderToken("%", self.line)
     end
 
     if char == ";" then
-        return ast.SemiColonToken(";", self.line)
+        return SemiColonToken(";", self.line)
     end
 
     if char == ":" then
         if self:match_next":" then
-            ast.ColonTwoToken("::", self.line)
+            ColonTwoToken("::", self.line)
         end
 
-        return ast.ColonToken(":", self.line)
+        return ColonToken(":", self.line)
     end
 
     if char == "." then
         if self:match_next "." then
-            return ast.DotTwoToken("..", self.line)
+            return DotTwoToken("..", self.line)
         end
 
-        return ast.DotToken(".", self.line)
+        return DotToken(".", self.line)
     end
 
     if char == "<" then
         if self:match_next"=" then
-            return ast.LessEqualToken("<=", self.line)
+            return LessEqualToken("<=", self.line)
         end
 
-        return ast.LessToken("<", self.line)
+        return LessToken("<", self.line)
     end
 
     if char == ">" then
         if self:match_next"=" then
-            return ast.GreaterEqualToken(">=", self.line)
+            return GreaterEqualToken(">=", self.line)
         end
 
-        return ast.GreaterToken(">", self.line)
+        return GreaterToken(">", self.line)
     end
 
     if char == "(" then
-        return ast.LeftParenToken("(", self.line)
+        return LeftParenToken("(", self.line)
     end
     
     if char == ")" then
-        return ast.RightParenToken(")", self.line)
+        return RightParenToken(")", self.line)
     end
 
     if char == "{" then
-        return ast.LeftBraceToken("{", self.line)
+        return LeftBraceToken("{", self.line)
     end
     
     if char == "}" then
-        return ast.RightBraceToken("}", self.line)
+        return RightBraceToken("}", self.line)
     end
 
     if char == "[" then
-        return ast.LeftBrackToken("[", self.line)
+        return LeftBrackToken("[", self.line)
     end
     
     if char == "]" then
-        return ast.RightBrackToken("]", self.line)
+        return RightBrackToken("]", self.line)
     end
 
     if char == "=" then
         if self:match_next"=" then
-            return ast.EqualTwoToken("==", self.line)
+            return EqualTwoToken("==", self.line)
         end
 
-        return ast.EqualToken("=", self.line)
+        return EqualToken("=", self.line)
     end
 
     if char == "!" then
         if self:match_next"=" then
-            return ast.NotEqualToken("!=", self.line)
+            return NotEqualToken("!=", self.line)
         end
     end
 
     if char == "-" then
         if self:match_next">" then
-            return ast.ArrowToken("->", self.line)
+            return ArrowToken("->", self.line)
         end
     end
 
     if char == "," then
-        return ast.CommaToken(",", self.line)
+        return CommaToken(",", self.line)
     end
 
     if char == "\"" then
-        return ast.StringToken(self:read_string(), self.line)
+        return StringToken(self:read_string(), self.line)
     end
 
     if string.find(char, "%A") then
         local identifier = self:read_identifier()
 
+        if identifier == 'true' then
+            return BooleanToken("true", self.line)
+        end
+        
+        if identifier == 'false' then
+            return BooleanToken("false", self.line)
+        end
+
+        if identifier == 'nil' then
+            return NilToken("nil", self.line)
+        end
+
         if identifier == "var" then
-            return ast.VarToken("var", self.line)
+            return VarToken("var", self.line)
         end
 
         if identifier == "if" then
-            return ast.IfToken("if", self.line)
+            return IfToken("if", self.line)
         end
 
         if identifier == "else" then
-            return ast.ElseToken("else", self.line)
+            return ElseToken("else", self.line)
         end
 
         if identifier == "while" then
-            return ast.WhileToken("while", self.line)
+            return WhileToken("while", self.line)
         end
 
         if identifier == "for" then
-            return ast.ForToken("for", self.line)
+            return ForToken("for", self.line)
         end
 
         if identifier == "return" then
-            return ast.ReturnToken("return", self.line)
+            return ReturnToken("return", self.line)
         end
 
         if identifier == "function" then
-            return ast.FunctionToken("function", self.line)
+            return FunctionToken("function", self.line)
         end
 
         if identifier == "class" then
-            return ast.ClassToken("class", self.line)
+            return ClassToken("class", self.line)
         end
 
         if identifier == "and" then
-            return ast.AndToken("and", self.line)
+            return AndToken("and", self.line)
         end
 
         if identifier == "or" then
-            return ast.OrToken("or", self.line)
+            return OrToken("or", self.line)
         end
 
         if identifier == "not" then
-            return ast.NotToken("not", self.line)
+            return NotToken("not", self.line)
         end
 
         if identifier == "extends" then
-            return ast.ExtendsToken("extends", self.line)
+            return ExtendsToken("extends", self.line)
         end
 
         if identifier == "type" then
-            return ast.TypeToken("type", self.line)
+            return TypeToken("type", self.line)
         end
 
         if identifier == "pub" then
-            return ast.PubToken("pub", self.line)
+            return PubToken("pub", self.line)
         end
 
-        return ast.IdentifierToken(identifier, self.line)
+        return IdentifierToken(identifier, self.line)
     end
 
     if tonumber(char) then
-        return ast.NumberToken(self:read_number(), self.line)
+        return NumberToken(self:read_number(), self.line)
     end
 
     error("Unexpected character: " .. char)

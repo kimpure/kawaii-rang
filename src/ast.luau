@@ -4,7 +4,6 @@ export type TokenType = "IdentifierLexerToken"
     | "FunctionLexerToken"
     | "BooleanLexerToken"
     | "NilLexerToken"
-    | "ArrayLexerToken"
     | "ClassLexerToken"
     | "VarLexerToken"
     | "IfLexerToken"
@@ -67,7 +66,6 @@ local StringToken = createToken "StringLexerToken"
 local FunctionToken = createToken "FunctionLexerToken"
 local BooleanToken = createToken "BooleanLexerToken"
 local NilToken = createToken "NilLexerToken"
-local ArrayToken = createToken "ArrayLexerToken"
 local ClassToken = createToken "ClassLexerToken"
 local VarToken = createToken "VarLexerToken"
 local IfToken = createToken "IfLexerToken"
@@ -119,7 +117,6 @@ return {
     FunctionToken = FunctionToken,
     BooleanToken = BooleanToken,
     NilToken = NilToken,
-    ArrayToken = ArrayToken,
     ClassToken = ClassToken,
     VarToken = VarToken,
     IfToken = IfToken,
