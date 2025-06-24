@@ -125,6 +125,7 @@ end
 function lexer.read_string(self: Lexer)
     if self:peek() == "\"" then
         self:advance()
+        return ""
     end
 
     local str = ""
@@ -306,7 +307,9 @@ function lexer.next_token(self: Lexer): Token
     end
 
     if char == "\"" then
-        return StringToken(self:read_string(), self.line, self.current)
+        local a = self:read_string()
+        print(a)
+        return StringToken(a, self.line, self.current)
     end
 
     if not string.find(char, "%A") then
