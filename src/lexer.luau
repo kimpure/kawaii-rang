@@ -1,4 +1,4 @@
-local ast = require('./ast')
+local ast = require("./ast")
 
 type TokenType = ast.TokenType
 type Token = ast.Token<TokenType>
@@ -27,7 +27,7 @@ end
 
 function lexer.advance(self: Lexer)
     if self:is_end() then
-        return ''
+        return ""
     end
 
     local ch = utf8.char(utf8.codepoint(string.sub(self.source, self.current + 1), 1))
@@ -38,7 +38,7 @@ end
 
 function lexer.peek(self: Lexer)
     if self:is_end() then
-        return ''
+        return ""
     end
 
     return utf8.char(utf8.codepoint(string.sub(self.source, self.current + 1), 1))
@@ -61,9 +61,9 @@ function lexer.skip_space(self: Lexer)
     while not self:is_end() do
         local char = self:peek()
 
-        if char == ' ' or char == '\r' or char == '\t' then
+        if char == " " or char == "\r" or char == "\t" then
             self:advance()
-        elseif char == '\n' then
+        elseif char == "\n" then
             self.line += 1
             self:advance()
         else
@@ -73,13 +73,13 @@ function lexer.skip_space(self: Lexer)
 end
 
 function lexer.read_string(self: Lexer)
-    if self:peek() == '"' then
+    if self:peek() == "\"" then
         self:advance()
     end
 
     local str = ""
 
-    while not self:is_end() and self:peek() ~= '"' do
+    while not self:is_end() and self:peek() ~= "\"" do
         str ..= self:advance()
     end
 
@@ -104,7 +104,7 @@ function lexer.read_identifier(self: Lexer)
     while not self:is_end() do
         local char = self:peek()
 
-        if tonumber(char) or char == '_' or string.find(char, "%A") then
+        if tonumber(char) or char == "_" or string.find(char, "%A") then
             self:advance()
         else
             break
@@ -123,7 +123,7 @@ function lexer.next_token(self: Lexer): Token
 
     local char = self:advance()
 
-    if char == '+' then
+    if char == "+" then
         if self:match_next"=" then
             return ast.EqualAddToken("+=", self.line)
         end
@@ -131,7 +131,7 @@ function lexer.next_token(self: Lexer): Token
         return ast.AddToken("+", self.line)
     end
 
-    if char == '-' then
+    if char == "-" then
         if self:match_next"=" then
             return ast.EqualSubToken("-=", self.line)
         end
@@ -139,7 +139,7 @@ function lexer.next_token(self: Lexer): Token
         return ast.SubToken("-", self.line)
     end
 
-    if char == '*' then
+    if char == "*" then
         if self:match_next"=" then
             return ast.EqualMulToken("*=", self.line)
         end
@@ -147,7 +147,7 @@ function lexer.next_token(self: Lexer): Token
         return ast.MulToken("*", self.line)
     end
 
-    if char == '/' then
+    if char == "/" then
         if self:match_next"=" then
             return ast.EqualDivToken("/=", self.line)
         end
@@ -155,15 +155,15 @@ function lexer.next_token(self: Lexer): Token
         return ast.DivToken("/", self.line)
     end
 
-    if char == '%' then
+    if char == "%" then
         return ast.RemainderToken("%", self.line)
     end
 
-    if char == ';' then
+    if char == ";" then
         return ast.SemiColonToken(";", self.line)
     end
 
-    if char == ':' then
+    if char == ":" then
         if self:match_next":" then
             ast.ColonTwoToken("::", self.line)
         end
@@ -171,15 +171,15 @@ function lexer.next_token(self: Lexer): Token
         return ast.ColonToken(":", self.line)
     end
 
-    if char == '.' then
-        if self:match_next '.' then
+    if char == "." then
+        if self:match_next "." then
             return ast.DotTwoToken("..", self.line)
         end
 
         return ast.DotToken(".", self.line)
     end
 
-    if char == '<' then
+    if char == "<" then
         if self:match_next"=" then
             return ast.LessEqualToken("<=", self.line)
         end
@@ -187,7 +187,7 @@ function lexer.next_token(self: Lexer): Token
         return ast.LessToken("<", self.line)
     end
 
-    if char == '>' then
+    if char == ">" then
         if self:match_next"=" then
             return ast.GreaterEqualToken(">=", self.line)
         end
@@ -195,31 +195,31 @@ function lexer.next_token(self: Lexer): Token
         return ast.GreaterToken(">", self.line)
     end
 
-    if char == '(' then
+    if char == "(" then
         return ast.LeftParenToken("(", self.line)
     end
     
-    if char == ')' then
+    if char == ")" then
         return ast.RightParenToken(")", self.line)
     end
 
-    if char == '{' then
+    if char == "{" then
         return ast.LeftBraceToken("{", self.line)
     end
     
-    if char == '}' then
+    if char == "}" then
         return ast.RightBraceToken("}", self.line)
     end
 
-    if char == '[' then
+    if char == "[" then
         return ast.LeftBrackToken("[", self.line)
     end
     
-    if char == ']' then
+    if char == "]" then
         return ast.RightBrackToken("]", self.line)
     end
 
-    if char == '=' then
+    if char == "=" then
         if self:match_next"=" then
             return ast.EqualTwoToken("==", self.line)
         end
@@ -227,23 +227,23 @@ function lexer.next_token(self: Lexer): Token
         return ast.EqualToken("=", self.line)
     end
 
-    if char == '!' then
+    if char == "!" then
         if self:match_next"=" then
             return ast.NotEqualToken("!=", self.line)
         end
     end
 
-    if char == '-' then
+    if char == "-" then
         if self:match_next">" then
             return ast.ArrowToken("->", self.line)
         end
     end
 
-    if char == ',' then
+    if char == "," then
         return ast.CommaToken(",", self.line)
     end
 
-    if char == '"' then
+    if char == "\"" then
         return ast.StringToken(self:read_string(), self.line)
     end
 
@@ -313,7 +313,7 @@ function lexer.next_token(self: Lexer): Token
         return ast.NumberToken(self:read_number(), self.line)
     end
 
-    error('Unexpected character: ' .. char)
+    error("Unexpected character: " .. char)
 end
 
 return lexer
