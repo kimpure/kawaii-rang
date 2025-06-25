@@ -8,7 +8,8 @@ type Lexer = lexer.Lexer
 type Token = ast.Token<ast.TokenType>
 
 export type Parser = typeof(setmetatable({} :: {
-    tokens: { Token }
+    cureent: number,
+    tokens: { Token },
 }, parser))
 
 function parser.create(source: string): Parser
@@ -26,12 +27,19 @@ function parser.create(source: string): Parser
     end
 
     return setmetatable({
+        cureent = 1,
         tokens = tokens,
     }, parser)
 end
 
-function parser.parse()
-    
+function parser.peek(self: Parser)
+    return self.tokens[self.cureent]
+end
+
+function parser.next(self: Parser)
+    local current = self.cureent
+    self.cureent += 1
+    return self.tokens[current]
 end
 
 return parser
