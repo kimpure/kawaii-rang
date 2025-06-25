@@ -59,7 +59,7 @@ end
 local parse = parser.create [[
 
 var a = 100
-var b = ""
+var b = """
 $
 
 ]]

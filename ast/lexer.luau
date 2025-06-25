@@ -137,7 +137,7 @@ function lexer.skip_space(self: Lexer)
     end
 end
 
-function lexer.read_string(self: Lexer)
+function lexer.read_string(self: Lexer): string?
     if self:peek() == "\"" then
         self:advance()
         return ""
@@ -156,7 +156,7 @@ function lexer.read_string(self: Lexer)
                 error_message = "unterminated string constant"
             }
 
-            return ""
+            return
         end
     end
 
@@ -333,8 +333,13 @@ function lexer.next_token(self: Lexer): Token?
     end
 
     if char == "\"" then
-        local a = self:read_string()
-        return StringToken(a, self.line, self.line_current)
+        local str = self:read_string()
+
+        if not str then
+            return
+        end
+
+        return StringToken(str, self.line, self.line_current)
     end
 
     if tonumber(char) then
