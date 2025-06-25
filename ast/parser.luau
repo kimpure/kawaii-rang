@@ -18,7 +18,7 @@ export type Parser = typeof(setmetatable({} :: {
 
 function parser.create(source: string): Parser
     local lexer_class = lexer.new(source)
-    local error_class = custom_error.new()
+    local error_class = custom_error.new "main.kawi"
     
     local tokens = {}
     while true do
@@ -59,11 +59,10 @@ end
 local parse = parser.create [[
 
 var a = 100
-var b = """
-$
+var b = ""
 
 ]]
 
-print(parse.custom_error)
+print(parse.custom_error:stdout())
 
 return parser
