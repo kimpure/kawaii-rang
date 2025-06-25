@@ -1,5 +1,6 @@
 local ast = require("@ast/ast")
 local lexer = require("@ast/lexer")
+local custom_error = require("@packages/custom_error")
 
 local parser = {}
 parser.__index = parser
@@ -7,20 +8,28 @@ parser.__index = parser
 type Lexer = lexer.Lexer
 type Token = ast.Token<ast.TokenType>
 
+type CustomError = custom_error.CustomError
+
 export type Parser = typeof(setmetatable({} :: {
     cureent: number,
     tokens: { Token },
+    custom_error: CustomError,
 }, parser))
 
 function parser.create(source: string): Parser
-    local tokens = {}
     local lexer_class = lexer.new(source)
-
+    local error_class = custom_error.new()
+    
+    local tokens = {}
     while true do
         local token = lexer_class:next_token()
 
         if not token then
-            error('lexer error')
+            for i=1, #lexer_class.custom_error.errors do
+                error_class:push(lexer_class.custom_error.errors[i])
+            end
+
+            break
         end
 
         if token.type == 'EofLexerToken' then
@@ -33,6 +42,7 @@ function parser.create(source: string): Parser
     return setmetatable({
         cureent = 1,
         tokens = tokens,
+        custom_error = error_class,
     }, parser)
 end
 
@@ -46,19 +56,14 @@ function parser.next(self: Parser)
     return self.tokens[current]
 end
 
-local lex = lexer.new [[
+local parse = parser.create [[
 
 var a = 100
 var b = ""
+$
 
 ]]
 
-local a = lex:next_token()
-while a and a.type ~= 'EofLexerToken' do
-    print(a)
-    a = lex:next_token()
-end
-
-print(lex.custom_error)
+print(parse.custom_error)
 
 return parser
