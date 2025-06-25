@@ -26,7 +26,7 @@ end
 
 function custom_error.push(self: CustomError, info: {
     file: string?, 
-    line: number, 
+    line: number,
     cureent: number, 
     error_type: string,
     error_message: string,

@@ -65,6 +65,7 @@ export type Lexer = typeof(setmetatable({} :: {
     source: string,
     current: number,
     line: number,
+    line_current: number,
 
     custom_error: CustomError,
 }, lexer))
@@ -74,6 +75,7 @@ function lexer.new(source: string): Lexer
         source = source,
         current = 0,
         line = 1,
+        line_current = 0,
 
         custom_error = custom_error.new(),
     }, lexer)
@@ -91,6 +93,7 @@ function lexer.advance(self: Lexer)
 
     local ch = utf8.char(utf8.codepoint(string.sub(self.source, self.current + 1), 1))
     self.current += #ch
+    self.line_current += #ch
     
     return ch
 end
@@ -124,6 +127,7 @@ function lexer.skip_space(self: Lexer)
             self:advance()
         elseif char == "\n" then
             self.line += 1
+            self.line_current = 0
             self:advance()
         else
             break
@@ -145,10 +149,12 @@ function lexer.read_string(self: Lexer)
         if self:is_end() then
             self.custom_error:push {
                 line = self.line,
-                cureent = self.current,
+                cureent = self.line_current,
                 error_type = error_type.LexicalError,
                 error_message = "unterminated string constant"
             }
+
+            return ""
         end
     end
 
@@ -193,33 +199,33 @@ function lexer.next_token(self: Lexer): Token?
     self:skip_space()
 
     if self:is_end() then
-        return EofToken("Eof", self.line, self.current)
+        return EofToken("Eof", self.line, self.line_current)
     end
 
     local char = self:advance()
 
     if char == "+" then
         if self:match_next"=" then
-            return EqualAddToken("+=", self.line, self.current)
+            return EqualAddToken("+=", self.line, self.line_current)
         end
 
-        return AddToken("+", self.line, self.current)
+        return AddToken("+", self.line, self.line_current)
     end
 
     if char == "-" then
         if self:match_next"=" then
-            return EqualSubToken("-=", self.line, self.current)
+            return EqualSubToken("-=", self.line, self.line_current)
         end
 
-        return SubToken("-", self.line, self.current)
+        return SubToken("-", self.line, self.line_current)
     end
 
     if char == "*" then
         if self:match_next"=" then
-            return EqualMulToken("*=", self.line, self.current)
+            return EqualMulToken("*=", self.line, self.line_current)
         end
 
-        return MulToken("*", self.line, self.current)
+        return MulToken("*", self.line, self.line_current)
     end
 
     if char == "/" then
@@ -230,178 +236,178 @@ function lexer.next_token(self: Lexer): Token?
         end
 
         if self:match_next"=" then
-            return EqualDivToken("/=", self.line, self.current)
+            return EqualDivToken("/=", self.line, self.line_current)
         end
 
-        return DivToken("/", self.line, self.current)
+        return DivToken("/", self.line, self.line_current)
     end
 
     if char == "%" then
-        return RemainderToken("%", self.line, self.current)
+        return RemainderToken("%", self.line, self.line_current)
     end
 
     if char == ";" then
-        return SemiColonToken(";", self.line, self.current)
+        return SemiColonToken(";", self.line, self.line_current)
     end
 
     if char == ":" then
         if self:match_next":" then
-            ColonTwoToken("::", self.line, self.current)
+            ColonTwoToken("::", self.line, self.line_current)
         end
 
-        return ColonToken(":", self.line, self.current)
+        return ColonToken(":", self.line, self.line_current)
     end
 
     if char == "." then
         if self:match_next "." then
-            return DotTwoToken("..", self.line, self.current)
+            return DotTwoToken("..", self.line, self.line_current)
         end
 
-        return DotToken(".", self.line, self.current)
+        return DotToken(".", self.line, self.line_current)
     end
 
     if char == "<" then
         if self:match_next"=" then
-            return LessEqualToken("<=", self.line, self.current)
+            return LessEqualToken("<=", self.line, self.line_current)
         end
 
-        return LessToken("<", self.line, self.current)
+        return LessToken("<", self.line, self.line_current)
     end
 
     if char == ">" then
         if self:match_next"=" then
-            return GreaterEqualToken(">=", self.line, self.current)
+            return GreaterEqualToken(">=", self.line, self.line_current)
         end
 
-        return GreaterToken(">", self.line, self.current)
+        return GreaterToken(">", self.line, self.line_current)
     end
 
     if char == "(" then
-        return LeftParenToken("(", self.line, self.current)
+        return LeftParenToken("(", self.line, self.line_current)
     end
     
     if char == ")" then
-        return RightParenToken(")", self.line, self.current)
+        return RightParenToken(")", self.line, self.line_current)
     end
 
     if char == "{" then
-        return LeftBraceToken("{", self.line, self.current)
+        return LeftBraceToken("{", self.line, self.line_current)
     end
     
     if char == "}" then
-        return RightBraceToken("}", self.line, self.current)
+        return RightBraceToken("}", self.line, self.line_current)
     end
 
     if char == "[" then
-        return LeftBrackToken("[", self.line, self.current)
+        return LeftBrackToken("[", self.line, self.line_current)
     end
     
     if char == "]" then
-        return RightBrackToken("]", self.line, self.current)
+        return RightBrackToken("]", self.line, self.line_current)
     end
 
     if char == "=" then
         if self:match_next"=" then
-            return EqualTwoToken("==", self.line, self.current)
+            return EqualTwoToken("==", self.line, self.line_current)
         end
 
-        return EqualToken("=", self.line, self.current)
+        return EqualToken("=", self.line, self.line_current)
     end
 
     if char == "!" then
         if self:match_next"=" then
-            return NotEqualToken("!=", self.line, self.current)
+            return NotEqualToken("!=", self.line, self.line_current)
         end
     end
 
     if char == "-" then
         if self:match_next">" then
-            return ArrowToken("->", self.line, self.current)
+            return ArrowToken("->", self.line, self.line_current)
         end
     end
 
     if char == "," then
-        return CommaToken(",", self.line, self.current)
+        return CommaToken(",", self.line, self.line_current)
     end
 
     if char == "\"" then
         local a = self:read_string()
-        return StringToken(a, self.line, self.current)
+        return StringToken(a, self.line, self.line_current)
     end
 
     if tonumber(char) then
-        return NumberToken(self:read_number(), self.line, self.current)
+        return NumberToken(self:read_number(), self.line, self.line_current)
     end
 
     if not string.find(char, "%A") then
         local identifier = self:read_identifier()
 
         if identifier == "true" then
-            return BooleanToken("true", self.line, self.current)
+            return BooleanToken("true", self.line, self.line_current)
         end
         
         if identifier == "false" then
-            return BooleanToken("false", self.line, self.current)
+            return BooleanToken("false", self.line, self.line_current)
         end
 
         if identifier == "nil" then
-            return NilToken("nil", self.line, self.current)
+            return NilToken("nil", self.line, self.line_current)
         end
 
         if identifier == "var" then
-            return VarToken("var", self.line, self.current)
+            return VarToken("var", self.line, self.line_current)
         end
 
         if identifier == "if" then
-            return IfToken("if", self.line, self.current)
+            return IfToken("if", self.line, self.line_current)
         end
 
         if identifier == "else" then
-            return ElseToken("else", self.line, self.current)
+            return ElseToken("else", self.line, self.line_current)
         end
 
         if identifier == "while" then
-            return WhileToken("while", self.line, self.current)
+            return WhileToken("while", self.line, self.line_current)
         end
 
         if identifier == "for" then
-            return ForToken("for", self.line, self.current)
+            return ForToken("for", self.line, self.line_current)
         end
 
         if identifier == "return" then
-            return ReturnToken("return", self.line, self.current)
+            return ReturnToken("return", self.line, self.line_current)
         end
 
         if identifier == "function" then
-            return FunctionToken("function", self.line, self.current)
+            return FunctionToken("function", self.line, self.line_current)
         end
 
         if identifier == "class" then
-            return ClassToken("class", self.line, self.current)
+            return ClassToken("class", self.line, self.line_current)
         end
 
         if identifier == "and" then
-            return AndToken("and", self.line, self.current)
+            return AndToken("and", self.line, self.line_current)
         end
 
         if identifier == "or" then
-            return OrToken("or", self.line, self.current)
+            return OrToken("or", self.line, self.line_current)
         end
 
         if identifier == "not" then
-            return NotToken("not", self.line, self.current)
+            return NotToken("not", self.line, self.line_current)
         end
 
         if identifier == "extends" then
-            return ExtendsToken("extends", self.line, self.current)
+            return ExtendsToken("extends", self.line, self.line_current)
         end
 
         if identifier == "type" then
-            return TypeToken("type", self.line, self.current)
+            return TypeToken("type", self.line, self.line_current)
         end
 
         if identifier == "pub" then
-            return PubToken("pub", self.line, self.current)
+            return PubToken("pub", self.line, self.line_current)
         end
 
         if identifier == "" then
@@ -409,16 +415,16 @@ function lexer.next_token(self: Lexer): Token?
                 line = self.line,
                 cureent = self.current,
                 error_type = error_type.LexicalError,
-                error_message = `Invalid character '{self:peek()}' ({utf8.codepoint(self:peek())}) in identifier`,
+                error_message = `Invalid character '{self:peek()}' in identifier`,
             }
         end
 
-        return IdentifierToken(identifier, self.line, self.current)
+        return IdentifierToken(identifier, self.line, self.line_current)
     end
 
     return self.custom_error:push {
         line = self.line,
-        cureent = self.current,
+        cureent = self.line_current,
         error_type = error_type.LexicalError,
         error_message = `Unexpected character '{char}'`,
     }

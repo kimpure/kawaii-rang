@@ -46,4 +46,19 @@ function parser.next(self: Parser)
     return self.tokens[current]
 end
 
+local lex = lexer.new [[
+
+var a = 100
+var b = ""
+
+]]
+
+local a = lex:next_token()
+while a and a.type ~= 'EofLexerToken' do
+    print(a)
+    a = lex:next_token()
+end
+
+print(lex.custom_error)
+
 return parser
