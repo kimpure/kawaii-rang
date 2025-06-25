@@ -151,7 +151,7 @@ function lexer.read_string(self: Lexer)
         if self:is_end() then
             self.custom_error:push {
                 line = self.line,
-                cureent = self.line_current,
+                current = self.line_current,
                 error_type = LexicalError,
                 error_message = "unterminated string constant"
             }
@@ -415,7 +415,7 @@ function lexer.next_token(self: Lexer): Token?
         if identifier == "" then
             return self.custom_error:push {
                 line = self.line,
-                cureent = self.current,
+                current = self.current,
                 error_type = LexicalError,
                 error_message = `Invalid character '{self:peek()}' in identifier`,
             }
@@ -426,7 +426,7 @@ function lexer.next_token(self: Lexer): Token?
 
     return self.custom_error:push {
         line = self.line,
-        cureent = self.line_current,
+        current = self.line_current,
         error_type = LexicalError,
         error_message = `Unexpected character '{char}'`,
     }
