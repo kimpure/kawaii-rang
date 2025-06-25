@@ -254,7 +254,7 @@ function lexer.next_token(self: Lexer): Token?
 
     if char == ":" then
         if self:match_next":" then
-            ColonTwoToken("::", self.line, self.line_current)
+            return ColonTwoToken("::", self.line, self.line_current)
         end
 
         return ColonToken(":", self.line, self.line_current)

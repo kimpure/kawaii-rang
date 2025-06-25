@@ -59,10 +59,10 @@ end
 local parse = parser.create [[
 
 var a = 100
-var b = ""
+var b = ""::
 
 ]]
 
-print(parse.custom_error:stdout())
+print(parse.custom_error:stdout(), parse.tokens)
 
 return parser
