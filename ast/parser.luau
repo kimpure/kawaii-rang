@@ -1,5 +1,5 @@
-local ast = require('./ast')
-local lexer = require('./lexer')
+local ast = require("@ast/ast")
+local lexer = require("@ast/lexer")
 
 local parser = {}
 parser.__index = parser
@@ -18,6 +18,10 @@ function parser.create(source: string): Parser
 
     while true do
         local token = lexer_class:next_token()
+
+        if not token then
+            error('lexer error')
+        end
 
         if token.type == 'EofLexerToken' then
             break

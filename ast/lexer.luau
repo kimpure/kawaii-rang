@@ -1,4 +1,7 @@
-local ast = require("./ast")
+local ast = require("@ast/ast")
+local custom_error = require('@packages/custom_error')
+
+local error_type = custom_error.error_type
 
 local IdentifierToken = ast.IdentifierToken
 local NumberToken = ast.NumberToken
@@ -53,6 +56,8 @@ local EofToken = ast.EofToken
 type TokenType = ast.TokenType
 type Token = ast.Token<TokenType>
 
+type CustomError = custom_error.CustomError
+
 local lexer = {}
 lexer.__index = lexer
 
@@ -60,13 +65,17 @@ export type Lexer = typeof(setmetatable({} :: {
     source: string,
     current: number,
     line: number,
+
+    custom_error: CustomError,
 }, lexer))
 
-function lexer.new(source: string)
+function lexer.new(source: string): Lexer
     return setmetatable({
         source = source,
         current = 0,
         line = 1,
+
+        custom_error = custom_error.new(),
     }, lexer)
 end
 
@@ -130,8 +139,17 @@ function lexer.read_string(self: Lexer)
 
     local str = ""
 
-    while not self:is_end() and self:peek() ~= "\"" do
+    while self:peek() ~= "\"" do
         str ..= self:advance()
+
+        if self:is_end() then
+            self.custom_error:push {
+                line = self.line,
+                cureent = self.current,
+                error_type = error_type.LexicalError,
+                error_message = "unterminated string constant"
+            }
+        end
     end
 
     self:advance()
@@ -171,7 +189,7 @@ function lexer.read_identifier(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
-function lexer.next_token(self: Lexer): Token
+function lexer.next_token(self: Lexer): Token?
     self:skip_space()
 
     if self:is_end() then
@@ -308,8 +326,11 @@ function lexer.next_token(self: Lexer): Token
 
     if char == "\"" then
         local a = self:read_string()
-        print(a)
         return StringToken(a, self.line, self.current)
+    end
+
+    if tonumber(char) then
+        return NumberToken(self:read_number(), self.line, self.current)
     end
 
     if not string.find(char, "%A") then
@@ -383,14 +404,24 @@ function lexer.next_token(self: Lexer): Token
             return PubToken("pub", self.line, self.current)
         end
 
+        if identifier == "" then
+            return self.custom_error:push {
+                line = self.line,
+                cureent = self.current,
+                error_type = error_type.LexicalError,
+                error_message = `Invalid character '{self:peek()}' (U+3139) in identifier`,
+            }
+        end
+
         return IdentifierToken(identifier, self.line, self.current)
     end
 
-    if tonumber(char) then
-        return NumberToken(self:read_number(), self.line, self.current)
-    end
-
-    error("Unexpected character: " .. char)
+    return self.custom_error:push {
+        line = self.line,
+        cureent = self.current,
+        error_type = error_type.LexicalError,
+        error_message = `Unexpected character '{char}'`,
+    }
 end
 
 return lexer
