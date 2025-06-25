@@ -3,6 +3,8 @@ local custom_error = require("@packages/custom_error")
 
 local error_type = custom_error.error_type
 
+local LexicalError = error_type.LexicalError
+
 local IdentifierToken = ast.IdentifierToken
 local NumberToken = ast.NumberToken
 local StringToken = ast.StringToken
@@ -150,7 +152,7 @@ function lexer.read_string(self: Lexer)
             self.custom_error:push {
                 line = self.line,
                 cureent = self.line_current,
-                error_type = error_type.LexicalError,
+                error_type = LexicalError,
                 error_message = "unterminated string constant"
             }
 
@@ -414,7 +416,7 @@ function lexer.next_token(self: Lexer): Token?
             return self.custom_error:push {
                 line = self.line,
                 cureent = self.current,
-                error_type = error_type.LexicalError,
+                error_type = LexicalError,
                 error_message = `Invalid character '{self:peek()}' in identifier`,
             }
         end
@@ -425,7 +427,7 @@ function lexer.next_token(self: Lexer): Token?
     return self.custom_error:push {
         line = self.line,
         cureent = self.line_current,
-        error_type = error_type.LexicalError,
+        error_type = LexicalError,
         error_message = `Unexpected character '{char}'`,
     }
 end
