@@ -1,5 +1,5 @@
 local ast = require("@ast/ast")
-local custom_error = require('@packages/custom_error')
+local custom_error = require("@packages/custom_error")
 
 local error_type = custom_error.error_type
 
@@ -168,7 +168,7 @@ function lexer.read_number(self: Lexer)
 end
 
 function lexer.skip_comment(self: Lexer)
-    while not self:is_end() and self:peek() ~= '\n' do
+    while not self:is_end() and self:peek() ~= "\n" do
         self:advance()
     end
 end
@@ -336,15 +336,15 @@ function lexer.next_token(self: Lexer): Token?
     if not string.find(char, "%A") then
         local identifier = self:read_identifier()
 
-        if identifier == 'true' then
+        if identifier == "true" then
             return BooleanToken("true", self.line, self.current)
         end
         
-        if identifier == 'false' then
+        if identifier == "false" then
             return BooleanToken("false", self.line, self.current)
         end
 
-        if identifier == 'nil' then
+        if identifier == "nil" then
             return NilToken("nil", self.line, self.current)
         end
 
@@ -409,7 +409,7 @@ function lexer.next_token(self: Lexer): Token?
                 line = self.line,
                 cureent = self.current,
                 error_type = error_type.LexicalError,
-                error_message = `Invalid character '{self:peek()}' (U+3139) in identifier`,
+                error_message = `Invalid character '{self:peek()}' ({utf8.codepoint(self:peek())}) in identifier`,
             }
         end
 
