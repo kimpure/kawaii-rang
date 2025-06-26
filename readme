@@ -1,6 +1,0 @@
-## 무엇을 하는 레포인가요
-https://github.com/kimpure/kawaii-rang 의 ast 를 구현한 레포입니다
-
-kawaii rang 은 rust 로 작성되었지만 
-현제 저의 실력과 능력이 부족하다고 판단되어
-제가 가장 편하게 쓸수있는 언어인 luau 로 먼저 작성을 하기위해 만들어진 레포입니다.
