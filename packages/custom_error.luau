@@ -2,6 +2,7 @@ local custom_error = {}
 custom_error.__index = custom_error
 
 export type CustomErrorInfo = {
+    file: string?,
     line: number,
     current: number,
     error_type: string,
@@ -26,11 +27,12 @@ function custom_error.new(file: string?): CustomError
 end
 
 function custom_error.push(self: CustomError, info: CustomErrorInfo)
+    info.file = info.file or self.file
     self.errors[#self.errors + 1] = info
 end
 
 function custom_error.format_error(self: CustomError, info: CustomErrorInfo): string
-    return `[{self.file and self.file .. ":" or ""}{info.line}:{info.current}] {info.error_type}: {info.error_message}`
+    return `[{info.file and info.file .. ":" or ""}{info.line}:{info.current}] {info.error_type}: {info.error_message}`
 end
 
 function custom_error.stdout(self: CustomError): string

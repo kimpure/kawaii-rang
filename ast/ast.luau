@@ -116,7 +116,57 @@ local TypeToken = createToken "TypeLexerToken"
 local PublicToken = createToken "PublicLexerToken"
 local EofToken = createToken "EofLexerToken"
 
-return {
+local IdentifierTokenType = "IdentifierLexerToken"
+local NumberTokenType = "NumberLexerToken"
+local StringTokenType = "StringLexerToken"
+local FunctionTokenType = "FunctionLexerToken"
+local BooleanTokenType = "BooleanLexerToken"
+local NilTokenType = "NilLexerToken"
+local ClassTokenType = "ClassLexerToken"
+local VarTokenType = "VarLexerToken"
+local IfTokenType = "IfLexerToken"
+local ElseTokenType = "ElseLexerToken"
+local WhileTokenType = "WhileLexerToken"
+local ForTokenType = "ForLexerToken"
+local ReturnTokenType = "ReturnLexerToken"
+local AddTokenType = "AddLexerToken"
+local SubTokenType = "SubLexerToken"
+local MulTokenType = "MulLexerToken"
+local DivTokenType = "DivLexerToken"
+local RemainderTokenType = "RemainderLexerToken"
+local AndTokenType = "AndLexerToken"
+local OrTokenType = "OrLexerToken"
+local NotTokenType = "NotLexerToken"
+local DotTokenType = "DotLexerToken"
+local DotTwoTokenType = "DotTwoLexerToken"
+local CommaTokenType = "CommaLexerToken"
+local SemiColonTokenType = "SemiColonLexerToken"
+local ColonTokenType = "ColonLexerToken"
+local ColonTwoTokenType = "ColonTwoLexerToken"
+local EqualTokenType = "EqualLexerToken"
+local EqualTwoTokenType = "EqualTwoLexerToken"
+local NotEqualTokenType = "NotEqualLexerToken"
+local LessTokenType = "LessLexerToken"
+local LessEqualTokenType = "LessEqualLexerToken"
+local GreaterTokenType = "GreaterLexerToken"
+local GreaterEqualTokenType = "GreaterEqualLexerToken"
+local EqualAddTokenType = "EqualAddLexerToken"
+local EqualSubTokenType = "EqualSubLexerToken"
+local EqualMulTokenType = "EqualMulLexerToken"
+local EqualDivTokenType = "EqualDivLexerToken"
+local LeftParenTokenType = "LeftParenLexerToken"
+local RightParenTokenType = "RightParenLexerToken"
+local LeftBraceTokenType = "LeftBraceLexerToken"
+local RightBraceTokenType = "RightBraceLexerToken"
+local LeftBrackTokenType = "LeftBrackLexerToken"
+local RightBrackTokenType = "RightBrackLexerToken"
+local ArrowTokenType = "ArrowLexerToken"
+local ExtendsTokenType = "ExtendsLexerToken"
+local TypeTokenType = "TypeLexerToken"
+local PublicTokenType = "PublicLexerToken"
+local EofTokenType = "EofLexerToken"
+
+local tokens = {
     IdentifierToken = IdentifierToken,
     NumberToken = NumberToken,
     StringToken = StringToken,
@@ -166,4 +216,108 @@ return {
     TypeToken = TypeToken,
     PublicToken = PublicToken,
     EofToken = EofToken,
+}
+
+local token_types = {
+    IdentifierTokenType = IdentifierTokenType,
+    NumberTokenType = NumberTokenType,
+    StringTokenType = StringTokenType,
+    FunctionTokenType = FunctionTokenType,
+    BooleanTokenType = BooleanTokenType,
+    NilTokenType = NilTokenType,
+    ClassTokenType = ClassTokenType,
+    VarTokenType = VarTokenType,
+    IfTokenType = IfTokenType,
+    ElseTokenType = ElseTokenType,
+    WhileTokenType = WhileTokenType,
+    ForTokenType = ForTokenType,
+    ReturnTokenType = ReturnTokenType,
+    AddTokenType = AddTokenType,
+    SubTokenType = SubTokenType,
+    MulTokenType = MulTokenType,
+    DivTokenType = DivTokenType,
+    RemainderTokenType = RemainderTokenType,
+    AndTokenType = AndTokenType,
+    OrTokenType = OrTokenType,
+    NotTokenType = NotTokenType,
+    DotTokenType = DotTokenType,
+    DotTwoTokenType = DotTwoTokenType,
+    CommaTokenType = CommaTokenType,
+    SemiColonTokenType = SemiColonTokenType,
+    ColonTokenType = ColonTokenType,
+    ColonTwoTokenType = ColonTwoTokenType,
+    EqualTokenType = EqualTokenType,
+    EqualTwoTokenType = EqualTwoTokenType,
+    NotEqualTokenType = NotEqualTokenType,
+    LessTokenType = LessTokenType,
+    LessEqualTokenType = LessEqualTokenType,
+    GreaterTokenType = GreaterTokenType,
+    GreaterEqualTokenType = GreaterEqualTokenType,
+    EqualAddTokenType = EqualAddTokenType,
+    EqualSubTokenType = EqualSubTokenType,
+    EqualMulTokenType = EqualMulTokenType,
+    EqualDivTokenType = EqualDivTokenType,
+    LeftParenTokenType = LeftParenTokenType,
+    RightParenTokenType = RightParenTokenType,
+    LeftBraceTokenType = LeftBraceTokenType,
+    RightBraceTokenType = RightBraceTokenType,
+    LeftBrackTokenType = LeftBrackTokenType,
+    RightBrackTokenType = RightBrackTokenType,
+    ArrowTokenType = ArrowTokenType,
+    ExtendsTokenType = ExtendsTokenType,
+    TypeTokenType = TypeTokenType,
+    PublicTokenType = PublicTokenType,
+    EofTokenType = EofTokenType,
+}
+
+local expression = {}
+
+function expression.LiteralExpression()
+
+end
+
+function expression.GroupedExpression()
+
+end
+
+function expression.FunctionCallExpression()
+
+end
+
+function expression.VariableExpression()
+
+end
+
+function expression.BinaryExpression()
+
+end
+
+function expression.IndexAccessExpression()
+
+end
+
+function expression.TableExpression()
+
+end
+
+function expression.FunctionExpression()
+
+end
+
+
+function expression.ClassExpression()
+
+end
+
+function expression.TypeExpression()
+
+end
+
+function expression.ImportExpression()
+
+end
+
+return {
+    tokens = tokens,
+    token_types = token_types,
 }

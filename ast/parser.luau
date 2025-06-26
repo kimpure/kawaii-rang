@@ -56,13 +56,8 @@ function parser.next(self: Parser)
     return self.tokens[current]
 end
 
-local parse = parser.create([[
-
-var a = 100
-var b = ""::
-$
-]], "main.kawi")
-
-print(parse.custom_error:stdout())
+function parser.parse_expression(self: Parser)
+    
+end
 
 return parser
