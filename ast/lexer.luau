@@ -52,7 +52,7 @@ local RightBrackToken = ast.RightBrackToken
 local ArrowToken = ast.ArrowToken
 local ExtendsToken = ast.ExtendsToken
 local TypeToken = ast.TypeToken
-local PubToken = ast.PubToken
+local PublicToken = ast.PublicToken
 local EofToken = ast.EofToken
 
 type TokenType = ast.TokenType
@@ -413,8 +413,8 @@ function lexer.next_token(self: Lexer): Token?
             return TypeToken("type", self.line, self.line_current)
         end
 
-        if identifier == "pub" then
-            return PubToken("pub", self.line, self.line_current)
+        if identifier == "Public" then
+            return PublicToken("Public", self.line, self.line_current)
         end
 
         if identifier == "" then

@@ -45,7 +45,7 @@ export type TokenType = "IdentifierLexerToken"
     | "ArrowLexerToken"
     | "ExtendsLexerToken"
     | "TypeLexerToken"
-    | "PubLexerToken"
+    | "PublicLexerToken"
     | "EofLexerToken"
 
 export type Token<T> = { 
@@ -113,7 +113,7 @@ local RightBrackToken = createToken "RightBrackLexerToken"
 local ArrowToken = createToken "ArrowLexerToken"
 local ExtendsToken = createToken "ExtendsLexerToken"
 local TypeToken = createToken "TypeLexerToken"
-local PubToken = createToken "PubLexerToken"
+local PublicToken = createToken "PublicLexerToken"
 local EofToken = createToken "EofLexerToken"
 
 return {
@@ -164,6 +164,6 @@ return {
     ArrowToken = ArrowToken,
     ExtendsToken = ExtendsToken,
     TypeToken = TypeToken,
-    PubToken = PubToken,
+    PublicToken = PublicToken,
     EofToken = EofToken,
 }
