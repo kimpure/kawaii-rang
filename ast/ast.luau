@@ -166,6 +166,56 @@ local TypeTokenType = "TypeLexerToken"
 local PublicTokenType = "PublicLexerToken"
 local EofTokenType = "EofLexerToken"
 
+export type IdentifierTokenType = "IdentifierTokenType"
+export type NumberTokenType = "NumberTokenType"
+export type StringTokenType = "StringTokenType"
+export type FunctionTokenType = "FunctionTokenType"
+export type BooleanTokenType = "BooleanTokenType"
+export type NilTokenType = "NilTokenType"
+export type ClassTokenType = "ClassTokenType"
+export type VarTokenType = "VarTokenType"
+export type IfTokenType = "IfTokenType"
+export type ElseTokenType = "ElseTokenType"
+export type WhileTokenType = "WhileTokenType"
+export type ForTokenType = "ForTokenType"
+export type ReturnTokenType = "ReturnTokenType"
+export type AddTokenType = "AddTokenType"
+export type SubTokenType = "SubTokenType"
+export type MulTokenType = "MulTokenType"
+export type DivTokenType = "DivTokenType"
+export type RemainderTokenType = "RemainderTokenType"
+export type AndTokenType = "AndTokenType"
+export type OrTokenType = "OrTokenType"
+export type NotTokenType = "NotTokenType"
+export type DotTokenType = "DotTokenType"
+export type DotTwoTokenType = "DotTwoTokenType"
+export type CommaTokenType = "CommaTokenType"
+export type SemiColonTokenType = "SemiColonTokenType"
+export type ColonTokenType = "ColonTokenType"
+export type ColonTwoTokenType = "ColonTwoTokenType"
+export type EqualTokenType = "EqualTokenType"
+export type EqualTwoTokenType = "EqualTwoTokenType"
+export type NotEqualTokenType = "NotEqualTokenType"
+export type LessTokenType = "LessTokenType"
+export type LessEqualTokenType = "LessEqualTokenType"
+export type GreaterTokenType = "GreaterTokenType"
+export type GreaterEqualTokenType = "GreaterEqualTokenType"
+export type EqualAddTokenType = "EqualAddTokenType"
+export type EqualSubTokenType = "EqualSubTokenType"
+export type EqualMulTokenType = "EqualMulTokenType"
+export type EqualDivTokenType = "EqualDivTokenType"
+export type LeftParenTokenType = "LeftParenTokenType"
+export type RightParenTokenType = "RightParenTokenType"
+export type LeftBraceTokenType = "LeftBraceTokenType"
+export type RightBraceTokenType = "RightBraceTokenType"
+export type LeftBrackTokenType = "LeftBrackTokenType"
+export type RightBrackTokenType = "RightBrackTokenType"
+export type ArrowTokenType = "ArrowTokenType"
+export type ExtendsTokenType = "ExtendsTokenType"
+export type TypeTokenType = "TypeTokenType"
+export type PublicTokenType = "PublicTokenType"
+export type EofTokenType = "EofTokenType"
+
 local tokens = {
     IdentifierToken = IdentifierToken,
     NumberToken = NumberToken,
@@ -269,6 +319,21 @@ local token_types = {
     PublicTokenType = PublicTokenType,
     EofTokenType = EofTokenType,
 }
+
+export type LiteralTokenTypes = 
+    | NumberTokenType
+    | StringTokenType
+    | BooleanTokenType
+    | NilTokenType
+
+export type LiteralExpression = {
+    data_type: LiteralTokenTypes,
+    value: string,
+    type: "LiteralExpression",
+}
+
+export type Expression = 
+    | LiteralExpression
 
 local expression = {}
 
