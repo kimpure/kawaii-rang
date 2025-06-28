@@ -332,17 +332,42 @@ export type LiteralExpression = {
     type: "LiteralExpression",
 }
 
+export type GroupedExpression = {
+    expression: Expression,
+    type: "GroupedExpression",
+}
+
+export type UnaryExpression = {
+    expression: Expression,
+    type: "UnaryExpression",
+}
+
 export type Expression = 
     | LiteralExpression
+    | GroupedExpression
 
 local expression = {}
 
-function expression.LiteralExpression()
-
+function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string): LiteralExpression
+    return {
+        data_type = data_type,
+        value = value,
+        type = "LiteralExpression",
+    }
 end
 
-function expression.GroupedExpression()
+function expression.GroupedExpression(expression: Expression): GroupedExpression
+    return {
+        expression = expression,
+        type = "GroupedExpression",
+    }
+end
 
+function expression.UnaryExpression(expression: Expression): UnaryExpression
+    return {
+        expression = expression,
+        type = "UnaryExpression",
+    }
 end
 
 function expression.FunctionCallExpression()
