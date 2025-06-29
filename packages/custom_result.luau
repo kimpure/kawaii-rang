@@ -22,7 +22,6 @@ local custom_result = {}
 custom_result.__index = custom_result
 
 export type CustomResult<T, U> = typeof(setmetatable({} :: {
-    result_type: ("CustomResultErr" | "CustomResultOk")?,
     value: Result<T, U>?
 }, custom_result))
 
@@ -31,7 +30,6 @@ function custom_result.new<T, U>(): CustomResult<T, U>
 end
 
 function custom_result.Ok<T, U>(self: CustomResult<T, U>, value: T)
-	self.result_type = "CustomResultOk"
 	self.value = { 
         kind = "CustomResultOk", 
         value = value 
@@ -39,7 +37,6 @@ function custom_result.Ok<T, U>(self: CustomResult<T, U>, value: T)
 end
 
 function custom_result.Err<T, U>(self: CustomResult<T, U>, error: U)
-	self.result_type = "CustomResultErr"
 	self.value = { 
         kind = "CustomResultErr", 
         error = error, 
@@ -47,14 +44,14 @@ function custom_result.Err<T, U>(self: CustomResult<T, U>, error: U)
 end
 
 function custom_result.isOk<T, U>(self: CustomResult<T, U>): Ok<T>?
-	if self.result_type == "CustomResultOk" and typeof(self.value) == "table" and self.value.kind == "CustomResultOk" then
+	if self.value and self.value.kind == "CustomResultOk" then
 		return self.value
 	end
 	return nil
 end
 
 function custom_result.isErr<T, U>(self: CustomResult<T, U>): Err<U>?
-	if self.result_type == "CustomResultErr" and typeof(self.value) == "table" and self.value.kind == "CustomResultErr" then
+	if self.value and self.value.kind == "CustomResultErr" then
 		return self.value
 	end
 	return nil
