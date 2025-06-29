@@ -1,5 +1,6 @@
 local ast = require("@ast/ast")
 local custom_error = require("@packages/custom_error")
+local custom_result = require("@packages/custom_result")
 
 local error_type = custom_error.error_type
 
@@ -62,6 +63,11 @@ type TokenType = ast.TokenType
 type Token = ast.Token<TokenType>
 
 type CustomError = custom_error.CustomError
+type CustomErrorInfo = custom_error.CustomErrorInfo
+
+type Ok<T> = custom_result.Ok<T>
+type Err<T> = custom_result.Err<T>
+type Result<T, U> = custom_result.CustomResult<T, U>
 
 local lexer = {}
 lexer.__index = lexer
@@ -442,6 +448,40 @@ function lexer.next_token(self: Lexer): Token?
         error_type = LexicalError,
         error_message = `Unexpected character '{char}'`,
     }
+end
+
+function lexer.next(self: Lexer): Result<Token, nil>
+    local token = self:next_token()
+    local result = custom_result.new()
+
+    if not token then
+        result:Err(nil)
+        return result
+    end
+
+    result:Ok(token)
+
+    return result
+end
+
+function lexer.tokenize(self: Lexer): Result<{ Token }, nil>
+    local tokens = {}
+    local result = custom_result.new()
+    
+    while true do
+        local token_result = self:next()
+
+        if token_result:isErr() then
+            result:Err(nil)
+            return result
+        end
+        
+        tokens[#tokens + 1] = (token_result:isOk() :: Ok<Token>).value
+    end
+
+    result:Ok(tokens)
+
+    return result
 end
 
 return lexer

@@ -17,6 +17,7 @@ export type CustomError = typeof(setmetatable({} :: {
 custom_error.error_type = {
     SyntaxError = "SyntaxError",
     LexicalError = "LexicalError",
+    AnyError = "AnyError",
 }
 
 function custom_error.new(file: string?): CustomError
@@ -29,6 +30,32 @@ end
 function custom_error.push(self: CustomError, info: CustomErrorInfo)
     info.file = info.file or self.file
     self.errors[#self.errors + 1] = info
+end
+
+function custom_error.extends(self: CustomError, line: number, cureent: number, file: string?)
+    if #self.errors <= 0 then
+        return self:push {
+            file = file,
+            line = line,
+            current = cureent,
+            error_type = custom_error.error_type.AnyError,
+            error_message = "any error (not thing)",
+        }
+    end
+
+    self:push {
+        file = file,
+        line = line,
+        current = cureent,
+        error_type = self.errors[#self.errors].error_type,
+        error_message = `{self.errors[#self.errors].error_message} (with extends {self.errors[#self.errors].file or "any file"})`,
+    }
+end
+
+function custom_error.extends_errors(self: CustomError, extends_class: CustomError)
+    for i=1, #extends_class.errors do
+        self.errors[#self.errors + 1] = extends_class.errors[i] 
+    end
 end
 
 function custom_error.format_error(self: CustomError, info: CustomErrorInfo): string

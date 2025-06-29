@@ -593,7 +593,6 @@ end
 --// TODO: add type, statement
 --// TODO: compiler -> typeof
 --// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
---// TODO: 제네릭 타입 만들기
 -- function expression.ClassExpression()
 
 -- end
@@ -608,4 +607,5 @@ return {
     token_types = token_types,
     expression = expression,
     ast_node = ast_node,
+    ast_type = ast_type,
 }
