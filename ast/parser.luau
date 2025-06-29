@@ -60,4 +60,17 @@ function parser.parse_expression(self: Parser)
     
 end
 
+
+local lex = lexer.new [[
+
+var a = 100
+var b = ""
+
+function a() {}
+//$
+
+]]
+
+print(lex:tokenize():isOk())
+
 return parser

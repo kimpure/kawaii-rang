@@ -475,8 +475,14 @@ function lexer.tokenize(self: Lexer): Result<{ Token }, nil>
             result:Err(nil)
             return result
         end
-        
-        tokens[#tokens + 1] = (token_result:isOk() :: Ok<Token>).value
+
+        local ok = token_result:isOk() :: Ok<Token>
+
+        tokens[#tokens + 1] = ok.value
+
+        if ok.value.type == "EofTokenType" then
+            break
+        end
     end
 
     result:Ok(tokens)
