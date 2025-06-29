@@ -368,6 +368,11 @@ export type GenericAstType = {
     type: "GenericAstType",
 }
 
+export type TypeofAstType = {
+    expression: Expression,
+    type: "TypeofAstType",
+}
+
 export type AstType = 
     | StringAstType
     | NumberAstType
@@ -375,6 +380,7 @@ export type AstType =
     | NilAstType
     | FunctionAstType
     | GenericAstType
+    | TypeofAstType
 
 local ast_type = {}
 ast_type.StringAstType = "StringAstType"
@@ -395,6 +401,13 @@ function ast_type.GenericAstType(name: string): GenericAstType
     return {
         name = name,
         type = "GenericAstType",
+    }
+end
+
+function ast_type.TypeofAstType(expression: Expression): TypeofAstType
+    return {
+        expression = expression,
+        type = "TypeofAstType",
     }
 end
 
