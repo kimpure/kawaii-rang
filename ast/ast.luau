@@ -370,10 +370,18 @@ export type AstType =
     | FunctionAstType
 
 local ast_type = {}
+ast_type.StringAstType = "StringAstType"
+ast_type.NumberAstType = "NumberAstType"
+ast_type.BooleanAstType = "NumberAstType"
+ast_type.NilAstType = "NilAstType"
 
--- function ast_type.array(default_type: )
-
--- end
+function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType): FunctionAstType
+    return {
+        parameters = parameters,
+        return_type = return_type,
+        type = "FunctionAstType",
+    }
+end
 
 export type LiteralExpression = {
     data_type: LiteralTokenTypes,
@@ -511,9 +519,16 @@ export type FunctionAstNode = {
     type: "FunctionAstNode",
 }
 
+export type TypeAstNode = {
+    name: string,
+    value: AstType,
+    type: "TypeAstNode",
+}
+
 export type AstNode =
     | VariableAstNode
     | FunctionAstNode
+    | TypeAstNode
 
 local ast_node = {}
 
@@ -535,6 +550,14 @@ function ast_node.FunctionAstNode(name: string, parameters: { string }, return_e
     }
 end
 
+function ast_node.TypeAstNode(name: string, value: AstType): TypeAstNode
+    return {
+        name = name,
+        value = value,
+        type = "TypeAstNode",
+    }
+end
+
 --// TODO: add class, pub, import, type
 --// TODO: add type, statement
 --// TODO: compiler -> typeof
@@ -543,9 +566,6 @@ end
 
 -- end
 
--- function expression.TypeExpression()
-
--- end
 
 -- function expression.ImportExpression()
 
