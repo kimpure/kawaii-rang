@@ -32,7 +32,7 @@ function parser.create(source: string, file: string?): Parser
             break
         end
 
-        if token.type == "EofLexerToken" then
+        if token.type == "EofTokenType" then
             break
         end
 

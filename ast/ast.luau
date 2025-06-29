@@ -1,53 +1,127 @@
+export type IdentifierTokenType = "IdentifierTokenType"
+export type NumberTokenType = "NumberTokenType"
+export type StringTokenType = "StringTokenType"
+export type FunctionTokenType = "FunctionTokenType"
+export type BooleanTokenType = "BooleanTokenType"
+export type NilTokenType = "NilTokenType"
+export type ClassTokenType = "ClassTokenType"
+export type VarTokenType = "VarTokenType"
+export type IfTokenType = "IfTokenType"
+export type ElseTokenType = "ElseTokenType"
+export type WhileTokenType = "WhileTokenType"
+export type ForTokenType = "ForTokenType"
+export type ReturnTokenType = "ReturnTokenType"
+export type AddTokenType = "AddTokenType"
+export type SubTokenType = "SubTokenType"
+export type MulTokenType = "MulTokenType"
+export type DivTokenType = "DivTokenType"
+export type RemainderTokenType = "RemainderTokenType"
+export type AndTokenType = "AndTokenType"
+export type OrTokenType = "OrTokenType"
+export type NotTokenType = "NotTokenType"
+export type DotTokenType = "DotTokenType"
+export type DotTwoTokenType = "DotTwoTokenType"
+export type CommaTokenType = "CommaTokenType"
+export type SemiColonTokenType = "SemiColonTokenType"
+export type ColonTokenType = "ColonTokenType"
+export type ColonTwoTokenType = "ColonTwoTokenType"
+export type EqualTokenType = "EqualTokenType"
+export type EqualTwoTokenType = "EqualTwoTokenType"
+export type NotEqualTokenType = "NotEqualTokenType"
+export type LessTokenType = "LessTokenType"
+export type LessEqualTokenType = "LessEqualTokenType"
+export type GreaterTokenType = "GreaterTokenType"
+export type GreaterEqualTokenType = "GreaterEqualTokenType"
+export type EqualAddTokenType = "EqualAddTokenType"
+export type EqualSubTokenType = "EqualSubTokenType"
+export type EqualMulTokenType = "EqualMulTokenType"
+export type EqualDivTokenType = "EqualDivTokenType"
+export type LeftParenTokenType = "LeftParenTokenType"
+export type RightParenTokenType = "RightParenTokenType"
+export type LeftBraceTokenType = "LeftBraceTokenType"
+export type RightBraceTokenType = "RightBraceTokenType"
+export type LeftBrackTokenType = "LeftBrackTokenType"
+export type RightBrackTokenType = "RightBrackTokenType"
+export type ArrowTokenType = "ArrowTokenType"
+export type ExtendsTokenType = "ExtendsTokenType"
+export type TypeTokenType = "TypeTokenType"
+export type PublicTokenType = "PublicTokenType"
+export type EofTokenType = "EofTokenType"
+
 export type TokenType = 
-    | "IdentifierLexerToken"
-    | "NumberLexerToken"
-    | "StringLexerToken"
-    | "FunctionLexerToken"
-    | "BooleanLexerToken"
-    | "NilLexerToken"
-    | "ClassLexerToken"
-    | "VarLexerToken"
-    | "IfLexerToken"
-    | "ElseLexerToken"
-    | "WhileLexerToken"
-    | "ForLexerToken"
-    | "ReturnLexerToken"
-    | "AddLexerToken"
-    | "SubLexerToken"
-    | "MulLexerToken"
-    | "DivLexerToken"
-    | "RemainderLexerToken"
-    | "AndLexerToken"
-    | "OrLexerToken"
-    | "NotLexerToken"
-    | "DotLexerToken"
-    | "DotTwoLexerToken"
-    | "CommaLexerToken"
-    | "SemiColonLexerToken"
-    | "ColonLexerToken"
-    | "ColonTwoLexerToken"
-    | "EqualLexerToken"
-    | "EqualTwoLexerToken"
-    | "NotEqualLexerToken"
-    | "LessLexerToken"
-    | "LessEqualLexerToken"
-    | "GreaterLexerToken"
-    | "GreaterEqualLexerToken"
-    | "EqualAddLexerToken"
-    | "EqualSubLexerToken"
-    | "EqualMulLexerToken"
-    | "EqualDivLexerToken"
-    | "LeftParenLexerToken"
-    | "RightParenLexerToken"
-    | "LeftBraceLexerToken"
-    | "RightBraceLexerToken"
-    | "LeftBrackLexerToken"
-    | "RightBrackLexerToken"
-    | "ArrowLexerToken"
-    | "ExtendsLexerToken"
-    | "TypeLexerToken"
-    | "PublicLexerToken"
-    | "EofLexerToken"
+    | IdentifierTokenType
+    | NumberTokenType
+    | StringTokenType
+    | FunctionTokenType
+    | BooleanTokenType
+    | NilTokenType
+    | ClassTokenType
+    | VarTokenType
+    | IfTokenType
+    | ElseTokenType
+    | WhileTokenType
+    | ForTokenType
+    | ReturnTokenType
+    | AddTokenType
+    | SubTokenType
+    | MulTokenType
+    | DivTokenType
+    | RemainderTokenType
+    | AndTokenType
+    | OrTokenType
+    | NotTokenType
+    | DotTokenType
+    | DotTwoTokenType
+    | CommaTokenType
+    | SemiColonTokenType
+    | ColonTokenType
+    | ColonTwoTokenType
+    | EqualTokenType
+    | EqualTwoTokenType
+    | NotEqualTokenType
+    | LessTokenType
+    | LessEqualTokenType
+    | GreaterTokenType
+    | GreaterEqualTokenType
+    | EqualAddTokenType
+    | EqualSubTokenType
+    | EqualMulTokenType
+    | EqualDivTokenType
+    | LeftParenTokenType
+    | RightParenTokenType
+    | LeftBraceTokenType
+    | RightBraceTokenType
+    | LeftBrackTokenType
+    | RightBrackTokenType
+    | ArrowTokenType
+    | ExtendsTokenType
+    | TypeTokenType
+    | PublicTokenType
+    | EofTokenType
+
+export type LiteralTokenTypes = 
+    | NumberTokenType
+    | StringTokenType
+    | BooleanTokenType
+    | NilTokenType
+
+export type OperatorTokenTypes = 
+    | AddTokenType
+    | SubTokenType
+    | MulTokenType
+    | DivTokenType
+    | RemainderTokenType
+
+    | GreaterTokenType
+    | LessTokenType
+    | GreaterEqualTokenType
+    | LessEqualTokenType
+
+    | EqualTwoTokenType
+    | NotEqualTokenType
+
+    | AndTokenType
+    | OrTokenType
 
 export type Token<T> = { 
     type: T,
@@ -67,55 +141,55 @@ local function createToken(token_type: TokenType): (lexme: string, line: number,
     end
 end
 
-local IdentifierToken = createToken "IdentifierLexerToken"
-local NumberToken = createToken "NumberLexerToken"
-local StringToken = createToken "StringLexerToken"
-local FunctionToken = createToken "FunctionLexerToken"
-local BooleanToken = createToken "BooleanLexerToken"
-local NilToken = createToken "NilLexerToken"
-local ClassToken = createToken "ClassLexerToken"
-local VarToken = createToken "VarLexerToken"
-local IfToken = createToken "IfLexerToken"
-local ElseToken = createToken "ElseLexerToken"
-local WhileToken = createToken "WhileLexerToken"
-local ForToken = createToken "ForLexerToken"
-local ReturnToken = createToken "ReturnLexerToken"
-local AddToken = createToken "AddLexerToken"
-local SubToken = createToken "SubLexerToken"
-local MulToken = createToken "MulLexerToken"
-local DivToken = createToken "DivLexerToken"
-local RemainderToken = createToken "RemainderLexerToken"
-local AndToken = createToken "AndLexerToken"
-local OrToken = createToken "OrLexerToken"
-local NotToken = createToken "NotLexerToken"
-local DotToken = createToken "DotLexerToken"
-local DotTwoToken = createToken "DotTwoLexerToken"
-local CommaToken = createToken "CommaLexerToken"
-local SemiColonToken = createToken "SemiColonLexerToken"
-local ColonToken = createToken "ColonLexerToken"
-local ColonTwoToken = createToken "ColonTwoLexerToken"
-local EqualToken = createToken "EqualLexerToken"
-local EqualTwoToken = createToken "EqualTwoLexerToken"
-local NotEqualToken = createToken "NotEqualLexerToken"
-local LessToken = createToken "LessLexerToken"
-local LessEqualToken = createToken "LessEqualLexerToken"
-local GreaterToken = createToken "GreaterLexerToken"
-local GreaterEqualToken = createToken "GreaterEqualLexerToken"
-local EqualAddToken = createToken "EqualAddLexerToken"
-local EqualSubToken = createToken "EqualSubLexerToken"
-local EqualMulToken = createToken "EqualMulLexerToken"
-local EqualDivToken = createToken "EqualDivLexerToken"
-local LeftParenToken = createToken "LeftParenLexerToken"
-local RightParenToken = createToken "RightParenLexerToken"
-local LeftBraceToken = createToken "LeftBraceLexerToken"
-local RightBraceToken = createToken "RightBraceLexerToken"
-local LeftBrackToken = createToken "LeftBrackLexerToken"
-local RightBrackToken = createToken "RightBrackLexerToken"
-local ArrowToken = createToken "ArrowLexerToken"
-local ExtendsToken = createToken "ExtendsLexerToken"
-local TypeToken = createToken "TypeLexerToken"
-local PublicToken = createToken "PublicLexerToken"
-local EofToken = createToken "EofLexerToken"
+local IdentifierToken = createToken "IdentifierTokenType"
+local NumberToken = createToken "NumberTokenType"
+local StringToken = createToken "StringTokenType"
+local FunctionToken = createToken "FunctionTokenType"
+local BooleanToken = createToken "BooleanTokenType"
+local NilToken = createToken "NilTokenType"
+local ClassToken = createToken "ClassTokenType"
+local VarToken = createToken "VarTokenType"
+local IfToken = createToken "IfTokenType"
+local ElseToken = createToken "ElseTokenType"
+local WhileToken = createToken "WhileTokenType"
+local ForToken = createToken "ForTokenType"
+local ReturnToken = createToken "ReturnTokenType"
+local AddToken = createToken "AddTokenType"
+local SubToken = createToken "SubTokenType"
+local MulToken = createToken "MulTokenType"
+local DivToken = createToken "DivTokenType"
+local RemainderToken = createToken "RemainderTokenType"
+local AndToken = createToken "AndTokenType"
+local OrToken = createToken "OrTokenType"
+local NotToken = createToken "NotTokenType"
+local DotToken = createToken "DotTokenType"
+local DotTwoToken = createToken "DotTwoTokenType"
+local CommaToken = createToken "CommaTokenType"
+local SemiColonToken = createToken "SemiColonTokenType"
+local ColonToken = createToken "ColonTokenType"
+local ColonTwoToken = createToken "ColonTwoTokenType"
+local EqualToken = createToken "EqualTokenType"
+local EqualTwoToken = createToken "EqualTwoTokenType"
+local NotEqualToken = createToken "NotEqualTokenType"
+local LessToken = createToken "LessTokenType"
+local LessEqualToken = createToken "LessEqualTokenType"
+local GreaterToken = createToken "GreaterTokenType"
+local GreaterEqualToken = createToken "GreaterEqualTokenType"
+local EqualAddToken = createToken "EqualAddTokenType"
+local EqualSubToken = createToken "EqualSubTokenType"
+local EqualMulToken = createToken "EqualMulTokenType"
+local EqualDivToken = createToken "EqualDivTokenType"
+local LeftParenToken = createToken "LeftParenTokenType"
+local RightParenToken = createToken "RightParenTokenType"
+local LeftBraceToken = createToken "LeftBraceTokenType"
+local RightBraceToken = createToken "RightBraceTokenType"
+local LeftBrackToken = createToken "LeftBrackTokenType"
+local RightBrackToken = createToken "RightBrackTokenType"
+local ArrowToken = createToken "ArrowTokenType"
+local ExtendsToken = createToken "ExtendsTokenType"
+local TypeToken = createToken "TypeTokenType"
+local PublicToken = createToken "PublicTokenType"
+local EofToken = createToken "EofTokenType"
 
 local IdentifierTokenType = "IdentifierLexerToken"
 local NumberTokenType = "NumberLexerToken"
@@ -166,56 +240,6 @@ local ExtendsTokenType = "ExtendsLexerToken"
 local TypeTokenType = "TypeLexerToken"
 local PublicTokenType = "PublicLexerToken"
 local EofTokenType = "EofLexerToken"
-
-export type IdentifierTokenType = "IdentifierTokenType"
-export type NumberTokenType = "NumberTokenType"
-export type StringTokenType = "StringTokenType"
-export type FunctionTokenType = "FunctionTokenType"
-export type BooleanTokenType = "BooleanTokenType"
-export type NilTokenType = "NilTokenType"
-export type ClassTokenType = "ClassTokenType"
-export type VarTokenType = "VarTokenType"
-export type IfTokenType = "IfTokenType"
-export type ElseTokenType = "ElseTokenType"
-export type WhileTokenType = "WhileTokenType"
-export type ForTokenType = "ForTokenType"
-export type ReturnTokenType = "ReturnTokenType"
-export type AddTokenType = "AddTokenType"
-export type SubTokenType = "SubTokenType"
-export type MulTokenType = "MulTokenType"
-export type DivTokenType = "DivTokenType"
-export type RemainderTokenType = "RemainderTokenType"
-export type AndTokenType = "AndTokenType"
-export type OrTokenType = "OrTokenType"
-export type NotTokenType = "NotTokenType"
-export type DotTokenType = "DotTokenType"
-export type DotTwoTokenType = "DotTwoTokenType"
-export type CommaTokenType = "CommaTokenType"
-export type SemiColonTokenType = "SemiColonTokenType"
-export type ColonTokenType = "ColonTokenType"
-export type ColonTwoTokenType = "ColonTwoTokenType"
-export type EqualTokenType = "EqualTokenType"
-export type EqualTwoTokenType = "EqualTwoTokenType"
-export type NotEqualTokenType = "NotEqualTokenType"
-export type LessTokenType = "LessTokenType"
-export type LessEqualTokenType = "LessEqualTokenType"
-export type GreaterTokenType = "GreaterTokenType"
-export type GreaterEqualTokenType = "GreaterEqualTokenType"
-export type EqualAddTokenType = "EqualAddTokenType"
-export type EqualSubTokenType = "EqualSubTokenType"
-export type EqualMulTokenType = "EqualMulTokenType"
-export type EqualDivTokenType = "EqualDivTokenType"
-export type LeftParenTokenType = "LeftParenTokenType"
-export type RightParenTokenType = "RightParenTokenType"
-export type LeftBraceTokenType = "LeftBraceTokenType"
-export type RightBraceTokenType = "RightBraceTokenType"
-export type LeftBrackTokenType = "LeftBrackTokenType"
-export type RightBrackTokenType = "RightBrackTokenType"
-export type ArrowTokenType = "ArrowTokenType"
-export type ExtendsTokenType = "ExtendsTokenType"
-export type TypeTokenType = "TypeTokenType"
-export type PublicTokenType = "PublicTokenType"
-export type EofTokenType = "EofTokenType"
 
 local tokens = {
     IdentifierToken = IdentifierToken,
@@ -321,30 +345,7 @@ local token_types = {
     EofTokenType = EofTokenType,
 }
 
-export type LiteralTokenTypes = 
-    | NumberTokenType
-    | StringTokenType
-    | BooleanTokenType
-    | NilTokenType
-
-export type OperatorTokenTypes = 
-    | AddTokenType
-    | SubTokenType
-    | MulTokenType
-    | DivTokenType
-    | RemainderTokenType
-
-    | GreaterTokenType
-    | LessTokenType
-    | GreaterEqualTokenType
-    | LessEqualTokenType
-
-    | EqualTwoTokenType
-    | NotEqualTokenType
-
-    | AndTokenType
-    | OrTokenType
-
+local ast_type = {}
 
 export type LiteralExpression = {
     data_type: LiteralTokenTypes,
@@ -525,6 +526,7 @@ function ast_node.FunctionAstNode(name: string, parameters: { string }, return_e
 end
 
 --// TODO: add class, pub, import, type
+--// TODO: add type, statement
 -- function expression.ClassExpression()
 
 -- end
@@ -541,4 +543,5 @@ return {
     tokens = tokens,
     token_types = token_types,
     expression = expression,
+    ast_node = ast_node,
 }
