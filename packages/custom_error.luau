@@ -39,7 +39,7 @@ function custom_error.stdout(self: CustomError): string
     local result = ""
 
     for i=1, #self.errors do
-        result ..= self:format_error(self.errors[i]) .. '\n'
+        result ..= self:format_error(self.errors[i]) .. "\n"
     end
 
     return result

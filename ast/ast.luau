@@ -1,4 +1,5 @@
-export type TokenType = "IdentifierLexerToken"
+export type TokenType = 
+    | "IdentifierLexerToken"
     | "NumberLexerToken"
     | "StringLexerToken"
     | "FunctionLexerToken"
@@ -326,6 +327,25 @@ export type LiteralTokenTypes =
     | BooleanTokenType
     | NilTokenType
 
+export type OperatorTokenTypes = 
+    | AddTokenType
+    | SubTokenType
+    | MulTokenType
+    | DivTokenType
+    | RemainderTokenType
+
+    | GreaterTokenType
+    | LessTokenType
+    | GreaterEqualTokenType
+    | LessEqualTokenType
+
+    | EqualTwoTokenType
+    | NotEqualTokenType
+
+    | AndTokenType
+    | OrTokenType
+
+
 export type LiteralExpression = {
     data_type: LiteralTokenTypes,
     value: string,
@@ -342,9 +362,56 @@ export type UnaryExpression = {
     type: "UnaryExpression",
 }
 
+export type FunctionCallExpression = {
+    expression: Expression,
+    args: { Expression },
+    type: "FunctionCallExpression",
+}
+
+export type VariableExpression = {
+    name: string,
+    type: "VariableExpression",
+}
+
+export type BinaryExpression = {
+    left: Expression,
+    right: Expression,
+    operator: OperatorTokenTypes,
+    type: "BinaryExpression",
+}
+
+export type IndexAccessExpression = {
+    expression: Expression,
+    index: Expression,
+    type: "IndexAccessExpression",
+}
+
+export type TableExpression = {
+    args: {
+        [number]: {
+            key: Expression,
+            value: Expression,
+        }
+    },
+    type: "TableExpression",
+}
+
+export type FunctionExpression = {
+    parameters: { string },
+    return_expression: Expression,
+    body: { AstNode },
+    type: "FunctionExpression",
+}
+
 export type Expression = 
     | LiteralExpression
     | GroupedExpression
+    | UnaryExpression
+    | FunctionCallExpression
+    | VariableExpression
+    | BinaryExpression
+    | IndexAccessExpression
+    | TableExpression
 
 local expression = {}
 
@@ -370,44 +437,108 @@ function expression.UnaryExpression(expression: Expression): UnaryExpression
     }
 end
 
-function expression.FunctionCallExpression()
-
+function expression.FunctionCallExpression(expression: Expression, args: { Expression }): FunctionCallExpression
+    return {
+        expression = expression,
+        args = args,
+        type = "FunctionCallExpression",
+    }
 end
 
-function expression.VariableExpression()
-
+function expression.VariableExpression(name: string, value: Expression): VariableExpression
+    return {
+        name = name,
+        value = value,
+        type = "VariableExpression",
+    }
 end
 
-function expression.BinaryExpression()
-
+function expression.BinaryExpression(left: Expression, operator: OperatorTokenTypes, right: Expression): BinaryExpression
+    return {
+        left = left,
+        right = right,
+        operator = operator,
+        type = "BinaryExpression",
+    }
 end
 
-function expression.IndexAccessExpression()
-
+function expression.IndexAccessExpression(expression: Expression, index: Expression): IndexAccessExpression
+    return {
+        expression = expression,
+        index = index,
+        type = "IndexAccessExpression",
+    }
 end
 
-function expression.TableExpression()
-
+function expression.TableExpression(args: { { key: Expression, value: Expression } }): TableExpression
+    return {
+        args = args,
+        type = "TableExpression",
+    }
 end
 
-function expression.FunctionExpression()
-
+function expression.FunctionExpression(body: { AstNode }, parameters: { string }, return_expression: Expression): FunctionExpression
+    return {
+        parameters = parameters,
+        return_expression = return_expression,
+        body = body,
+        type = "FunctionExpression",
+    }
 end
 
+export type VariableAstNode = {
+    name: string,
+    value: Expression,
+    type: "VariableAstNode",
+}
 
-function expression.ClassExpression()
+export type FunctionAstNode = {
+    name: string,
+    parameters: { string },
+    return_expression: Expression,
+    body: { AstNode },
+    type: "FunctionAstNode",
+}
 
+export type AstNode =
+    | VariableAstNode
+    | FunctionAstNode
+
+local ast_node = {}
+
+function ast_node.VariableAstNode(name: string, value: Expression): VariableAstNode
+    return {
+        name = name,
+        value = value,
+        type = "VariableAstNode",
+    }
 end
 
-function expression.TypeExpression()
-
+function ast_node.FunctionAstNode(name: string, parameters: { string }, return_expression: Expression, body: { AstNode }): FunctionAstNode
+    return {
+        name = name,
+        parameters = parameters,
+        return_expression = return_expression,
+        body = body,
+        type = "FunctionAstNode",
+    }
 end
 
-function expression.ImportExpression()
+--// TODO: add class, pub, import, type
+-- function expression.ClassExpression()
 
-end
+-- end
+
+-- function expression.TypeExpression()
+
+-- end
+
+-- function expression.ImportExpression()
+
+-- end
 
 return {
     tokens = tokens,
     token_types = token_types,
+    expression = expression,
 }
