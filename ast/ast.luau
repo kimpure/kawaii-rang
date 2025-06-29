@@ -359,7 +359,13 @@ export type NilAstType = "NilAstType"
 export type FunctionAstType = {
     parameters: { AstType },
     return_type: AstType,
+    generic: { GenericAstType },
     type: "FunctionAstType",
+}
+
+export type GenericAstType = {
+    name: string,
+    type: "GenericAstType",
 }
 
 export type AstType = 
@@ -368,6 +374,7 @@ export type AstType =
     | BooleanAstType
     | NilAstType
     | FunctionAstType
+    | GenericAstType
 
 local ast_type = {}
 ast_type.StringAstType = "StringAstType"
@@ -375,11 +382,19 @@ ast_type.NumberAstType = "NumberAstType"
 ast_type.BooleanAstType = "NumberAstType"
 ast_type.NilAstType = "NilAstType"
 
-function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType): FunctionAstType
+function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType, generic: { GenericAstType }): FunctionAstType
     return {
         parameters = parameters,
         return_type = return_type,
+        generic = generic,
         type = "FunctionAstType",
+    }
+end
+
+function ast_type.GenericAstType(name: string): GenericAstType
+    return {
+        name = name,
+        type = "GenericAstType",
     }
 end
 
@@ -408,6 +423,12 @@ export type FunctionCallExpression = {
 export type VariableExpression = {
     name: string,
     type: "VariableExpression",
+}
+
+export type TypeExpression = {
+    name: string,
+    generics: { AstType },
+    type: "TypeExpression",
 }
 
 export type BinaryExpression = {
@@ -479,6 +500,14 @@ function expression.VariableExpression(name: string, value: Expression): Variabl
     }
 end
 
+function expression.TypeExpression(name: string, generics: { AstType }): TypeExpression
+    return {
+        name = name,
+        generics = generics,
+        type = "TypeExpression",
+    }
+end
+
 function expression.BinaryExpression(left: Expression, operator: OperatorTokenTypes, right: Expression): BinaryExpression
     return {
         left = left,
@@ -522,6 +551,7 @@ export type FunctionAstNode = {
 export type TypeAstNode = {
     name: string,
     value: AstType,
+    generics: { GenericAstType },
     type: "TypeAstNode",
 }
 
@@ -550,10 +580,11 @@ function ast_node.FunctionAstNode(name: string, parameters: { string }, return_e
     }
 end
 
-function ast_node.TypeAstNode(name: string, value: AstType): TypeAstNode
+function ast_node.TypeAstNode(name: string, value: AstType, generics: { GenericAstType }): TypeAstNode
     return {
         name = name,
         value = value,
+        generics = generics,
         type = "TypeAstNode",
     }
 end
@@ -562,6 +593,7 @@ end
 --// TODO: add type, statement
 --// TODO: compiler -> typeof
 --// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
+--// TODO: 제네릭 타입 만들기
 -- function expression.ClassExpression()
 
 -- end
