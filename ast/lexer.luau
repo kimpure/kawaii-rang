@@ -54,6 +54,7 @@ local RightBrackToken = tokens.RightBrackToken
 local ArrowToken = tokens.ArrowToken
 local ExtendsToken = tokens.ExtendsToken
 local TypeToken = tokens.TypeToken
+local TypeofToken = tokens.TypeofToken
 local PublicToken = tokens.PublicToken
 local EofToken = tokens.EofToken
 
@@ -413,6 +414,10 @@ function lexer.next_token(self: Lexer): Token?
 
         if identifier == "type" then
             return TypeToken("type", self.line, self.line_current)
+        end
+
+        if identifier == "typeof" then
+            return TypeofToken("typeof", self.line, self.line_current)
         end
 
         if identifier == "Public" then
