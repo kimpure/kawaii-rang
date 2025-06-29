@@ -351,7 +351,29 @@ local token_types = {
     EofTokenType = EofTokenType,
 }
 
--- local ast_type = {}
+export type StringAstType = "StringAstType"
+export type NumberAstType = "NumberAstType"
+export type BooleanAstType = "NumberAstType"
+export type NilAstType = "NilAstType"
+
+export type FunctionAstType = {
+    parameters: { AstType },
+    return_type: AstType,
+    type: "FunctionAstType",
+}
+
+export type AstType = 
+    | StringAstType
+    | NumberAstType
+    | BooleanAstType
+    | NilAstType
+    | FunctionAstType
+
+local ast_type = {}
+
+-- function ast_type.array(default_type: )
+
+-- end
 
 export type LiteralExpression = {
     data_type: LiteralTokenTypes,
@@ -393,16 +415,6 @@ export type IndexAccessExpression = {
     type: "IndexAccessExpression",
 }
 
-export type TableExpression = {
-    args: {
-        [number]: {
-            key: Expression,
-            value: Expression,
-        }
-    },
-    type: "TableExpression",
-}
-
 export type FunctionExpression = {
     parameters: { string },
     return_expression: Expression,
@@ -418,7 +430,6 @@ export type Expression =
     | VariableExpression
     | BinaryExpression
     | IndexAccessExpression
-    | TableExpression
 
 local expression = {}
 
@@ -477,13 +488,6 @@ function expression.IndexAccessExpression(expression: Expression, index: Express
     }
 end
 
-function expression.TableExpression(args: { { key: Expression, value: Expression } }): TableExpression
-    return {
-        args = args,
-        type = "TableExpression",
-    }
-end
-
 function expression.FunctionExpression(body: { AstNode }, parameters: { string }, return_expression: Expression): FunctionExpression
     return {
         parameters = parameters,
@@ -533,6 +537,8 @@ end
 
 --// TODO: add class, pub, import, type
 --// TODO: add type, statement
+--// TODO: compiler -> typeof
+--// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
 -- function expression.ClassExpression()
 
 -- end
