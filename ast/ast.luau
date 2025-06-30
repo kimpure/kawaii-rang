@@ -355,6 +355,7 @@ export type StringAstType = "StringAstType"
 export type NumberAstType = "NumberAstType"
 export type BooleanAstType = "NumberAstType"
 export type NilAstType = "NilAstType"
+export type AnyAstType = "AnyAstType"
 
 export type FunctionAstType = {
     parameters: { AstType },
@@ -378,6 +379,7 @@ export type AstType =
     | NumberAstType
     | BooleanAstType
     | NilAstType
+    | AnyAstType
     | FunctionAstType
     | GenericAstType
     | TypeofAstType
@@ -387,6 +389,7 @@ ast_type.StringAstType = "StringAstType"
 ast_type.NumberAstType = "NumberAstType"
 ast_type.BooleanAstType = "NumberAstType"
 ast_type.NilAstType = "NilAstType"
+ast_type.AnyAstType = "AnyAstType"
 
 function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType, generic: { GenericAstType }): FunctionAstType
     return {
