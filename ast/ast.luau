@@ -351,16 +351,23 @@ local token_types = {
     EofTokenType = EofTokenType,
 }
 
-export type StringAstType = "StringAstType"
-export type NumberAstType = "NumberAstType"
-export type BooleanAstType = "NumberAstType"
-export type NilAstType = "NilAstType"
-export type AnyAstType = "AnyAstType"
+export type StringAstType = { 
+    type: "StringAstType", 
+}
+export type NumberAstType = { 
+    type: "NumberAstType", 
+}
+export type BooleanAstType = { 
+    type: "NumberAstType", 
+}
+export type AnyAstType = { 
+    type: "AnyAstType", 
+}
 
 export type FunctionAstType = {
     parameters: { AstType },
     return_type: AstType,
-    generic: { GenericAstType },
+    generics: { GenericAstType },
     type: "FunctionAstType",
 }
 
@@ -376,7 +383,7 @@ export type TypeofAstType = {
 
 export type CustomAstType = {
     name: string,
-    value: AstType,
+    generics: { GenericAstType },
     type: "CustomAstType",
 }
 
@@ -384,7 +391,6 @@ export type AstType =
     | StringAstType
     | NumberAstType
     | BooleanAstType
-    | NilAstType
     | AnyAstType
     | FunctionAstType
     | GenericAstType
@@ -395,14 +401,13 @@ local ast_type = {}
 ast_type.StringAstType = "StringAstType"
 ast_type.NumberAstType = "NumberAstType"
 ast_type.BooleanAstType = "NumberAstType"
-ast_type.NilAstType = "NilAstType"
 ast_type.AnyAstType = "AnyAstType"
 
-function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType, generic: { GenericAstType }): FunctionAstType
+function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
     return {
         parameters = parameters,
         return_type = return_type,
-        generic = generic,
+        generics = generics,
         type = "FunctionAstType",
     }
 end
@@ -418,6 +423,14 @@ function ast_type.TypeofAstType(expression: Expression): TypeofAstType
     return {
         expression = expression,
         type = "TypeofAstType",
+    }
+end
+
+function ast_type.CustomAstType(name: string, generics: { GenericAstType }): CustomAstType
+    return {
+        name = name,
+        generics = generics,
+        type = "CustomAstType",
     }
 end
 
@@ -617,6 +630,7 @@ end
 --// TODO: add type, statement
 --// TODO: compiler -> typeof
 --// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
+--// TODO: type std 도 만들기
 -- function expression.ClassExpression()
 
 -- end
