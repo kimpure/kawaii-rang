@@ -374,6 +374,12 @@ export type TypeofAstType = {
     type: "TypeofAstType",
 }
 
+export type CustomAstType = {
+    name: string,
+    value: AstType,
+    type: "CustomAstType",
+}
+
 export type AstType = 
     | StringAstType
     | NumberAstType
@@ -383,6 +389,7 @@ export type AstType =
     | FunctionAstType
     | GenericAstType
     | TypeofAstType
+    | CustomAstType
 
 local ast_type = {}
 ast_type.StringAstType = "StringAstType"
@@ -417,11 +424,13 @@ end
 export type LiteralExpression = {
     data_type: LiteralTokenTypes,
     value: string,
+    annotated_type: AstType?,
     type: "LiteralExpression",
 }
 
 export type GroupedExpression = {
     expression: Expression,
+    annotated_type: AstType?,
     type: "GroupedExpression",
 }
 
@@ -433,18 +442,14 @@ export type UnaryExpression = {
 export type FunctionCallExpression = {
     expression: Expression,
     args: { Expression },
+    annotated_type: AstType?,
     type: "FunctionCallExpression",
 }
 
 export type VariableExpression = {
     name: string,
+    annotated_type: AstType?,
     type: "VariableExpression",
-}
-
-export type TypeExpression = {
-    name: string,
-    generics: { AstType },
-    type: "TypeExpression",
 }
 
 export type BinaryExpression = {
@@ -457,12 +462,14 @@ export type BinaryExpression = {
 export type IndexAccessExpression = {
     expression: Expression,
     index: Expression,
+    annotated_type: AstType?,
     type: "IndexAccessExpression",
 }
 
 export type FunctionExpression = {
-    parameters: { string },
+    parameters: { VariableExpression },
     return_expression: Expression,
+    return_annotated_type: AstType?,
     body: { AstNode },
     type: "FunctionExpression",
 }
@@ -478,17 +485,19 @@ export type Expression =
 
 local expression = {}
 
-function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string): LiteralExpression
+function expression.LiteralExpression(token: Token<LiteralTokenTypes>, annotated_type: AstType?): LiteralExpression
     return {
-        data_type = data_type,
-        value = value,
+        data_type = token.type,
+        value = token.lexeme,
+        annotated_type = annotated_type,
         type = "LiteralExpression",
     }
 end
 
-function expression.GroupedExpression(expression: Expression): GroupedExpression
+function expression.GroupedExpression(expression: Expression, annotated_type: AstType?): GroupedExpression
     return {
         expression = expression,
+        annotated_type = annotated_type,
         type = "GroupedExpression",
     }
 end
@@ -500,27 +509,20 @@ function expression.UnaryExpression(expression: Expression): UnaryExpression
     }
 end
 
-function expression.FunctionCallExpression(expression: Expression, args: { Expression }): FunctionCallExpression
+function expression.FunctionCallExpression(expression: Expression, args: { Expression }, annotated_type: AstType?): FunctionCallExpression
     return {
         expression = expression,
         args = args,
+        annotated_type = annotated_type,
         type = "FunctionCallExpression",
     }
 end
 
-function expression.VariableExpression(name: string, value: Expression): VariableExpression
+function expression.VariableExpression(name: string, annotated_type: AstType?): VariableExpression
     return {
         name = name,
-        value = value,
+        annotated_type = annotated_type,
         type = "VariableExpression",
-    }
-end
-
-function expression.TypeExpression(name: string, generics: { AstType }): TypeExpression
-    return {
-        name = name,
-        generics = generics,
-        type = "TypeExpression",
     }
 end
 
@@ -533,18 +535,20 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
     }
 end
 
-function expression.IndexAccessExpression(expression: Expression, index: Expression): IndexAccessExpression
+function expression.IndexAccessExpression(expression: Expression, index: Expression, annotated_type: AstType?): IndexAccessExpression
     return {
         expression = expression,
         index = index,
+        annotated_type = annotated_type,
         type = "IndexAccessExpression",
     }
 end
 
-function expression.FunctionExpression(body: { AstNode }, parameters: { string }, return_expression: Expression): FunctionExpression
+function expression.FunctionExpression(body: { AstNode }, parameters: { VariableExpression }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
     return {
         parameters = parameters,
         return_expression = return_expression,
+        return_annotated_type = return_annotated_type,
         body = body,
         type = "FunctionExpression",
     }
@@ -553,13 +557,15 @@ end
 export type VariableAstNode = {
     name: string,
     value: Expression,
+    annotated_type: AstType?,
     type: "VariableAstNode",
 }
 
 export type FunctionAstNode = {
     name: string,
-    parameters: { string },
+    parameters: { VariableExpression },
     return_expression: Expression,
+    return_annotated_type: AstType?,
     body: { AstNode },
     type: "FunctionAstNode",
 }
@@ -578,19 +584,21 @@ export type AstNode =
 
 local ast_node = {}
 
-function ast_node.VariableAstNode(name: string, value: Expression): VariableAstNode
+function ast_node.VariableAstNode(name: string, value: Expression, annotated_type: AstType?): VariableAstNode
     return {
         name = name,
         value = value,
+        annotated_type = annotated_type,
         type = "VariableAstNode",
     }
 end
 
-function ast_node.FunctionAstNode(name: string, parameters: { string }, return_expression: Expression, body: { AstNode }): FunctionAstNode
+function ast_node.FunctionAstNode(name: string, parameters: { VariableExpression }, return_expression: Expression, body: { AstNode }, return_annotated_type: AstType?): FunctionAstNode
     return {
         name = name,
         parameters = parameters,
         return_expression = return_expression,
+        return_annotated_type = return_annotated_type,
         body = body,
         type = "FunctionAstNode",
     }
@@ -618,10 +626,48 @@ end
 
 -- end
 
+local ast_utils = {}
+
+function ast_utils.is_literal_token(token: Token<TokenType>): boolean
+    return 
+        token.type == "NumberTokenType" or 
+        token.type == "StringTokenType" or 
+        token.type == "BooleanTokenType" or 
+        token.type == "NilTokenType"
+end
+
+function ast_utils.is_operator_token(token: Token<TokenType>): boolean
+    return 
+        token.type == "AddTokenType" or 
+        token.type == "SubTokenType" or 
+        token.type == "MulTokenType" or 
+        token.type == "DivTokenType" or 
+        token.type == "RemainderTokenType" or
+
+        token.type == "GreaterTokenType" or 
+        token.type == "LessTokenType" or 
+        token.type == "GreaterEqualTokenType" or 
+        token.type == "LessEqualTokenType" or
+
+        token.type == "EqualTwoTokenType" or
+        token.type == "NotEqualTokenType" or
+        token.type == "AndTokenType" or
+        token.type == "OrTokenType"
+end
+
+function ast_utils.literal_token(token: Token<TokenType>): Token<LiteralTokenTypes>?
+    return ast_utils.is_literal_token(token) and token :: Token<LiteralTokenTypes> or nil
+end
+
+function ast_utils.operator_token(token: Token<TokenType>): Token<OperatorTokenTypes>?
+    return ast_utils.is_operator_token(token) and token :: Token<OperatorTokenTypes> or nil
+end
+
 return {
     tokens = tokens,
     token_types = token_types,
     expression = expression,
     ast_node = ast_node,
     ast_type = ast_type,
+    ast_utils = ast_utils,
 }

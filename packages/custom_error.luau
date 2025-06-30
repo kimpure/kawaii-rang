@@ -58,15 +58,15 @@ function custom_error.extends_errors(self: CustomError, extends_class: CustomErr
     end
 end
 
-function custom_error.format_error(self: CustomError, info: CustomErrorInfo): string
-    return `[{info.file and info.file .. ":" or ""}{info.line}:{info.current}] {info.error_type}: {info.error_message}`
+function custom_error.format_error(info: CustomErrorInfo): string
+    return `[{info.file and info.file .. ":" or "line "}{info.line}:{info.current}] {info.error_type}: {info.error_message}`
 end
 
 function custom_error.stdout(self: CustomError): string
     local result = ""
 
     for i=1, #self.errors do
-        result ..= self:format_error(self.errors[i]) .. "\n"
+        result ..= custom_error.format_error(self.errors[i]) .. "\n"
     end
 
     return result
