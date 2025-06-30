@@ -56,7 +56,7 @@ function a() {}
 
 ]]
 
-print(lex:tokenize():isOk())
+print(lex:tokenize():unwrap())
 print("endof", os.clock() - start)
 
 return parser

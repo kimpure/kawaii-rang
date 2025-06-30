@@ -144,10 +144,10 @@ function lexer.skip_space(self: Lexer)
     end
 end
 
-function lexer.read_string(self: Lexer): string?
+function lexer.read_string(self: Lexer): Result<string, CustomErrorInfo>
     if self:peek() == "\"" then
         self:advance()
-        return ""
+        return result.Ok("")
     end
 
     local str = ""
@@ -156,20 +156,18 @@ function lexer.read_string(self: Lexer): string?
         str ..= self:advance()
 
         if self:is_end() then
-            self.custom_error:push {
+            return result.Err {
                 line = self.line,
                 current = self.line_current,
                 error_type = LexicalError,
                 error_message = "unterminated string constant"
             }
-
-            return
         end
     end
 
     self:advance()
 
-    return str
+    return result.Ok(str)
 end
 
 function lexer.read_number(self: Lexer)
@@ -204,232 +202,232 @@ function lexer.read_identifier(self: Lexer)
     return self.source:sub(start, self.current)
 end
 
-function lexer.next_token(self: Lexer): Token?
+function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
     self:skip_space()
 
     if self:is_end() then
-        return EofToken("Eof", self.line, self.line_current)
+        return result.Ok(EofToken("Eof", self.line, self.line_current))
     end
 
     local char = self:advance()
 
     if char == "+" then
         if self:match_next"=" then
-            return EqualAddToken("+=", self.line, self.line_current)
+            return result.Ok(EqualAddToken("+=", self.line, self.line_current))
         end
 
-        return AddToken("+", self.line, self.line_current)
+        return result.Ok(AddToken("+", self.line, self.line_current))
     end
 
     if char == "-" then
         if self:match_next"=" then
-            return EqualSubToken("-=", self.line, self.line_current)
+            return result.Ok(EqualSubToken("-=", self.line, self.line_current))
         end
 
-        return SubToken("-", self.line, self.line_current)
+        return result.Ok(SubToken("-", self.line, self.line_current))
     end
 
     if char == "*" then
         if self:match_next"=" then
-            return EqualMulToken("*=", self.line, self.line_current)
+            return result.Ok(EqualMulToken("*=", self.line, self.line_current))
         end
 
-        return MulToken("*", self.line, self.line_current)
+        return result.Ok(MulToken("*", self.line, self.line_current))
     end
 
     if char == "/" then
         if self:match_next"/" then
             self:skip_comment()
 
-            return self:next_token()
+            return self:next()
         end
 
         if self:match_next"=" then
-            return EqualDivToken("/=", self.line, self.line_current)
+            return result.Ok(EqualDivToken("/=", self.line, self.line_current))
         end
 
-        return DivToken("/", self.line, self.line_current)
+        return result.Ok(DivToken("/", self.line, self.line_current))
     end
 
     if char == "%" then
-        return RemainderToken("%", self.line, self.line_current)
+        return result.Ok(RemainderToken("%", self.line, self.line_current))
     end
 
     if char == ";" then
-        return SemiColonToken(";", self.line, self.line_current)
+        return result.Ok(SemiColonToken(";", self.line, self.line_current))
     end
 
     if char == ":" then
         if self:match_next":" then
-            return ColonTwoToken("::", self.line, self.line_current)
+            return result.Ok(ColonTwoToken("::", self.line, self.line_current))
         end
 
-        return ColonToken(":", self.line, self.line_current)
+        return result.Ok(ColonToken(":", self.line, self.line_current))
     end
 
     if char == "." then
         if self:match_next "." then
-            return DotTwoToken("..", self.line, self.line_current)
+            return result.Ok(DotTwoToken("..", self.line, self.line_current))
         end
 
-        return DotToken(".", self.line, self.line_current)
+        return result.Ok(DotToken(".", self.line, self.line_current))
     end
 
     if char == "<" then
         if self:match_next"=" then
-            return LessEqualToken("<=", self.line, self.line_current)
+            return result.Ok(LessEqualToken("<=", self.line, self.line_current))
         end
 
-        return LessToken("<", self.line, self.line_current)
+        return result.Ok(LessToken("<", self.line, self.line_current))
     end
 
     if char == ">" then
         if self:match_next"=" then
-            return GreaterEqualToken(">=", self.line, self.line_current)
+            return result.Ok(GreaterEqualToken(">=", self.line, self.line_current))
         end
 
-        return GreaterToken(">", self.line, self.line_current)
+        return result.Ok(GreaterToken(">", self.line, self.line_current))
     end
 
     if char == "(" then
-        return LeftParenToken("(", self.line, self.line_current)
+        return result.Ok(LeftParenToken("(", self.line, self.line_current))
     end
     
     if char == ")" then
-        return RightParenToken(")", self.line, self.line_current)
+        return result.Ok(RightParenToken(")", self.line, self.line_current))
     end
 
     if char == "{" then
-        return LeftBraceToken("{", self.line, self.line_current)
+        return result.Ok(LeftBraceToken("{", self.line, self.line_current))
     end
     
     if char == "}" then
-        return RightBraceToken("}", self.line, self.line_current)
+        return result.Ok(RightBraceToken("}", self.line, self.line_current))
     end
 
     if char == "[" then
-        return LeftBrackToken("[", self.line, self.line_current)
+        return result.Ok(LeftBrackToken("[", self.line, self.line_current))
     end
     
     if char == "]" then
-        return RightBrackToken("]", self.line, self.line_current)
+        return result.Ok(RightBrackToken("]", self.line, self.line_current))
     end
 
     if char == "=" then
         if self:match_next"=" then
-            return EqualTwoToken("==", self.line, self.line_current)
+            return result.Ok(EqualTwoToken("==", self.line, self.line_current))
         end
 
-        return EqualToken("=", self.line, self.line_current)
+        return result.Ok(EqualToken("=", self.line, self.line_current))
     end
 
     if char == "!" then
         if self:match_next"=" then
-            return NotEqualToken("!=", self.line, self.line_current)
+            return result.Ok(NotEqualToken("!=", self.line, self.line_current))
         end
     end
 
     if char == "-" then
         if self:match_next">" then
-            return ArrowToken("->", self.line, self.line_current)
+            return result.Ok(ArrowToken("->", self.line, self.line_current))
         end
     end
 
     if char == "," then
-        return CommaToken(",", self.line, self.line_current)
+        return result.Ok(CommaToken(",", self.line, self.line_current))
     end
 
     if char == "\"" then
-        local str = self:read_string()
+        local str_result = self:read_string()
 
-        if not str then
-            return
+        if str_result:isErr() then
+            return result.Err(str_result:unwrapErr())
         end
 
-        return StringToken(str, self.line, self.line_current)
+        return result.Ok(StringToken(str_result:unwrap(), self.line, self.line_current))
     end
 
     if tonumber(char) then
-        return NumberToken(self:read_number(), self.line, self.line_current)
+        return result.Ok(NumberToken(self:read_number(), self.line, self.line_current))
     end
 
     if not string.find(char, "%A") then
         local identifier = self:read_identifier()
 
         if identifier == "true" then
-            return BooleanToken("true", self.line, self.line_current)
+            return result.Ok(BooleanToken("true", self.line, self.line_current))
         end
         
         if identifier == "false" then
-            return BooleanToken("false", self.line, self.line_current)
+            return result.Ok(BooleanToken("false", self.line, self.line_current))
         end
 
         if identifier == "nil" then
-            return NilToken("nil", self.line, self.line_current)
+            return result.Ok(NilToken("nil", self.line, self.line_current))
         end
 
         if identifier == "var" then
-            return VarToken("var", self.line, self.line_current)
+            return result.Ok(VarToken("var", self.line, self.line_current))
         end
 
         if identifier == "if" then
-            return IfToken("if", self.line, self.line_current)
+            return result.Ok(IfToken("if", self.line, self.line_current))
         end
 
         if identifier == "else" then
-            return ElseToken("else", self.line, self.line_current)
+            return result.Ok(ElseToken("else", self.line, self.line_current))
         end
 
         if identifier == "while" then
-            return WhileToken("while", self.line, self.line_current)
+            return result.Ok(WhileToken("while", self.line, self.line_current))
         end
 
         if identifier == "for" then
-            return ForToken("for", self.line, self.line_current)
+            return result.Ok(ForToken("for", self.line, self.line_current))
         end
 
         if identifier == "return" then
-            return ReturnToken("return", self.line, self.line_current)
+            return result.Ok(ReturnToken("return", self.line, self.line_current))
         end
 
         if identifier == "function" then
-            return FunctionToken("function", self.line, self.line_current)
+            return result.Ok(FunctionToken("function", self.line, self.line_current))
         end
 
         if identifier == "class" then
-            return ClassToken("class", self.line, self.line_current)
+            return result.Ok(ClassToken("class", self.line, self.line_current))
         end
 
         if identifier == "and" then
-            return AndToken("and", self.line, self.line_current)
+            return result.Ok(AndToken("and", self.line, self.line_current))
         end
 
         if identifier == "or" then
-            return OrToken("or", self.line, self.line_current)
+            return result.Ok(OrToken("or", self.line, self.line_current))
         end
 
         if identifier == "not" then
-            return NotToken("not", self.line, self.line_current)
+            return result.Ok(NotToken("not", self.line, self.line_current))
         end
 
         if identifier == "extends" then
-            return ExtendsToken("extends", self.line, self.line_current)
+            return result.Ok(ExtendsToken("extends", self.line, self.line_current))
         end
 
         if identifier == "type" then
-            return TypeToken("type", self.line, self.line_current)
+            return result.Ok(TypeToken("type", self.line, self.line_current))
         end
 
         if identifier == "typeof" then
-            return TypeofToken("typeof", self.line, self.line_current)
+            return result.Ok(TypeofToken("typeof", self.line, self.line_current))
         end
 
         if identifier == "Public" then
-            return PublicToken("Public", self.line, self.line_current)
+            return result.Ok(PublicToken("Public", self.line, self.line_current))
         end
 
         if identifier == "" then
-            return self.custom_error:push {
+            return result.Err {
                 line = self.line,
                 current = self.current,
                 error_type = LexicalError,
@@ -437,10 +435,10 @@ function lexer.next_token(self: Lexer): Token?
             }
         end
 
-        return IdentifierToken(identifier, self.line, self.line_current)
+        return result.Ok(IdentifierToken(identifier, self.line, self.line_current))
     end
 
-    return self.custom_error:push {
+    return result.Err {
         line = self.line,
         current = self.line_current,
         error_type = LexicalError,
@@ -448,24 +446,14 @@ function lexer.next_token(self: Lexer): Token?
     }
 end
 
-function lexer.next(self: Lexer): Result<Token, any>
-    local token = self:next_token()
-
-    if not token then
-        return result.Err(nil)
-    end
-
-    return result.Ok(token)
-end
-
-function lexer.tokenize(self: Lexer): Result<{ Token }, nil>
+function lexer.tokenize(self: Lexer): Result<{ Token }, CustomErrorInfo>
     local tokens = {}
     
     while true do
         local token_result = self:next()
 
         if token_result:isErr() then
-            return result.Err(nil)
+            return result.Err(token_result:unwrapErr())
         end
 
         local token = token_result:unwrap()
