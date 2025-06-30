@@ -1,6 +1,6 @@
 local ast = require("@ast/ast")
 local custom_error = require("@packages/custom_error")
-local custom_result = require("@packages/custom_result")
+local result = require("@packages/result")
 
 local error_type = custom_error.error_type
 
@@ -65,9 +65,7 @@ type Token = ast.Token<TokenType>
 type CustomError = custom_error.CustomError
 type CustomErrorInfo = custom_error.CustomErrorInfo
 
-type Ok<T> = custom_result.Ok<T>
-type Err<T> = custom_result.Err<T>
-type Result<T, U> = custom_result.CustomResult<T, U>
+type Result<T, U> = result.Result<T, U>
 
 local lexer = {}
 lexer.__index = lexer
@@ -450,44 +448,36 @@ function lexer.next_token(self: Lexer): Token?
     }
 end
 
-function lexer.next(self: Lexer): Result<Token, nil>
+function lexer.next(self: Lexer): Result<Token, any>
     local token = self:next_token()
-    local result = custom_result.new()
 
     if not token then
-        result:Err(nil)
-        return result
+        return result.Err(nil)
     end
 
-    result:Ok(token)
-
-    return result
+    return result.Ok(token)
 end
 
 function lexer.tokenize(self: Lexer): Result<{ Token }, nil>
     local tokens = {}
-    local result = custom_result.new()
     
     while true do
         local token_result = self:next()
 
         if token_result:isErr() then
-            result:Err(nil)
-            return result
+            return result.Err(nil)
         end
 
-        local ok = token_result:isOk() :: Ok<Token>
+        local token = token_result:unwrap()
 
-        tokens[#tokens + 1] = ok.value
+        tokens[#tokens + 1] = token
 
-        if ok.value.type == "EofTokenType" then
+        if token.type == "EofTokenType" then
             break
         end
     end
 
-    result:Ok(tokens)
-
-    return result
+    return result.Ok(tokens)
 end
 
 return lexer
