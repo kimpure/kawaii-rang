@@ -1,6 +1,7 @@
 local ast = require("@ast/ast")
 local lexer = require("@ast/lexer")
 local custom_error = require("@packages/custom_error")
+local result = require("@packages/result")
 
 local parser = {}
 parser.__index = parser
@@ -9,41 +10,25 @@ type Lexer = lexer.Lexer
 type Token = ast.Token<ast.TokenType>
 
 type CustomError = custom_error.CustomError
+type Result<T, U> = result.Result<T, U>
 
 export type Parser = typeof(setmetatable({} :: {
     cureent: number,
     tokens: { Token },
-    custom_error: CustomError,
 }, parser))
 
-function parser.create(source: string, file: string?): Parser
-    local lexer_class = lexer.new(source)
-    local error_class = custom_error.new(file)
-    
-    local tokens = {}
-    while true do
-        local token = lexer_class:next_token()
+function parser.create(source: string, file: string?): Result<Parser, CustomError>
+    local lexer = lexer.new(source)
+    local tokens = lexer:tokenize()
 
-        if not token then
-            for i=1, #lexer_class.custom_error.errors do
-                error_class:push(lexer_class.custom_error.errors[i])
-            end
-
-            break
-        end
-
-        if token.type == "EofTokenType" then
-            break
-        end
-
-        tokens[#tokens + 1] = token
+    if tokens:isErr() then
+        return result.Err(lexer.custom_error)
     end
 
-    return setmetatable({
+    return result.Ok(setmetatable({
         cureent = 1,
-        tokens = tokens,
-        custom_error = error_class,
-    }, parser)
+        tokens = tokens:unwrap(),
+    }, parser))
 end
 
 function parser.peek(self: Parser)
@@ -60,7 +45,7 @@ function parser.parse_expression(self: Parser)
     
 end
 
-
+local start = os.clock()
 local lex = lexer.new [[
 
 var a = 100
@@ -72,5 +57,6 @@ function a() {}
 ]]
 
 print(lex:tokenize():isOk())
+print("endof", os.clock() - start)
 
 return parser
