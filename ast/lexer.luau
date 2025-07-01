@@ -224,6 +224,10 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
             return result.Ok(EqualSubToken("-=", self.line, self.line_current))
         end
 
+        if self:match_next">" then
+            return result.Ok(ArrowToken("->", self.line, self.line_current))
+        end
+
         return result.Ok(SubToken("-", self.line, self.line_current))
     end
 
@@ -324,12 +328,6 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
     if char == "!" then
         if self:match_next"=" then
             return result.Ok(NotEqualToken("!=", self.line, self.line_current))
-        end
-    end
-
-    if char == "-" then
-        if self:match_next">" then
-            return result.Ok(ArrowToken("->", self.line, self.line_current))
         end
     end
 

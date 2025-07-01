@@ -358,14 +358,19 @@ export type NumberAstType = {
     type: "NumberAstType", 
 }
 export type BooleanAstType = { 
-    type: "NumberAstType", 
+    type: "BooleanAstType", 
 }
 export type AnyAstType = { 
     type: "AnyAstType", 
 }
 
 export type FunctionAstType = {
-    parameters: { AstType },
+    parameters: {
+        [number]: { 
+            name: string, 
+            ast_type: AstType,
+        }
+    },
     return_type: AstType,
     generics: { GenericAstType },
     type: "FunctionAstType",
@@ -398,12 +403,12 @@ export type AstType =
     | CustomAstType
 
 local ast_type = {}
-ast_type.StringAstType = "StringAstType"
-ast_type.NumberAstType = "NumberAstType"
-ast_type.BooleanAstType = "NumberAstType"
-ast_type.AnyAstType = "AnyAstType"
+ast_type.StringAstType = { type = "StringAstType" } :: StringAstType
+ast_type.NumberAstType = { type = "NumberAstType" } :: NumberAstType
+ast_type.BooleanAstType = { type = "BooleanAstType" } :: BooleanAstType
+ast_type.AnyAstType = { type = "AnyAstType" } :: AnyAstType
 
-function ast_type.FunctionAstType(parameters: { AstType }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
+function ast_type.FunctionAstType(parameters: { { name: string, ast_type: AstType } }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
     return {
         parameters = parameters,
         return_type = return_type,
@@ -495,6 +500,7 @@ export type Expression =
     | VariableExpression
     | BinaryExpression
     | IndexAccessExpression
+    | FunctionExpression
 
 local expression = {}
 

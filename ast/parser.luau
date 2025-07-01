@@ -4,7 +4,9 @@ local result = require("@packages/result")
 
 local custom_error = require("@packages/custom_error")
 local error_type = custom_error.error_type
+
 local SyntaxError = error_type.SyntaxError
+local UnexpectedError = error_type.UnexpectedError
 
 local parser = {}
 parser.__index = parser
@@ -13,11 +15,25 @@ local ast_type = ast.ast_type
 local ast_utils = ast.ast_utils
 local expression = ast.expression
 
+local StringAstType = ast_type.StringAstType
+local NumberAstType = ast_type.NumberAstType
+local BooleanAstType = ast_type.BooleanAstType
+local AnyAstType = ast_type.AnyAstType
+local FunctionAstType = ast_type.FunctionAstType
 local GenericAstType = ast_type.GenericAstType
+local TypeofAstType = ast_type.TypeofAstType
+local CustomAstType = ast_type.CustomAstType
 
-type Token = ast.Token<ast.TokenType>
+local VariableExpression = expression.VariableExpression
+
+type TokenType = ast.TokenType
+type Token = ast.Token<TokenType>
+
 type AstType = ast.AstType
 type GenericAstType = ast.GenericAstType
+
+type Expression = ast.Expression
+type LiteralExpression = ast.LiteralExpression
 
 type CustomError = custom_error.CustomError
 type CustomErrorInfo = custom_error.CustomErrorInfo
@@ -53,8 +69,29 @@ function parser.advance(self: Parser): Token
     return self.tokens[current]
 end
 
+function parser.match_next_type(self: Parser, type: TokenType, index: number?): Token?
+    if not self.tokens[self.cureent + (index or 1)] then
+        return nil
+    end
+
+    return if self.tokens[self.cureent + (index or 1)].type == type then
+        self.tokens[self.cureent + (index or 1)] 
+    else
+        nil
+end
+
 function parser.parse_generics(self: Parser): Result<{ GenericAstType }, CustomErrorInfo>
-    self:advance() --// <
+    do
+        local less = self:advance()
+        if less.type ~= "LessTokenType" then
+            return result.Err {
+                line = less.line,
+                current = less.column,
+                error_type = SyntaxError,
+                error_message = `Expected '<', got '{less.lexeme}'`,
+            }
+        end
+    end
 
     local generics = {}
 
@@ -86,26 +123,211 @@ function parser.parse_generics(self: Parser): Result<{ GenericAstType }, CustomE
             line = generic.line,
             current = generic.column,
             error_type = SyntaxError,
-            error_message = `Expected Comma or Greater, got '{next_token.lexeme}'`,
+            error_message = `Expected ',' or '>', got '{next_token.lexeme}'`,
         }
     end
 
     return result.Ok(generics)
 end
 
-function parser.parse_ast_type(self: Parser)
+function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
+    local opinion_token = self:advance()
+
+    if opinion_token.type == "IdentifierTokenType" then
+        if opinion_token.lexeme == "string" then
+            return result.Ok(StringAstType)
+        end
+
+        if opinion_token.lexeme == "number" then
+            return result.Ok(NumberAstType)
+        end
+
+        if opinion_token.lexeme == "boolean" then
+            return result.Ok(BooleanAstType)
+        end
+
+        if opinion_token.lexeme == "any" then
+            return result.Ok(AnyAstType)
+        end
+
+        local generics: { GenericAstType } = {}
+        if self:peek().type == "LessTokenType" then
+            local generics_result = self:parse_generics()
+
+            if generics_result:isErr() then
+                return result.Err(generics_result:unwrapErr())
+            end
+           
+            generics = generics_result:unwrap()
+        end
+
+        return result.Ok(CustomAstType(opinion_token.lexeme, generics))
+    end
+
+    if opinion_token.type == "TypeofTokenType" then
+        local expression_result = self:parse_expression()
+
+        if expression_result:isErr() then
+            return result.Err(expression_result:unwrapErr())
+        end
+
+        return result.Ok(TypeofAstType(expression_result:unwrap()))
+    end
+
+    local generics = {}
     
+    if opinion_token.type == "LessTokenType" then
+        local generics_result = self:parse_generics()
+
+        if generics_result:isErr() then
+            return result.Err(generics_result:unwrapErr())
+        end
+    
+        generics = generics_result:unwrap()
+    end
+
+    if opinion_token.type == "LeftParenTokenType" then
+        if not self:match_next_type "ColonTokenType" and 
+            not (self:match_next_type("RightParenTokenType", 0) and self:match_next_type("ArrowTokenType"))
+        then
+            if #generics > 0 then
+                self:advance()
+                local token = self:peek()
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ':', got '{token.lexeme}'`,
+                }
+            end
+
+            if not self:match_next_type "RightParenTokenType" then
+                self:advance()
+
+                local token = self:peek()
+
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ')', got '{token.lexeme}'`,
+                }
+            end
+
+            return self:parse_ast_type()
+        end
+
+        local parameters = {}
+
+        while true do
+            local name_token = self:advance()
+
+            if name_token.type == "RightParenTokenType" then
+                break
+            end
+
+            if name_token.type ~= "IdentifierTokenType" then
+                return result.Err {
+                    line = name_token.line,
+                    current = name_token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected Identifiers, got '{name_token.lexeme}'`,
+                }
+            end
+        
+            do
+                local token = self:advance()
+                if token.type ~= "ColonTokenType" then
+                    return result.Err {
+                        line = token.line,
+                        current = token.column,
+                        error_type = SyntaxError,
+                        error_message = `Expected ':', got '{token.lexeme}'`,
+                    }
+                end
+            end
+
+            local ast_type_result = self:parse_ast_type()
+
+            if ast_type_result:isErr() then
+                return ast_type_result
+            end
+            
+            local ast_type = ast_type_result:unwrap()
+
+            parameters[#parameters + 1] = {
+                name = name_token.lexeme,
+                ast_type = ast_type,
+            }
+
+            do 
+                local token = self:advance()
+            
+                if token.type == "CommaTokenType" then
+                    continue
+                end
+
+                if token.type == "RightParenTokenType" then
+                    break
+                end
+
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ')', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        do
+            local token = self:advance()
+
+            if token.type ~= "ArrowTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected '->', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        local return_ast_type_result = self:parse_ast_type()
+
+        if return_ast_type_result:isErr() then
+            return return_ast_type_result
+        end
+
+        local return_ast_type = return_ast_type_result:unwrap()
+
+        return result.Ok(FunctionAstType(parameters, return_ast_type, generics))
+    end
+
+    return result.Err {
+        line = opinion_token.line,
+        current = opinion_token.column,
+        error_type = SyntaxError,
+        error_message = `Expected AstType, got '{opinion_token.lexeme}'`,
+    }
 end
 
-function parser.parse_expression(self: Parser)
-    
+function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
+    return result.Ok(VariableExpression(self:advance().lexeme))
 end
 
 local p = parser.create [[
-<Res,>
+//(as: string) -> () -> () -> ()
+(s: string) -> () -> string
 ]]
-local generics = p:unwrap():parse_generics()
-print(generics:isErr() and generics:unwrapErr() 
-    or generics:unwrap())
+local generics = p:unwrap():parse_ast_type()
+
+print(
+    generics:isErr() and 
+    generics:unwrapErr() or 
+    generics:unwrap()
+)
+
+-- print("\n", p:unwrap():peek())
 
 return parser

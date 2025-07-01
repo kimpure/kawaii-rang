@@ -15,9 +15,9 @@ export type CustomError = typeof(setmetatable({} :: {
 }, custom_error))
 
 custom_error.error_type = {
-    SyntaxError = "SyntaxError",
-    LexicalError = "LexicalError",
-    AnyError = "AnyError",
+    SyntaxError = "Syntax Error",
+    LexicalError = "Lexical Error",
+    UnexpectedError = "Unexpected Error",
 }
 
 function custom_error.new(file: string?): CustomError
@@ -38,7 +38,7 @@ function custom_error.extends(self: CustomError, line: number, cureent: number, 
             file = file,
             line = line,
             current = cureent,
-            error_type = custom_error.error_type.AnyError,
+            error_type = custom_error.error_type.UnexpectedError,
             error_message = "any error (not thing)",
         }
     end
