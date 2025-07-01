@@ -3,7 +3,6 @@ local custom_error = require("@packages/custom_error")
 local result = require("@packages/result")
 
 local error_type = custom_error.error_type
-
 local LexicalError = error_type.LexicalError
 
 local tokens = ast.tokens

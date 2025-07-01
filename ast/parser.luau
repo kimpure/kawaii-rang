@@ -1,5 +1,6 @@
 local ast = require("@ast/ast")
 local lexer = require("@ast/lexer")
+
 local result = require("@packages/result")
 
 local custom_error = require("@packages/custom_error")
@@ -60,6 +61,11 @@ function parser.create(source: string, file: string?): Result<Parser, CustomErro
 end
 
 function parser.peek(self: Parser): Token
+    return self.tokens[self.cureent]
+end
+
+function parser.back(self: Parser): Token
+    self.cureent -= 1
     return self.tokens[self.cureent]
 end
 
@@ -177,6 +183,8 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
     local generics = {}
     
     if opinion_token.type == "LessTokenType" then
+        self:back()
+        
         local generics_result = self:parse_generics()
 
         if generics_result:isErr() then
@@ -184,6 +192,8 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
         end
     
         generics = generics_result:unwrap()
+
+        opinion_token = self:advance()
     end
 
     if opinion_token.type == "LeftParenTokenType" then
@@ -318,7 +328,8 @@ end
 
 local p = parser.create [[
 //(as: string) -> () -> () -> ()
-(s: string) -> () -> string
+//<KT>(s: string) -> () -> string
+//a<T>
 ]]
 local generics = p:unwrap():parse_ast_type()
 

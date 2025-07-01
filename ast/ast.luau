@@ -638,6 +638,7 @@ end
 --// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
 --// TODO: type std 도 만들기
 --// TODO: parser 구조 생각해보기
+--// TODO: parse expression 만들기
 
 -- function expression.ClassExpression()
 
