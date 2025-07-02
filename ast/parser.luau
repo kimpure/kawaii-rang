@@ -137,22 +137,22 @@ function parser.parse_generics(self: Parser): Result<{ GenericAstType }, CustomE
 end
 
 function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
-    local opinion_token = self:advance()
+    local start_token = self:advance()
 
-    if opinion_token.type == "IdentifierTokenType" then
-        if opinion_token.lexeme == "string" then
+    if start_token.type == "IdentifierTokenType" then
+        if start_token.lexeme == "string" then
             return result.Ok(StringAstType)
         end
 
-        if opinion_token.lexeme == "number" then
+        if start_token.lexeme == "number" then
             return result.Ok(NumberAstType)
         end
 
-        if opinion_token.lexeme == "boolean" then
+        if start_token.lexeme == "boolean" then
             return result.Ok(BooleanAstType)
         end
 
-        if opinion_token.lexeme == "any" then
+        if start_token.lexeme == "any" then
             return result.Ok(AnyAstType)
         end
 
@@ -167,10 +167,10 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
             generics = generics_result:unwrap()
         end
 
-        return result.Ok(CustomAstType(opinion_token.lexeme, generics))
+        return result.Ok(CustomAstType(start_token.lexeme, generics))
     end
 
-    if opinion_token.type == "TypeofTokenType" then
+    if start_token.type == "TypeofTokenType" then
         local expression_result = self:parse_expression()
 
         if expression_result:isErr() then
@@ -182,7 +182,7 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
 
     local generics = {}
     
-    if opinion_token.type == "LessTokenType" then
+    if start_token.type == "LessTokenType" then
         self:back()
         
         local generics_result = self:parse_generics()
@@ -193,22 +193,22 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
     
         generics = generics_result:unwrap()
 
-        opinion_token = self:advance()
+        start_token = self:advance()
 
         do
-            local opinion_token = opinion_token
-            if opinion_token.type ~= "LeftParenTokenType" then
+            local start_token = start_token
+            if start_token.type ~= "LeftParenTokenType" then
                 return result.Err {
-                    line = opinion_token.line,
-                    current = opinion_token.column,
+                    line = start_token.line,
+                    current = start_token.column,
                     error_type = SyntaxError,
-                    error_message = `Expected '(', got '{opinion_token.lexeme}'`,
+                    error_message = `Expected '(', got '{start_token.lexeme}'`,
                 }
             end
         end
     end
 
-    if opinion_token.type == "LeftParenTokenType" then
+    if start_token.type == "LeftParenTokenType" then
         if not self:match_next_type "ColonTokenType" and 
             not (self:match_next_type("RightParenTokenType", 0) and self:match_next_type("ArrowTokenType"))
         then
@@ -327,14 +327,16 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
     end
 
     return result.Err {
-        line = opinion_token.line,
-        current = opinion_token.column,
+        line = start_token.line,
+        current = start_token.column,
         error_type = SyntaxError,
-        error_message = `Expected AstType, got '{opinion_token.lexeme}'`,
+        error_message = `Expected AstType, got '{start_token.lexeme}'`,
     }
 end
 
 function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
+    local start_token = self:advance()
+
     -- return result.Ok(VariableExpression(self:advance().lexeme))
 end
 
