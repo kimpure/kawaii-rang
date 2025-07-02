@@ -223,7 +223,13 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
                 }
             end
 
-            if not self:match_next_type "RightParenTokenType" then
+            local ast_type_result = self:parse_ast_type()
+
+            if ast_type_result:isErr() then
+                return ast_type_result
+            end
+
+            if self:peek().type ~= "RightParenTokenType" then
                 self:advance()
 
                 local token = self:peek()
@@ -236,7 +242,7 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
                 }
             end
 
-            return self:parse_ast_type()
+            return ast_type_result
         end
 
         local parameters = {}
@@ -337,12 +343,15 @@ end
 function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
     local start_token = self:advance()
 
+
+    
     -- return result.Ok(VariableExpression(self:advance().lexeme))
 end
 
 local p, s = parser.create [[
 //(as: string) -> (() -> () -> string)
-<KT>(s: string) -> () -> string
+//<KT>(s: string) -> () -> string
+() -> string
 //a<T>
 ]], os.clock()
 local generics = p:unwrap():parse_ast_type()
