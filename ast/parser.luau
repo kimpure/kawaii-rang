@@ -194,6 +194,18 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
         generics = generics_result:unwrap()
 
         opinion_token = self:advance()
+
+        do
+            local opinion_token = opinion_token
+            if opinion_token.type ~= "LeftParenTokenType" then
+                return result.Err {
+                    line = opinion_token.line,
+                    current = opinion_token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected '(', got '{opinion_token.lexeme}'`,
+                }
+            end
+        end
     end
 
     if opinion_token.type == "LeftParenTokenType" then
@@ -323,21 +335,21 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
 end
 
 function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
-    return result.Ok(VariableExpression(self:advance().lexeme))
+    -- return result.Ok(VariableExpression(self:advance().lexeme))
 end
 
-local p = parser.create [[
-//(as: string) -> () -> () -> ()
-//<KT>(s: string) -> () -> string
+local p, s = parser.create [[
+//(as: string) -> (() -> () -> string)
+<KT>(s: string) -> () -> string
 //a<T>
-]]
+]], os.clock()
 local generics = p:unwrap():parse_ast_type()
 
 print(
     generics:isErr() and 
     generics:unwrapErr() or 
     generics:unwrap()
-)
+, os.clock() - s)
 
 -- print("\n", p:unwrap():peek())
 
