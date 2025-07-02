@@ -408,6 +408,8 @@ ast_type.NumberAstType = { type = "NumberAstType" } :: NumberAstType
 ast_type.BooleanAstType = { type = "BooleanAstType" } :: BooleanAstType
 ast_type.AnyAstType = { type = "AnyAstType" } :: AnyAstType
 
+local ast_utils = {}
+
 function ast_type.FunctionAstType(parameters: { { name: string, ast_type: AstType } }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
     return {
         parameters = parameters,
@@ -459,7 +461,7 @@ export type UnaryExpression = {
 
 export type FunctionCallExpression = {
     expression: Expression,
-    args: { Expression },
+    parameters: { Expression },
     annotated_type: AstType?,
     type: "FunctionCallExpression",
 }
@@ -504,10 +506,10 @@ export type Expression =
 
 local expression = {}
 
-function expression.LiteralExpression(token: Token<LiteralTokenTypes>, annotated_type: AstType?): LiteralExpression
+function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string, annotated_type: AstType?): LiteralExpression
     return {
-        data_type = token.type,
-        value = token.lexeme,
+        data_type = data_type,
+        value = value,
         annotated_type = annotated_type,
         type = "LiteralExpression",
     }
@@ -528,10 +530,10 @@ function expression.UnaryExpression(expression: Expression): UnaryExpression
     }
 end
 
-function expression.FunctionCallExpression(expression: Expression, args: { Expression }, annotated_type: AstType?): FunctionCallExpression
+function expression.FunctionCallExpression(expression: Expression, parameters: { Expression }, annotated_type: AstType?): FunctionCallExpression
     return {
         expression = expression,
-        args = args,
+        parameters = parameters,
         annotated_type = annotated_type,
         type = "FunctionCallExpression",
     }
@@ -648,8 +650,6 @@ end
 -- function expression.ImportExpression()
 
 -- end
-
-local ast_utils = {}
 
 function ast_utils.is_literal_token(token: Token<TokenType>): boolean
     return 

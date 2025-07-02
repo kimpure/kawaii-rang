@@ -25,10 +25,13 @@ local GenericAstType = ast_type.GenericAstType
 local TypeofAstType = ast_type.TypeofAstType
 local CustomAstType = ast_type.CustomAstType
 
+local LiteralExpression = expression.LiteralExpression
+local GroupedExpression = expression.GroupedExpression
+local UnaryExpression = expression.UnaryExpression
 local VariableExpression = expression.VariableExpression
 
 type TokenType = ast.TokenType
-type Token = ast.Token<TokenType>
+type Token<T> = ast.Token<T>
 
 type AstType = ast.AstType
 type GenericAstType = ast.GenericAstType
@@ -43,7 +46,7 @@ type Result<T, U> = result.Result<T, U>
 
 export type Parser = typeof(setmetatable({} :: {
     cureent: number,
-    tokens: { Token },
+    tokens: { Token<TokenType> },
 }, parser))
 
 function parser.create(source: string, file: string?): Result<Parser, CustomError>
@@ -60,22 +63,22 @@ function parser.create(source: string, file: string?): Result<Parser, CustomErro
     }, parser))
 end
 
-function parser.peek(self: Parser): Token
+function parser.peek(self: Parser): Token<TokenType>
     return self.tokens[self.cureent]
 end
 
-function parser.back(self: Parser): Token
+function parser.back(self: Parser): Token<TokenType>
     self.cureent -= 1
     return self.tokens[self.cureent]
 end
 
-function parser.advance(self: Parser): Token
+function parser.advance(self: Parser): Token<TokenType>
     local current = self.cureent
     self.cureent += 1
     return self.tokens[current]
 end
 
-function parser.match_next_type(self: Parser, type: TokenType, index: number?): Token?
+function parser.match_next_type(self: Parser, type: TokenType, index: number?): Token<TokenType>?
     if not self.tokens[self.cureent + (index or 1)] then
         return nil
     end
@@ -342,19 +345,88 @@ end
 
 function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
     local start_token = self:advance()
+    local expression: Expression
 
+    if
+        start_token.type == "StringTokenType" or
+        start_token.type == "NumberTokenType" or
+        start_token.type == "BooleanTokenType" or
+        start_token.type == "NilTokenType"
+    then
+        do
+            local token = self:peek()
+            if token.type == "LeftParenTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = "expected assignment or a function call",
+                }
+            end
+        end
 
-    
+        return result.Ok(LiteralExpression(start_token.type, start_token.lexeme))
+    end
+
+    if start_token.type == "LeftParenTokenType" then
+        local expression_result = self:parse_expression()
+
+        if expression_result:isErr() then
+            return expression_result
+        end
+
+        do
+            local token = self:advance()
+
+            if token.type ~= "RightParenTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ')', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        expression = GroupedExpression(expression_result:unwrap())
+    end
+
+    if start_token.type == "SubTokenType" then
+        local expression_result = self:parse_expression()
+
+        if expression_result:isErr() then
+            return expression_result
+        end
+
+        expression = UnaryExpression(expression_result:unwrap())
+    end
+
+    if not expression then
+        return result.Err {
+            line = start_token.line,
+            current = start_token.column,
+            error_type = SyntaxError,
+            error_message = `Expected Expression, got '{start_token.lexeme}'`,
+        }
+    end
+
+    do
+        
+    end
+
     -- return result.Ok(VariableExpression(self:advance().lexeme))
 end
 
 local p, s = parser.create [[
 //(as: string) -> (() -> () -> string)
 //<KT>(s: string) -> () -> string
-() -> string
+//() -> string
 //a<T>
+
+//("this is string!!")
+
 ]], os.clock()
-local generics = p:unwrap():parse_ast_type()
+local generics = p:unwrap():parse_expression()
 
 print(
     generics:isErr() and 
