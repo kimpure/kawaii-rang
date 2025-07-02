@@ -210,7 +210,7 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
 
     if start_token.type == "LeftParenTokenType" then
         if not self:match_next_type "ColonTokenType" and 
-            not (self:match_next_type("RightParenTokenType", 0) and self:match_next_type("ArrowTokenType"))
+            not (self:peek().type == "RightParenTokenType" and self:match_next_type("ArrowTokenType"))
         then
             if #generics > 0 then
                 self:advance()
