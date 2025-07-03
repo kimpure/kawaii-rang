@@ -27,6 +27,8 @@ local LiteralExpression = expression.LiteralExpression
 local GroupedExpression = expression.GroupedExpression
 local UnaryExpression = expression.UnaryExpression
 local VariableExpression = expression.VariableExpression
+local FunctionCallExpression = expression.FunctionCallExpression
+local IndexAccessExpression = expression.IndexAccessExpression
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
@@ -469,7 +471,105 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
     --     --// TODO: parser body 구현하면 마저 작성하기!!
     -- end
 
+    if not expression then
+        return result.Err {
+            line = start_token.line,
+            current = start_token.column,
+            error_type = SyntaxError,
+            error_message = `Expected Expression, got '{start_token.lexeme}'`,
+        }
+    end
 
+    while true do
+        local token = self:peek()
+
+        if token.type == "LeftParenTokenType" then
+            self:advance()
+            local parameters = {}
+
+            while true do
+                local expression_result = self:parse_expression()
+
+                if expression_result:isErr() then
+                    return expression_result
+                end
+
+                parameters[#parameters + 1] = expression_result:unwrap()
+
+                local next_token = self:advance()
+
+                if next_token.type == "CommaTokenType" then
+                    continue
+                end
+
+                if next_token.type == "RightParenTokenType" then
+                    break
+                end
+
+                return result.Err {
+                    line = next_token.line,
+                    current = next_token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ',' or ')', got '{next_token.lexeme}'`,
+                }
+            end
+
+            expression = FunctionCallExpression(expression, parameters)
+
+            continue
+        end
+
+        if token.type == "LeftBrackTokenType" then
+            self:advance()
+            local index_result = self:parse_expression()
+        
+            if index_result:isErr() then
+                return index_result
+            end
+
+            do
+                local token = self:advance()
+
+                if token.type ~= "RightBrackTokenType" then
+                    return result.Err {
+                        line = token.line,
+                        current = token.column,
+                        error_type = SyntaxError,
+                        error_message = `Expected ']', got '{token.lexeme}'`,
+                    }
+                end
+            end
+
+            expression = IndexAccessExpression(expression, index_result:unwrap())
+
+            continue
+        end
+
+        if token.type == "AddTokenType" or
+            token.type == "SubTokenType" or
+            token.type == "MulTokenType" or
+            token.type == "DivTokenType" or
+            token.type == "RemainderTokenType" or
+            token.type == "GreaterTokenType" or
+            token.type == "LessTokenType" or
+            token.type == "GreaterEqualTokenType" or
+            token.type == "LessEqualTokenType" or
+            token.type == "EqualTwoTokenType" or
+            token.type == "NotEqualTokenType" or
+            token.type == "AndTokenType" or
+            token.type == "OrTokenType" 
+        then
+                    
+        end
+
+        if token.type == "ColonTwoTokenType" then
+
+        end
+
+        break
+    end
+
+    return result.Ok(expression)
 end
 
 local p, s = parser.create [[
@@ -480,10 +580,10 @@ local p, s = parser.create [[
 
 //("this is string!!")
 
-string[]
+("string")[1]
 
 ]], os.clock()
-local generics = p:unwrap():parse_ast_type()
+local generics = p:unwrap():parse_expression()
 
 print(
     generics:isErr() and 

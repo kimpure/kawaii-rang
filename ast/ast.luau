@@ -351,6 +351,10 @@ local token_types = {
     EofTokenType = EofTokenType,
 }
 
+local operator_precedence = {
+
+}
+
 export type StringAstType = { 
     type: "StringAstType", 
 }
@@ -652,6 +656,7 @@ end
 return {
     tokens = tokens,
     token_types = token_types,
+    operator_precedence = operator_precedence,
     expression = expression,
     ast_node = ast_node,
     ast_type = ast_type,
