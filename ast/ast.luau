@@ -365,12 +365,7 @@ export type AnyAstType = {
 }
 
 export type FunctionAstType = {
-    parameters: {
-        [number]: { 
-            name: string, 
-            ast_type: AstType,
-        }
-    },
+    parameters: { ParameterAstType },
     return_type: AstType,
     generics: { GenericAstType },
     type: "FunctionAstType",
@@ -408,9 +403,9 @@ ast_type.NumberAstType = { type = "NumberAstType" } :: NumberAstType
 ast_type.BooleanAstType = { type = "BooleanAstType" } :: BooleanAstType
 ast_type.AnyAstType = { type = "AnyAstType" } :: AnyAstType
 
-local ast_utils = {}
+local ast_node = {}
 
-function ast_type.FunctionAstType(parameters: { { name: string, ast_type: AstType } }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
+function ast_type.FunctionAstType(parameters: { ParameterAstType }, return_type: AstType, generics: { GenericAstType }): FunctionAstType
     return {
         parameters = parameters,
         return_type = return_type,
@@ -487,7 +482,7 @@ export type IndexAccessExpression = {
 }
 
 export type FunctionExpression = {
-    parameters: { VariableExpression },
+    parameters: { ParameterAstType },
     return_expression: Expression,
     return_annotated_type: AstType?,
     body: { AstNode },
@@ -552,7 +547,7 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
         left = left,
         right = right,
         operator = operator,
-        type = "BinaryExpression",
+        type = "BinaryExpression",  
     }
 end
 
@@ -565,7 +560,7 @@ function expression.IndexAccessExpression(expression: Expression, index: Express
     }
 end
 
-function expression.FunctionExpression(body: { AstNode }, parameters: { VariableExpression }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
+function expression.FunctionExpression(body: { AstNode }, parameters: { ParameterAstType }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
     return {
         parameters = parameters,
         return_expression = return_expression,
@@ -584,7 +579,7 @@ export type VariableAstNode = {
 
 export type FunctionAstNode = {
     name: string,
-    parameters: { VariableExpression },
+    parameters: { ParameterAstType },
     return_expression: Expression,
     return_annotated_type: AstType?,
     body: { AstNode },
@@ -598,12 +593,15 @@ export type TypeAstNode = {
     type: "TypeAstNode",
 }
 
+export type ParameterAstType = {
+    name: string,
+    ast_type: AstType,
+}
+
 export type AstNode =
     | VariableAstNode
     | FunctionAstNode
     | TypeAstNode
-
-local ast_node = {}
 
 function ast_node.VariableAstNode(name: string, value: Expression, annotated_type: AstType?): VariableAstNode
     return {
@@ -614,7 +612,7 @@ function ast_node.VariableAstNode(name: string, value: Expression, annotated_typ
     }
 end
 
-function ast_node.FunctionAstNode(name: string, parameters: { VariableExpression }, return_expression: Expression, body: { AstNode }, return_annotated_type: AstType?): FunctionAstNode
+function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, return_expression: Expression, body: { AstNode }, return_annotated_type: AstType?): FunctionAstNode
     return {
         name = name,
         parameters = parameters,
@@ -651,46 +649,10 @@ end
 
 -- end
 
-function ast_utils.is_literal_token(token: Token<TokenType>): boolean
-    return 
-        token.type == "NumberTokenType" or 
-        token.type == "StringTokenType" or 
-        token.type == "BooleanTokenType" or 
-        token.type == "NilTokenType"
-end
-
-function ast_utils.is_operator_token(token: Token<TokenType>): boolean
-    return 
-        token.type == "AddTokenType" or 
-        token.type == "SubTokenType" or 
-        token.type == "MulTokenType" or 
-        token.type == "DivTokenType" or 
-        token.type == "RemainderTokenType" or
-
-        token.type == "GreaterTokenType" or 
-        token.type == "LessTokenType" or 
-        token.type == "GreaterEqualTokenType" or 
-        token.type == "LessEqualTokenType" or
-
-        token.type == "EqualTwoTokenType" or
-        token.type == "NotEqualTokenType" or
-        token.type == "AndTokenType" or
-        token.type == "OrTokenType"
-end
-
-function ast_utils.literal_token(token: Token<TokenType>): Token<LiteralTokenTypes>?
-    return ast_utils.is_literal_token(token) and token :: Token<LiteralTokenTypes> or nil
-end
-
-function ast_utils.operator_token(token: Token<TokenType>): Token<OperatorTokenTypes>?
-    return ast_utils.is_operator_token(token) and token :: Token<OperatorTokenTypes> or nil
-end
-
 return {
     tokens = tokens,
     token_types = token_types,
     expression = expression,
     ast_node = ast_node,
     ast_type = ast_type,
-    ast_utils = ast_utils,
 }

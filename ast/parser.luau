@@ -7,13 +7,11 @@ local custom_error = require("@packages/custom_error")
 local error_type = custom_error.error_type
 
 local SyntaxError = error_type.SyntaxError
-local UnexpectedError = error_type.UnexpectedError
 
 local parser = {}
 parser.__index = parser
 
 local ast_type = ast.ast_type
-local ast_utils = ast.ast_utils
 local expression = ast.expression
 
 local StringAstType = ast_type.StringAstType
@@ -35,9 +33,9 @@ type Token<T> = ast.Token<T>
 
 type AstType = ast.AstType
 type GenericAstType = ast.GenericAstType
+type ParameterAstType = ast.ParameterAstType
 
 type Expression = ast.Expression
-type LiteralExpression = ast.LiteralExpression
 
 type CustomError = custom_error.CustomError
 type CustomErrorInfo = custom_error.CustomErrorInfo
@@ -129,8 +127,8 @@ function parser.parse_generics(self: Parser): Result<{ GenericAstType }, CustomE
         end
 
         return result.Err {
-            line = generic.line,
-            current = generic.column,
+            line = next_token.line,
+            current = next_token.column,
             error_type = SyntaxError,
             error_message = `Expected ',' or '>', got '{next_token.lexeme}'`,
         }
@@ -343,6 +341,78 @@ function parser.parse_ast_type(self: Parser): Result<AstType, CustomErrorInfo>
     }
 end
 
+function parser.parse_parameters(self: Parser): Result<{ ParameterAstType }, CustomErrorInfo>
+    do
+        local left_paren = self:advance()
+        if left_paren.type ~= "LeftParenTokenType" then
+            return result.Err {
+                line = left_paren.line,
+                current = left_paren.column,
+                error_type = SyntaxError,
+                error_message = `Expected '(', got '{left_paren.lexeme}'`,
+            }
+        end
+    end
+
+    local parameters = {}
+
+    while true do
+        local parameter = self:advance()
+
+        if parameter.type ~= "IdentifierTokenType" then
+            return result.Err {
+                line = parameter.line,
+                current = parameter.column,
+                error_type = SyntaxError,
+                error_message = `Expected Identifiers, got '{parameter.lexeme}'`,
+            }
+        end
+
+        do
+            local token = self:advance()
+
+            if token.type ~= "ColonTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ':', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        local ast_type_result = self:parse_ast_type()
+
+        if ast_type_result:isErr() then
+            return result.Err(ast_type_result:unwrapErr())
+        end
+
+        parameters[#parameters + 1] = {
+            name = parameter.lexeme,
+            ast_type = ast_type_result:unwrap(),
+        }
+
+        local next_token = self:advance()
+
+        if next_token.type == "CommaTokenType" then
+            continue
+        end
+
+        if next_token.type == "RightParenTokenType" then
+            break
+        end
+
+        return result.Err {
+            line = next_token.line,
+            current = next_token.column,
+            error_type = SyntaxError,
+            error_message = `Expected ',' or ')', got '{next_token.lexeme}'`,
+        }
+    end
+
+    return result.Ok(parameters)
+end
+
 function parser.parse_expression(self: Parser): Result<Expression, CustomErrorInfo>
     local start_token = self:advance()
     local expression: Expression
@@ -353,18 +423,6 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         start_token.type == "BooleanTokenType" or
         start_token.type == "NilTokenType"
     then
-        do
-            local token = self:peek()
-            if token.type == "LeftParenTokenType" then
-                return result.Err {
-                    line = token.line,
-                    current = token.column,
-                    error_type = SyntaxError,
-                    error_message = "expected assignment or a function call",
-                }
-            end
-        end
-
         return result.Ok(LiteralExpression(start_token.type, start_token.lexeme))
     end
 
@@ -398,23 +456,20 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             return expression_result
         end
 
-        expression = UnaryExpression(expression_result:unwrap())
+        return result.Ok(UnaryExpression(expression_result:unwrap()))
     end
 
-    if not expression then
-        return result.Err {
-            line = start_token.line,
-            current = start_token.column,
-            error_type = SyntaxError,
-            error_message = `Expected Expression, got '{start_token.lexeme}'`,
-        }
+    if start_token.type == "IdentifierTokenType" then
+        expression = VariableExpression(start_token.lexeme)
     end
 
-    do
-        
-    end
+    -- if start_token.type == "FunctionTokenType" then
+    --     local parse_parameters = self:parse_parameters()
 
-    -- return result.Ok(VariableExpression(self:advance().lexeme))
+    --     --// TODO: parser body 구현하면 마저 작성하기!!
+    -- end
+
+
 end
 
 local p, s = parser.create [[
@@ -425,8 +480,10 @@ local p, s = parser.create [[
 
 //("this is string!!")
 
+string[]
+
 ]], os.clock()
-local generics = p:unwrap():parse_expression()
+local generics = p:unwrap():parse_ast_type()
 
 print(
     generics:isErr() and 
