@@ -583,7 +583,24 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         end
 
         if token.type == "ColonTwoTokenType" then
-            
+            if expression.type == "FunctionExpression" then
+                return result.Err {
+                    line = start_token.line,
+                    current = start_token.column,
+                    error_type = SyntaxError,
+                    error_message = `Function expressions cannot be used as types`,
+                }
+            end
+
+            self:advance()
+
+            local ast_type_result = self:parse_ast_type()
+
+            if ast_type_result:isErr() then
+                return result.Err(ast_type_result:unwrapErr())
+            end
+
+            ((expression :: any) :: { annotated_type: AstType }).annotated_type = ast_type_result:unwrap()
         end
 
         break
@@ -604,7 +621,9 @@ local p, s = parser.create [[
 
 //(1 + 3 * 3) < 0 + 1
 
-("string")()()()()
+//("string")()()()() < 0
+
+vars :: string
 
 ]], os.clock()
 local generics = p:unwrap():parse_expression()

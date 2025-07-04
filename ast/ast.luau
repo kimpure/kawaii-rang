@@ -470,6 +470,7 @@ export type GroupedExpression = {
 
 export type UnaryExpression = {
     expression: Expression,
+    annotated_type: AstType?,
     type: "UnaryExpression",
 }
 
@@ -490,6 +491,7 @@ export type BinaryExpression = {
     left: Expression,
     right: Expression,
     operator: OperatorTokenTypes,
+    annotated_type: AstType?,
     type: "BinaryExpression",
 }
 
@@ -512,19 +514,17 @@ export type Expression =
 
 local expression = {}
 
-function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string, annotated_type: AstType?): LiteralExpression
+function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string): LiteralExpression
     return {
         data_type = data_type,
         value = value,
-        annotated_type = annotated_type,
         type = "LiteralExpression",
     }
 end
 
-function expression.GroupedExpression(expression: Expression, annotated_type: AstType?): GroupedExpression
+function expression.GroupedExpression(expression: Expression): GroupedExpression
     return {
         expression = expression,
-        annotated_type = annotated_type,
         type = "GroupedExpression",
     }
 end
@@ -536,19 +536,17 @@ function expression.UnaryExpression(expression: Expression): UnaryExpression
     }
 end
 
-function expression.FunctionCallExpression(expression: Expression, parameters: { Expression }, annotated_type: AstType?): FunctionCallExpression
+function expression.FunctionCallExpression(expression: Expression, parameters: { Expression }): FunctionCallExpression
     return {
         expression = expression,
         parameters = parameters,
-        annotated_type = annotated_type,
         type = "FunctionCallExpression",
     }
 end
 
-function expression.VariableExpression(name: string, annotated_type: AstType?): VariableExpression
+function expression.VariableExpression(name: string): VariableExpression
     return {
         name = name,
-        annotated_type = annotated_type,
         type = "VariableExpression",
     }
 end
