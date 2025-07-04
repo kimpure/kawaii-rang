@@ -29,7 +29,6 @@ local GroupedExpression = expression.GroupedExpression
 local UnaryExpression = expression.UnaryExpression
 local VariableExpression = expression.VariableExpression
 local FunctionCallExpression = expression.FunctionCallExpression
-local IndexAccessExpression = expression.IndexAccessExpression
 local BinaryExpression = expression.BinaryExpression
 
 type TokenType = ast.TokenType
@@ -488,6 +487,13 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
 
         if token.type == "LeftParenTokenType" then
             self:advance()
+
+            if self:peek().type == "RightParenTokenType" then
+                self:advance()
+                expression = FunctionCallExpression(expression, {})
+                continue
+            end
+
             local parameters = {}
 
             while true do
@@ -518,32 +524,6 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             end
 
             expression = FunctionCallExpression(expression, parameters)
-
-            continue
-        end
-
-        if token.type == "LeftBrackTokenType" then
-            self:advance()
-            local index_result = self:parse_expression()
-        
-            if index_result:isErr() then
-                return index_result
-            end
-
-            do
-                local token = self:advance()
-
-                if token.type ~= "RightBrackTokenType" then
-                    return result.Err {
-                        line = token.line,
-                        current = token.column,
-                        error_type = SyntaxError,
-                        error_message = `Expected ']', got '{token.lexeme}'`,
-                    }
-                end
-            end
-
-            expression = IndexAccessExpression(expression, index_result:unwrap())
 
             continue
         end
@@ -603,7 +583,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         end
 
         if token.type == "ColonTwoTokenType" then
-
+            
         end
 
         break
@@ -622,7 +602,9 @@ local p, s = parser.create [[
 
 //("string")[1]
 
-(1 + 3 * 3) < 0 + 1
+//(1 + 3 * 3) < 0 + 1
+
+("string")()()()()
 
 ]], os.clock()
 local generics = p:unwrap():parse_expression()

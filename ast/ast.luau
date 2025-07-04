@@ -493,13 +493,6 @@ export type BinaryExpression = {
     type: "BinaryExpression",
 }
 
-export type IndexAccessExpression = {
-    expression: Expression,
-    index: Expression,
-    annotated_type: AstType?,
-    type: "IndexAccessExpression",
-}
-
 export type FunctionExpression = {
     parameters: { ParameterAstType },
     return_expression: Expression,
@@ -515,7 +508,6 @@ export type Expression =
     | FunctionCallExpression
     | VariableExpression
     | BinaryExpression
-    | IndexAccessExpression
     | FunctionExpression
 
 local expression = {}
@@ -567,15 +559,6 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
         right = right,
         operator = operator,
         type = "BinaryExpression",  
-    }
-end
-
-function expression.IndexAccessExpression(expression: Expression, index: Expression, annotated_type: AstType?): IndexAccessExpression
-    return {
-        expression = expression,
-        index = index,
-        annotated_type = annotated_type,
-        type = "IndexAccessExpression",
     }
 end
 
