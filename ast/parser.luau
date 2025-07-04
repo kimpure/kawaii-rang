@@ -580,6 +580,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             end
 
             expression = BinaryExpression(left_expression, token.type, right_expression)
+            continue
         end
 
         if token.type == "ColonTwoTokenType" then
@@ -601,6 +602,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             end
 
             ((expression :: any) :: { annotated_type: AstType }).annotated_type = ast_type_result:unwrap()
+            continue
         end
 
         break
@@ -621,10 +623,10 @@ local p, s = parser.create [[
 
 //(1 + 3 * 3) < 0 + 1
 
-//("string")()()()() < 0
+("string")()()()() < (0 :: string)
 
-vars :: string
-
+//vars :: string
+//-0 :: number
 ]], os.clock()
 local generics = p:unwrap():parse_expression()
 
