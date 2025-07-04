@@ -13,6 +13,7 @@ parser.__index = parser
 
 local ast_type = ast.ast_type
 local expression = ast.expression
+local operator_precedence = ast.operator_precedence
 
 local StringAstType = ast_type.StringAstType
 local NumberAstType = ast_type.NumberAstType
@@ -29,9 +30,11 @@ local UnaryExpression = expression.UnaryExpression
 local VariableExpression = expression.VariableExpression
 local FunctionCallExpression = expression.FunctionCallExpression
 local IndexAccessExpression = expression.IndexAccessExpression
+local BinaryExpression = expression.BinaryExpression
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
+type OperatorTokenTypes = ast.OperatorTokenTypes
 
 type AstType = ast.AstType
 type GenericAstType = ast.GenericAstType
@@ -425,7 +428,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         start_token.type == "BooleanTokenType" or
         start_token.type == "NilTokenType"
     then
-        return result.Ok(LiteralExpression(start_token.type, start_token.lexeme))
+        expression = LiteralExpression(start_token.type, start_token.lexeme)
     end
 
     if start_token.type == "LeftParenTokenType" then
@@ -458,7 +461,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             return expression_result
         end
 
-        return result.Ok(UnaryExpression(expression_result:unwrap()))
+        expression = UnaryExpression(expression_result:unwrap())
     end
 
     if start_token.type == "IdentifierTokenType" then
@@ -551,15 +554,52 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             token.type == "DivTokenType" or
             token.type == "RemainderTokenType" or
             token.type == "GreaterTokenType" or
-            token.type == "LessTokenType" or
             token.type == "GreaterEqualTokenType" or
+            token.type == "LessTokenType" or
             token.type == "LessEqualTokenType" or
             token.type == "EqualTwoTokenType" or
             token.type == "NotEqualTokenType" or
             token.type == "AndTokenType" or
             token.type == "OrTokenType" 
         then
-            --// TODO 
+            self:advance()
+
+            local right_expression_result = self:parse_expression()
+
+            if right_expression_result:isErr() then
+                return right_expression_result
+            end
+
+            local left_expression = expression
+            local right_expression = right_expression_result:unwrap()
+            local operator_type: OperatorTokenTypes = token.type
+            local operator_level = operator_precedence[operator_type]
+            
+            if right_expression.type == "BinaryExpression" then
+                local right_level = operator_precedence[right_expression.operator]
+                if right_level == 0 then
+                    expression = BinaryExpression(
+                        BinaryExpression(
+                            left_expression, 
+                            operator_type, 
+                            right_expression.left
+                        ), 
+                        right_expression.operator, 
+                        right_expression.right
+                    )
+                    continue
+                elseif operator_level == 0 then
+                    expression = BinaryExpression(left_expression, operator_type, right_expression)
+                    continue
+                else
+                    if operator_level < right_level then
+                        left_expression = right_expression
+                        right_expression = expression
+                    end
+                end
+            end
+
+            expression = BinaryExpression(left_expression, token.type, right_expression)
         end
 
         if token.type == "ColonTwoTokenType" then
@@ -580,7 +620,9 @@ local p, s = parser.create [[
 
 //("this is string!!")
 
-("string")[1]
+//("string")[1]
+
+(1 + 3 * 3) < 0 + 1
 
 ]], os.clock()
 local generics = p:unwrap():parse_expression()

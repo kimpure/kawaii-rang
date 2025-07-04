@@ -351,8 +351,23 @@ local token_types = {
     EofTokenType = EofTokenType,
 }
 
-local operator_precedence = {
+local operator_precedence: { [OperatorTokenTypes]: number } = {
+    [AddTokenType] = 1,
+    [SubTokenType] = 1,
 
+    [MulTokenType] = 2,
+    [DivTokenType] = 2,
+
+    [GreaterTokenType] = 0,
+    [GreaterEqualTokenType] = 0,
+    [LessTokenType] = 0,
+    [LessEqualTokenType] = 0,
+    
+    [EqualTwoTokenType] = 0,
+    [NotEqualTokenType] = 0,
+
+    [AndTokenType] = 0,
+    [OrTokenType] = 0,
 }
 
 export type StringAstType = { 
