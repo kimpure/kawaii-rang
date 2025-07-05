@@ -12,6 +12,7 @@ local parser = {}
 parser.__index = parser
 
 local ast_type = ast.ast_type
+local ast_node = ast.ast_node
 local expression = ast.expression
 local statement = ast.statement
 local operator_precedence = ast.operator_precedence
@@ -33,6 +34,9 @@ local FunctionCallExpression = expression.FunctionCallExpression
 local BinaryExpression = expression.BinaryExpression
 
 local IfStatement = statement.IfStatement
+local ForStatement = statement.ForStatement
+
+local VariableAstNode = ast_node.VariableAstNode
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
@@ -44,6 +48,8 @@ type ParameterAstType = ast.ParameterAstType
 
 type Expression = ast.Expression
 type Statement = ast.Statement
+
+type VariableAstNode = ast.VariableAstNode
 
 type Block = ast.Block
 
@@ -740,7 +746,89 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
     end
 
     if start_token.type == "ForTokenType" then
-        --// for i=1, 10, 1 
+        local initialization: VariableAstNode
+        do
+            local name = self:advance()
+
+            if name.type ~= "IdentifierTokenType" then
+                return result.Err {
+                    line = name.line,
+                    current = name.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected Identifier, got '{name.lexeme}'`,
+                }
+            end
+
+            do
+                local token = self:advance()
+
+                if token.type ~= "EqualTokenType" then
+                    return result.Err {
+                        line = token.line,
+                        current = token.column,
+                        error_type = SyntaxError,
+                        error_message = `Expected '=', got '{token.lexeme}'`,
+                    }
+                end
+            end
+
+            local value_result = self:parse_expression()
+        
+            if value_result:isErr() then
+                return result.Err(value_result:unwrapErr())
+            end
+
+            initialization = VariableAstNode(name.lexeme, value_result:unwrap())
+        end
+
+        do
+            local token = self:advance()
+
+            if token.type ~= "CommaTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected ',', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        local condition: Expression
+        do
+            local condition_result = self:parse_expression()
+            
+            if condition_result:isErr() then
+                return result.Err(condition_result:unwrapErr())
+            end
+
+            condition = condition_result:unwrap()
+        end
+
+        local increment: Expression
+        do
+            if self:peek().type == "CommaTokenType" then
+                self:advance()
+
+                local increment_result = self:parse_expression()
+
+                if increment_result:isErr() then
+                    return result.Err(increment_result:unwrapErr())
+                end
+
+                increment = increment_result:unwrap()
+            else
+                increment = LiteralExpression("NumberTokenType", "1")
+            end
+        end
+
+        local body_result = self:parse_block()
+
+        if body_result:isErr() then
+            return result.Err(body_result:unwrapErr())
+        end
+
+        return result.Ok(ForStatement(initialization, condition, increment, body_result:unwrap()))
     end
 end
 
@@ -762,7 +850,7 @@ function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
         end
     end
 
-    local ast_nodes_result = self:parse_block()
+    local ast_nodes_result = self:parse_ast_nodes()
 
     if ast_nodes_result:isErr() then
         return result.Err(ast_nodes_result:unwrapErr())
@@ -784,7 +872,7 @@ function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
     return ast_nodes_result
 end
 
-function parser.parse_ast_node(self: Parser): Result<Block, CustomErrorInfo>
+function parser.parse_ast_nodes(self: Parser): Result<Block, CustomErrorInfo>
     return result.Ok({})
 end
 

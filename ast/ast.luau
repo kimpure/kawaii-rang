@@ -588,7 +588,7 @@ export type IfStatement = {
 }
 
 export type ForStatement = {
-    initialization: Expression,
+    initialization: VariableAstNode,
     condition: Expression,
     increment: Expression,
     body: Block,
@@ -648,7 +648,7 @@ function statement.IfStatement(
     }
 end
 
-function statement.ForStatement(initialization: Expression, condition: Expression, increment: Expression, body: Block): ForStatement
+function statement.ForStatement(initialization: VariableAstNode, condition: Expression, increment: Expression, body: Block): ForStatement
     return {
         initialization = initialization,
         condition = condition,
@@ -684,7 +684,6 @@ end
 export type VariableAstNode = {
     name: string,
     value: Expression,
-    annotated_type: AstType?,
     type: "VariableAstNode",
 }
 
@@ -717,11 +716,10 @@ export type AstNode =
 
 export type Block = { AstNode }
 
-function ast_node.VariableAstNode(name: string, value: Expression, annotated_type: AstType?): VariableAstNode
+function ast_node.VariableAstNode(name: string, value: Expression): VariableAstNode
     return {
         name = name,
         value = value,
-        annotated_type = annotated_type,
         type = "VariableAstNode",
     }
 end
