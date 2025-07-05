@@ -36,6 +36,7 @@ local BinaryExpression = expression.BinaryExpression
 local IfStatement = statement.IfStatement
 local ForStatement = statement.ForStatement
 local WhileStatement = statement.WhileStatement
+local ReturnStatement = statement.ReturnStatement
 
 local VariableAstNode = ast_node.VariableAstNode
 
@@ -847,6 +848,18 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
 
         return result.Ok(WhileStatement(condition_result:unwrap(), body_result:unwrap()))
     end
+
+    if start_token.type == "ReturnTokenType" then
+        local value_result = self:parse_expression()
+
+        if value_result:isErr() then
+            return result.Err(value_result:unwrapErr())
+        end
+
+        return result.Ok(ReturnStatement(value_result:unwrap()))
+    end
+
+    
 end
 
 function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
@@ -915,7 +928,9 @@ local p, s = parser.create [[
 //} else { }
 
 //for i=1, 10 {}
-for i=1, 10, 2 {}
+//for i=1, 10, 2 {}
+
+while true {}
 ]], os.clock()
 local generics = p:unwrap():parse_statement()
 
