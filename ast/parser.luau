@@ -13,6 +13,7 @@ parser.__index = parser
 
 local ast_type = ast.ast_type
 local expression = ast.expression
+local statement = ast.statement
 local operator_precedence = ast.operator_precedence
 
 local StringAstType = ast_type.StringAstType
@@ -31,6 +32,8 @@ local VariableExpression = expression.VariableExpression
 local FunctionCallExpression = expression.FunctionCallExpression
 local BinaryExpression = expression.BinaryExpression
 
+local IfStatement = statement.IfStatement
+
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
 type OperatorTokenTypes = ast.OperatorTokenTypes
@@ -40,6 +43,9 @@ type GenericAstType = ast.GenericAstType
 type ParameterAstType = ast.ParameterAstType
 
 type Expression = ast.Expression
+type Statement = ast.Statement
+
+type Block = ast.Block
 
 type CustomError = custom_error.CustomError
 type CustomErrorInfo = custom_error.CustomErrorInfo
@@ -609,6 +615,209 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
     end
 
     return result.Ok(expression)
+end
+
+function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo>
+    local start_token = self:advance()
+
+    if start_token.type == "IfTokenType" then
+        local body = nil
+        local condition = nil
+
+        local else_block:{
+            body: Block?,
+            type: "ElseBlock"
+        } = { type = "ElseBlock" }
+        local else_if_blocks: {
+            [number]: {
+                body: Block,
+                condition: Expression,
+                type: "ElseIfBlocks"
+            }
+        } = {}
+        
+        local first_token = start_token
+
+        while true do
+            if first_token.type == "ElseTokenType" then
+                if self:peek().type == "IfTokenType" then
+                    if else_block.body then
+                        return result.Err {
+                            line = first_token.line,
+                            current = first_token.column,
+                            error_type = SyntaxError,
+                            error_message = `Expected '}' (to close 'else')`,
+                        }
+                    end
+
+                    self:advance()
+
+                    local condition_result = self:parse_expression()
+        
+                    if condition_result:isErr() then
+                        return result.Err(condition_result:unwrapErr())
+                    end
+            
+                    do
+                        local token = self:advance()
+            
+                        if token.type ~= "LeftBraceTokenType" then
+                            return result.Err {
+                                line = token.line,
+                                current = token.column,
+                                error_type = SyntaxError,
+                                error_message = `Expected '\{', got '{token.lexeme}'`,
+                            }
+                        end
+                    end
+            
+                    local body_result = self:parse_block()
+            
+                    if body_result:isErr() then
+                        return result.Err(body_result:unwrapErr())
+                    end
+            
+                    do
+                        local token = self:advance()
+            
+                        if token.type ~= "RightBraceTokenType" then
+                            return result.Err {
+                                line = token.line,
+                                current = token.column,
+                                error_type = SyntaxError,
+                                error_message = `Expected '}', got '{token.lexeme}'`,
+                            }
+                        end
+                    end
+
+                    else_if_blocks[#else_if_blocks + 1] = {
+                        body = body_result:unwrap(),
+                        condition = condition_result:unwrap(),
+                        type = "ElseIfBlocks",
+                    }
+
+                    continue
+                end
+
+                if else_block.body then
+                    return result.Err {
+                        line = first_token.line,
+                        current = first_token.column,
+                        error_type = SyntaxError,
+                        error_message = "Multiple else clauses are not allowed in a single if statement.",
+                    }
+                end
+                
+                do
+                    local token = self:advance()
+        
+                    if token.type ~= "LeftBraceTokenType" then
+                        return result.Err {
+                            line = token.line,
+                            current = token.column,
+                            error_type = SyntaxError,
+                            error_message = `Expected '\{', got '{token.lexeme}'`,
+                        }
+                    end
+                end
+        
+                local body_result = self:parse_block()
+        
+                if body_result:isErr() then
+                    return result.Err(body_result:unwrapErr())
+                end
+        
+                do
+                    local token = self:advance()
+        
+                    if token.type ~= "RightBraceTokenType" then
+                        return result.Err {
+                            line = token.line,
+                            current = token.column,
+                            error_type = SyntaxError,
+                            error_message = `Expected '}', got '{token.lexeme}'`,
+                        }
+                    end
+                end
+
+                else_block.body = body_result:unwrap()
+
+                continue
+            end
+
+            local condition_result = self:parse_expression()
+        
+            if condition_result:isErr() then
+                return result.Err(condition_result:unwrapErr())
+            end
+    
+            do
+                local token = self:advance()
+    
+                if token.type ~= "LeftBraceTokenType" then
+                    return result.Err {
+                        line = token.line,
+                        current = token.column,
+                        error_type = SyntaxError,
+                        error_message = `Expected '\{', got '{token.lexeme}'`,
+                    }
+                end
+            end
+            
+            local body_result = self:parse_block()
+    
+            if body_result:isErr() then
+                return result.Err(body_result:unwrapErr())
+            end
+    
+            do
+                local token = self:advance()
+    
+                if token.type ~= "RightBraceTokenType" then
+                    return result.Err {
+                        line = token.line,
+                        current = token.column,
+                        error_type = SyntaxError,
+                        error_message = `Expected '}', got '{token.lexeme}'`,
+                    }
+                end
+            end
+
+            if first_token.type == "IfTokenType" then
+                if body then
+                    return result.Err {
+                        line = first_token.line,
+                        current = first_token.column,
+                        error_type = SyntaxError,
+                        error_message = "Multiple if clauses are not allowed in a single if statement.",
+                    }
+                end
+
+                body = body_result:unwrap()
+                condition = condition_result:unwrap()
+            end
+
+            break
+        end
+
+        if not body then
+            return result.Err {
+                line = start_token.line,
+                current = start_token.column,
+                error_type = SyntaxError,
+                error_message = `Expected IfStatement, got '{start_token.lexeme}'`,
+            }
+        end
+
+        return result.Ok(IfStatement(condition, body, else_if_blocks, { 
+            body = else_block.body or {}, 
+            type = "ElseBlock" 
+        }))
+    end
+end
+
+function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
+    return 0 :: any
 end
 
 local p, s = parser.create [[

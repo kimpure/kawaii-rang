@@ -573,8 +573,17 @@ end
 export type IfStatement = {
     condition: Expression,
     body: Block,
-    else_if_blocks: { Block },
-    else_block: Block?,
+    else_if_blocks: { 
+        [number]: {
+            body: Block,
+            condition: Expression,
+            type: "ElseIfBlocks"
+        },
+    },
+    else_block: {
+        body: Block,
+        type: "ElseBlock"
+    },
     type: "IfStatement",
 }
 
@@ -615,12 +624,26 @@ export type Statement =
 
 local statement = {}
 
-function statement.IfStatement(condition: Expression, body: Block, else_if_blocks: { Block }, else_block: Block?): IfStatement
+function statement.IfStatement(
+    condition: Expression, 
+    body: Block, 
+    else_if_blocks: { 
+        [number]: {
+            body: Block,
+            condition: Expression,
+            type: "ElseIfBlocks"
+        },
+    }, 
+    else_block: {
+        body: Block,
+        type: "ElseBlock"
+    }
+): IfStatement
     return {
         condition = condition,
         body = body,
         else_if_blocks = else_if_blocks,
-        else_block,
+        else_block = else_block,
         type = "IfStatement",
     }
 end
@@ -745,6 +768,7 @@ return {
     token_types = token_types,
     operator_precedence = operator_precedence,
     expression = expression,
+    statement = statement,
     ast_node = ast_node,
     ast_type = ast_type,
 }
