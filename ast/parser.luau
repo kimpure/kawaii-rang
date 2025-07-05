@@ -679,6 +679,7 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
 
         while true do
             if first_token.type == "ElseTokenType" then
+                self:advance()
                 if self:peek().type == "IfTokenType" then
                     if else_block then
                         return result.Err {
@@ -756,7 +757,7 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                     }
                 end
 
-                first_token = self:advance()
+                first_token = self:peek()
                 body = body_result:unwrap()
                 condition = condition_result:unwrap()
 
@@ -910,10 +911,6 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
 end
 
 function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
-    if self:peek().type == "RightBraceTokenType" then
-        return result.Ok({})
-    end
-
     do
         local token = self:advance()
 
@@ -927,30 +924,44 @@ function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
         end
     end
 
-    local ast_nodes_result = self:parse_ast_nodes()
-
-    if ast_nodes_result:isErr() then
-        return result.Err(ast_nodes_result:unwrapErr())
-    end
-
-    do
-        local token = self:advance()
-
-        if token.type ~= "RightBraceTokenType" then
-            return result.Err {
-                line = token.line,
-                current = token.column,
-                error_type = SyntaxError,
-                error_message = `Expected '}', got '{token.lexeme}'`,
-            }
+    local ast_nodes = {}
+    
+    while true do
+        if self:peek().type == "RightBraceTokenType" then
+            self:advance()
+            break
         end
+
+        local ast_node_result = self:parse_ast_node()
+
+        if ast_node_result:isErr() then
+            return result.Err(ast_node_result:unwrapErr())
+        end
+
+        ast_nodes[#ast_nodes + 1] = ast_node_result:unwrap()
     end
 
-    return ast_nodes_result
+    return result.Ok(ast_nodes)
 end
 
-function parser.parse_ast_nodes(self: Parser): Result<Block, CustomErrorInfo>    
-    return result.Ok({})
+function parser.parse_ast_nodes(self: Parser): Result<Block, CustomErrorInfo>
+    local ast_nodes = {}
+    
+    while true do
+        if not self:peek() or self:peek().type == "EofTokenType" then
+            break
+        end
+
+        local ast_node_result = self:parse_ast_node()
+
+        if ast_node_result:isErr() then
+            return result.Err(ast_node_result:unwrapErr())
+        end
+
+        ast_nodes[#ast_nodes + 1] = ast_node_result:unwrap()
+    end
+    
+    return result.Ok(ast_nodes)
 end
 
 function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
@@ -1068,38 +1079,20 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
 end
 
 local p, s = parser.create [[
-//(as: string) -> (() -> () -> string)
-//<KT>(s: string) -> () -> string
-//() -> string
-//a<T>
-
-//("this is string!!")
-
-//("string")[1]
-
-//(1 + 3 * 3) < 0 + 1
-
-//("string")()()()() < (0 :: string)
-
-//vars :: string
-//-0 :: number
-
-//if true {
-//} else if true {
-//} else { }
-
-//for i=1, 10 {}
-//for i=1, 10, 2 {}
-
-//while true {}
-
-//return true
-
-//function() {}
-
-//var a = "string"
+function string(a: string) {
+//while true {
+    if true {
+        return "string"
+    }
+    while true {
+    }
+    if true {
+        return 0
+    }
+    return 0
+}
 ]], os.clock()
-local generics = p:unwrap():parse_ast_node()
+local generics = p:unwrap():parse_ast_nodes()
 
 print(
     generics:isErr() and 
