@@ -42,6 +42,7 @@ local BreakStatement = statement.BreakStatement
 local ContinueStatement = statement.ContinueStatement
 
 local VariableAstNode = ast_node.VariableAstNode
+local FunctionAstNode = ast_node.FunctionAstNode
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
@@ -56,6 +57,7 @@ type Statement = ast.Statement
 
 type VariableAstNode = ast.VariableAstNode
 
+type AstNode = ast.AstNode
 type Block = ast.Block
 
 type CustomError = custom_error.CustomError
@@ -947,8 +949,122 @@ function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
     return ast_nodes_result
 end
 
-function parser.parse_ast_nodes(self: Parser): Result<Block, CustomErrorInfo>
+function parser.parse_ast_nodes(self: Parser): Result<Block, CustomErrorInfo>    
     return result.Ok({})
+end
+
+function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
+    local start_token = self:peek()
+
+    if start_token.type == "VarTokenType" then
+        self:advance()
+        local name = self:advance()
+
+        if name.type ~= "IdentifierTokenType" then
+            return result.Err {
+                line = name.line,
+                current = name.column,
+                error_type = SyntaxError,
+                error_message = `Expected Identifier, got '{name.lexeme}'`,
+            }
+        end
+
+        local annotated_type: AstType?
+        if self:peek().type == "ColonTokenType" then
+            self:advance()
+
+            local annotated_type_result = self:parse_ast_type()
+
+            if annotated_type_result:isErr() then
+                return result.Err(annotated_type_result:unwrapErr())
+            end
+
+            annotated_type = annotated_type_result:unwrap()
+        end
+
+        local value: Expression
+        if self:peek().type == "EqualTokenType" then
+            self:advance()
+
+            local value_result = self:parse_expression()
+
+            if value_result:isErr() then
+                return result.Err(value_result:unwrapErr())
+            end
+
+            value = value_result:unwrap()
+        else
+            value = LiteralExpression("NilTokenType", "nil")
+        end
+
+        return result.Ok(VariableAstNode(name.lexeme, value, annotated_type))
+    end
+
+    if start_token.type == "FunctionTokenType" then
+        self:advance()
+        local name = self:advance()
+
+        if name.type ~= "IdentifierTokenType" then
+            return result.Err {
+                line = name.line,
+                current = name.column,
+                error_type = SyntaxError,
+                error_message = `Expected Identifier, got '{name.lexeme}'`,
+            }
+        end
+
+        local parameters_result = self:parse_parameters()
+    
+        if parameters_result:isErr() then
+            return result.Err(parameters_result:unwrapErr())
+        end
+
+        local return_annotated_type: AstType?
+        if self:peek().type == "ColonTokenType" then
+            self:advance()
+
+            local return_annotated_type_result = self:parse_ast_type()
+
+            if return_annotated_type_result:isErr() then
+                return result.Err(return_annotated_type_result:unwrapErr())
+            end
+
+            return_annotated_type = return_annotated_type_result:unwrap()
+        end
+
+        local body_result = self:parse_block()
+
+        if body_result:isErr() then
+            return result.Err(body_result:unwrapErr())
+        end
+
+        return result.Ok(FunctionAstNode(name.lexeme, parameters_result:unwrap(), body_result:unwrap(), return_annotated_type))
+    end
+
+    if 
+        start_token.type == "IfTokenType" or 
+        start_token.type == "ForTokenType" or 
+        start_token.type == "WhileTokenType" or
+        start_token.type == "ReturnTokenType" or
+        start_token.type == "BreakTokenType" or
+        start_token.type == "ContinueTokenType"
+    then
+        local statement_result = self:parse_statement()
+
+        if statement_result:isErr() then
+            return result.Err(statement_result:unwrapErr())
+        end
+
+        return result.Ok(statement_result:unwrap())
+    end
+
+    local expression_result = self:parse_expression()
+
+    if expression_result:isErr() then
+        return result.Err(expression_result:unwrapErr())
+    end
+
+    return result.Ok(expression_result:unwrap())
 end
 
 local p, s = parser.create [[
@@ -979,9 +1095,11 @@ local p, s = parser.create [[
 
 //return true
 
-function() {}
+//function() {}
+
+//var a = "string"
 ]], os.clock()
-local generics = p:unwrap():parse_expression()
+local generics = p:unwrap():parse_ast_node()
 
 print(
     generics:isErr() and 

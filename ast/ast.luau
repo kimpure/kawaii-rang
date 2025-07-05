@@ -692,6 +692,7 @@ end
 export type VariableAstNode = {
     name: string,
     value: Expression,
+    annotated_type: AstType?,
     type: "VariableAstNode",
 }
 
@@ -723,10 +724,11 @@ export type AstNode =
 
 export type Block = { AstNode }
 
-function ast_node.VariableAstNode(name: string, value: Expression): VariableAstNode
+function ast_node.VariableAstNode(name: string, value: Expression, annotated_type: AstType?): VariableAstNode
     return {
         name = name,
         value = value,
+        annotated_type = annotated_type,
         type = "VariableAstNode",
     }
 end

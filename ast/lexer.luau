@@ -429,8 +429,8 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
             return result.Ok(TypeofToken("typeof", self.line, self.line_current))
         end
 
-        if identifier == "Public" then
-            return result.Ok(PublicToken("Public", self.line, self.line_current))
+        if identifier == "public" then
+            return result.Ok(PublicToken("public", self.line, self.line_current))
         end
 
         if identifier == "" then
