@@ -624,10 +624,7 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
         local body = nil
         local condition = nil
 
-        local else_block:{
-            body: Block?,
-            type: "ElseBlock"
-        } = { type = "ElseBlock" }
+        local else_block: Block? = nil
         local else_if_blocks: {
             [number]: {
                 body: Block,
@@ -641,7 +638,7 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
         while true do
             if first_token.type == "ElseTokenType" then
                 if self:peek().type == "IfTokenType" then
-                    if else_block.body then
+                    if else_block then
                         return result.Err {
                             line = first_token.line,
                             current = first_token.column,
@@ -695,11 +692,12 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                         condition = condition_result:unwrap(),
                         type = "ElseIfBlocks",
                     }
+                    first_token = self:advance()
 
                     continue
                 end
 
-                if else_block.body then
+                if else_block then
                     return result.Err {
                         line = first_token.line,
                         current = first_token.column,
@@ -740,50 +738,51 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                     end
                 end
 
-                else_block.body = body_result:unwrap()
+                else_block = body_result:unwrap()
+                first_token = self:advance()
 
                 continue
             end
 
-            local condition_result = self:parse_expression()
-        
-            if condition_result:isErr() then
-                return result.Err(condition_result:unwrapErr())
-            end
-    
-            do
-                local token = self:advance()
-    
-                if token.type ~= "LeftBraceTokenType" then
-                    return result.Err {
-                        line = token.line,
-                        current = token.column,
-                        error_type = SyntaxError,
-                        error_message = `Expected '\{', got '{token.lexeme}'`,
-                    }
-                end
-            end
-            
-            local body_result = self:parse_block()
-    
-            if body_result:isErr() then
-                return result.Err(body_result:unwrapErr())
-            end
-    
-            do
-                local token = self:advance()
-    
-                if token.type ~= "RightBraceTokenType" then
-                    return result.Err {
-                        line = token.line,
-                        current = token.column,
-                        error_type = SyntaxError,
-                        error_message = `Expected '}', got '{token.lexeme}'`,
-                    }
-                end
-            end
-
             if first_token.type == "IfTokenType" then
+                local condition_result = self:parse_expression()
+        
+                if condition_result:isErr() then
+                    return result.Err(condition_result:unwrapErr())
+                end
+        
+                do
+                    local token = self:advance()
+        
+                    if token.type ~= "LeftBraceTokenType" then
+                        return result.Err {
+                            line = token.line,
+                            current = token.column,
+                            error_type = SyntaxError,
+                            error_message = `Expected '\{', got '{token.lexeme}'`,
+                        }
+                    end
+                end
+                
+                local body_result = self:parse_block()
+        
+                if body_result:isErr() then
+                    return result.Err(body_result:unwrapErr())
+                end
+        
+                do
+                    local token = self:advance()
+        
+                    if token.type ~= "RightBraceTokenType" then
+                        return result.Err {
+                            line = token.line,
+                            current = token.column,
+                            error_type = SyntaxError,
+                            error_message = `Expected '}', got '{token.lexeme}'`,
+                        }
+                    end
+                end
+
                 if body then
                     return result.Err {
                         line = first_token.line,
@@ -793,8 +792,11 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                     }
                 end
 
+                first_token = self:advance()
                 body = body_result:unwrap()
                 condition = condition_result:unwrap()
+
+                continue
             end
 
             break
@@ -810,14 +812,18 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
         end
 
         return result.Ok(IfStatement(condition, body, else_if_blocks, { 
-            body = else_block.body or {}, 
+            body = else_block or {}, 
             type = "ElseBlock" 
         }))
     end
 end
 
 function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
-    return 0 :: any
+    if self:peek().type == "RightBraceTokenType" then
+        return result.Ok({})
+    end
+
+    return result.Ok({})
 end
 
 local p, s = parser.create [[
@@ -832,12 +838,17 @@ local p, s = parser.create [[
 
 //(1 + 3 * 3) < 0 + 1
 
-("string")()()()() < (0 :: string)
+//("string")()()()() < (0 :: string)
 
 //vars :: string
 //-0 :: number
+
+if true {
+
+} else if true {
+} else { }
 ]], os.clock()
-local generics = p:unwrap():parse_expression()
+local generics = p:unwrap():parse_statement()
 
 print(
     generics:isErr() and 
