@@ -37,6 +37,8 @@ local IfStatement = statement.IfStatement
 local ForStatement = statement.ForStatement
 local WhileStatement = statement.WhileStatement
 local ReturnStatement = statement.ReturnStatement
+local BreakStatement = statement.BreakStatement
+local ContinueStatement = statement.ContinueStatement
 
 local VariableAstNode = ast_node.VariableAstNode
 
@@ -859,7 +861,20 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
         return result.Ok(ReturnStatement(value_result:unwrap()))
     end
 
-    
+    if start_token.type == "BreakTokenType" then
+        return result.Ok(BreakStatement())
+    end
+
+    if start_token.type == "ContinueTokenType" then
+        return result.Ok(ContinueStatement())
+    end
+
+    return result.Err {
+        line = start_token.line,
+        current = start_token.column,
+        error_type = SyntaxError,
+        error_message = `Expected Statement, got '{start_token.lexeme}'`,
+    }
 end
 
 function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
