@@ -507,7 +507,6 @@ export type BinaryExpression = {
 
 export type FunctionExpression = {
     parameters: { ParameterAstType },
-    return_expression: Expression,
     return_annotated_type: AstType?,
     body: Block,
     type: "FunctionExpression",
@@ -570,10 +569,9 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
     }
 end
 
-function expression.FunctionExpression(body: Block, parameters: { ParameterAstType }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
+function expression.FunctionExpression(body: Block, parameters: { ParameterAstType }, return_annotated_type: AstType?): FunctionExpression
     return {
         parameters = parameters,
-        return_expression = return_expression,
         return_annotated_type = return_annotated_type,
         body = body,
         type = "FunctionExpression",
@@ -700,7 +698,6 @@ export type VariableAstNode = {
 export type FunctionAstNode = {
     name: string,
     parameters: { ParameterAstType },
-    return_expression: Expression,
     return_annotated_type: AstType?,
     body: Block,
     type: "FunctionAstNode",
@@ -734,11 +731,10 @@ function ast_node.VariableAstNode(name: string, value: Expression): VariableAstN
     }
 end
 
-function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, return_expression: Expression, body: Block, return_annotated_type: AstType?): FunctionAstNode
+function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, body: Block, return_annotated_type: AstType?): FunctionAstNode
     return {
         name = name,
         parameters = parameters,
-        return_expression = return_expression,
         return_annotated_type = return_annotated_type,
         body = body,
         type = "FunctionAstNode",

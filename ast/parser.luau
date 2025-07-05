@@ -30,6 +30,7 @@ local LiteralExpression = expression.LiteralExpression
 local GroupedExpression = expression.GroupedExpression
 local UnaryExpression = expression.UnaryExpression
 local VariableExpression = expression.VariableExpression
+local FunctionExpression = expression.FunctionExpression
 local FunctionCallExpression = expression.FunctionCallExpression
 local BinaryExpression = expression.BinaryExpression
 
@@ -426,7 +427,7 @@ function parser.parse_parameters(self: Parser): Result<{ ParameterAstType }, Cus
             line = next_token.line,
             current = next_token.column,
             error_type = SyntaxError,
-            error_message = `Expected ',' or ')', got '{next_token.lexeme}'`,
+            error_message = `Expected ')', got '{next_token.lexeme}'`,
         }
     end
 
@@ -483,11 +484,35 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         expression = VariableExpression(start_token.lexeme)
     end
 
-    -- if start_token.type == "FunctionTokenType" then
-    --     local parse_parameters = self:parse_parameters()
+    if start_token.type == "FunctionTokenType" then
+        local parameters_result = self:parse_parameters()
 
-    --     --// TODO: parser body 구현하면 마저 작성하기!!
-    -- end
+        if parameters_result:isErr() then
+            return result.Err(parameters_result:unwrapErr())
+        end
+
+        local return_annotated_type: AstType?
+
+        if self:peek().type == "ColonTokenType" then
+            self:advance()
+
+            local return_annotated_type_result = self:parse_ast_type()
+
+            if return_annotated_type_result:isErr() then
+                return result.Err(return_annotated_type_result:unwrapErr())
+            end
+
+            return_annotated_type = return_annotated_type_result:unwrap()
+        end
+       
+        local body_result = self:parse_block()
+
+        if body_result:isErr() then
+            return result.Err(body_result:unwrapErr())
+        end
+
+        return result.Ok(FunctionExpression(body_result:unwrap(), parameters_result:unwrap(), return_annotated_type))
+    end
 
     if not expression then
         return result.Err {
