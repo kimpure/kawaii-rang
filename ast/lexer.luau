@@ -76,8 +76,6 @@ export type Lexer = typeof(setmetatable({} :: {
     current: number,
     line: number,
     line_current: number,
-
-    custom_error: CustomError,
 }, lexer))
 
 function lexer.new(source: string): Lexer
@@ -86,8 +84,6 @@ function lexer.new(source: string): Lexer
         current = 0,
         line = 1,
         line_current = 0,
-
-        custom_error = custom_error.new(),
     }, lexer)
 end
 

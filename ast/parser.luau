@@ -70,12 +70,12 @@ export type Parser = typeof(setmetatable({} :: {
     tokens: { Token<TokenType> },
 }, parser))
 
-function parser.create(source: string, file: string?): Result<Parser, CustomError>
+function parser.create(source: string): Result<Parser, CustomErrorInfo>
     local lexer = lexer.new(source)
     local tokens = lexer:tokenize()
 
     if tokens:isErr() then
-        return result.Err(lexer.custom_error)
+        return result.Err(tokens:unwrapErr())
     end
 
     return result.Ok(setmetatable({
@@ -1077,27 +1077,5 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
 
     return result.Ok(expression_result:unwrap())
 end
-
-local p, s = parser.create [[
-function string(a: string) {
-//while true {
-    if true {
-        return "string"
-    }
-    while true {
-    }
-    if true {
-        return 0
-    }
-    return 0
-}
-]], os.clock()
-local generics = p:unwrap():parse_ast_nodes()
-
-print(
-    generics:isErr() and 
-    generics:unwrapErr() or 
-    generics:unwrap()
-, os.clock() - s)
 
 return parser
