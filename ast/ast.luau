@@ -499,7 +499,7 @@ export type FunctionExpression = {
     parameters: { ParameterAstType },
     return_expression: Expression,
     return_annotated_type: AstType?,
-    body: { AstNode },
+    body: Block,
     type: "FunctionExpression",
 }
 
@@ -560,7 +560,7 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
     }
 end
 
-function expression.FunctionExpression(body: { AstNode }, parameters: { ParameterAstType }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
+function expression.FunctionExpression(body: Block, parameters: { ParameterAstType }, return_expression: Expression, return_annotated_type: AstType?): FunctionExpression
     return {
         parameters = parameters,
         return_expression = return_expression,
@@ -568,6 +568,94 @@ function expression.FunctionExpression(body: { AstNode }, parameters: { Paramete
         body = body,
         type = "FunctionExpression",
     }
+end
+
+export type IfStatement = {
+    condition: Expression,
+    body: Block,
+    else_if_blocks: { Block },
+    else_block: Block?,
+    type: "IfStatement",
+}
+
+export type ForStatement = {
+    initialization: Expression,
+    condition: Expression,
+    increment: Expression,
+    body: Block,
+    type: "ForStatement",
+}
+
+export type WhileStatement = {
+    condition: Expression,
+    body: Block,
+    type: "WhileStatement",
+}
+
+export type ReturnStatement = {
+    value: Expression,
+    type: "ReturnStatement",
+}
+
+export type BreakStatement = {
+    type: "BreakStatement",
+}
+
+export type ContinueStatement = {
+    type: "ContinueStatement",
+}
+
+export type Statement = 
+    | IfStatement
+    | ForStatement
+    | WhileStatement
+    | ReturnStatement
+    | BreakStatement
+    | ContinueStatement
+
+local statement = {}
+
+function statement.IfStatement(condition: Expression, body: Block, else_if_blocks: { Block }, else_block: Block?): IfStatement
+    return {
+        condition = condition,
+        body = body,
+        else_if_blocks = else_if_blocks,
+        else_block,
+        type = "IfStatement",
+    }
+end
+
+function statement.ForStatement(initialization: Expression, condition: Expression, increment: Expression, body: Block): ForStatement
+    return {
+        initialization = initialization,
+        condition = condition,
+        increment = increment,
+        body = body,
+        type = "ForStatement",
+    }
+end
+
+function statement.WhileStatement(condition: Expression, body: Block): WhileStatement
+    return {
+        condition = condition,
+        body = body,
+        type = "WhileStatement",
+    }
+end
+
+function statement.ReturnStatement(value: Expression): ReturnStatement
+    return {
+        value = value,
+        type = "ReturnStatement",
+    }
+end
+
+function statement.BreakStatement(): BreakStatement
+    return { type = "BreakStatement" }
+end
+
+function statement.ContinueStatement(): ContinueStatement
+    return { type = "ContinueStatement" }
 end
 
 export type VariableAstNode = {
@@ -582,7 +670,7 @@ export type FunctionAstNode = {
     parameters: { ParameterAstType },
     return_expression: Expression,
     return_annotated_type: AstType?,
-    body: { AstNode },
+    body: Block,
     type: "FunctionAstNode",
 }
 
@@ -601,7 +689,10 @@ export type ParameterAstType = {
 export type AstNode =
     | VariableAstNode
     | FunctionAstNode
-    | TypeAstNode
+    | Statement
+    | Expression
+
+export type Block = { AstNode }
 
 function ast_node.VariableAstNode(name: string, value: Expression, annotated_type: AstType?): VariableAstNode
     return {
@@ -612,7 +703,7 @@ function ast_node.VariableAstNode(name: string, value: Expression, annotated_typ
     }
 end
 
-function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, return_expression: Expression, body: { AstNode }, return_annotated_type: AstType?): FunctionAstNode
+function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, return_expression: Expression, body: Block, return_annotated_type: AstType?): FunctionAstNode
     return {
         name = name,
         parameters = parameters,
@@ -640,12 +731,12 @@ end
 --// TODO: parser 구조 생각해보기
 --// TODO: parse expression 만들기
 
--- function expression.ClassExpression()
+-- function astnode.ClassExpression()
 
 -- end
 
 
--- function expression.ImportExpression()
+-- function astnode.ImportExpression()
 
 -- end
 
