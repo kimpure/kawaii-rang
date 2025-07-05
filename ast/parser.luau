@@ -375,6 +375,11 @@ function parser.parse_parameters(self: Parser): Result<{ ParameterAstType }, Cus
         end
     end
 
+    if self:peek().type == "RightParenTokenType" then
+        self:advance()
+        return result.Ok {}
+    end
+
     local parameters = {}
 
     while true do
@@ -973,8 +978,10 @@ local p, s = parser.create [[
 //while true {}
 
 //return true
+
+function() {}
 ]], os.clock()
-local generics = p:unwrap():parse_statement()
+local generics = p:unwrap():parse_expression()
 
 print(
     generics:isErr() and 
