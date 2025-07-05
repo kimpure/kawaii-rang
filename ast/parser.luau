@@ -43,6 +43,8 @@ local ContinueStatement = statement.ContinueStatement
 
 local VariableAstNode = ast_node.VariableAstNode
 local FunctionAstNode = ast_node.FunctionAstNode
+local TypeAstNode = ast_node.TypeAstNode
+local PublicAstNode = ast_node.PublicAstNode
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
@@ -492,6 +494,20 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
     end
 
     if start_token.type == "FunctionTokenType" then
+        local generics: { GenericAstType } = {}
+        
+        do
+            if self:peek().type == "LessTokenType" then
+                local generics_result = self:parse_generics()
+    
+                if generics_result:isErr() then
+                    return result.Err(generics_result:unwrapErr())
+                end
+
+                generics = generics_result:unwrap()
+            end
+        end
+
         local parameters_result = self:parse_parameters()
 
         if parameters_result:isErr() then
@@ -518,7 +534,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             return result.Err(body_result:unwrapErr())
         end
 
-        return result.Ok(FunctionExpression(body_result:unwrap(), parameters_result:unwrap(), return_annotated_type))
+        return result.Ok(FunctionExpression(body_result:unwrap(), parameters_result:unwrap(), return_annotated_type, generics))
     end
 
     if not expression then
@@ -1024,6 +1040,20 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
             }
         end
 
+        local generics: { GenericAstType } = {}
+        
+        do
+            if self:peek().type == "LessTokenType" then
+                local generics_result = self:parse_generics()
+    
+                if generics_result:isErr() then
+                    return result.Err(generics_result:unwrapErr())
+                end
+
+                generics = generics_result:unwrap()
+            end
+        end
+
         local parameters_result = self:parse_parameters()
     
         if parameters_result:isErr() then
@@ -1049,7 +1079,78 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
             return result.Err(body_result:unwrapErr())
         end
 
-        return result.Ok(FunctionAstNode(name.lexeme, parameters_result:unwrap(), body_result:unwrap(), return_annotated_type))
+        return result.Ok(FunctionAstNode(name.lexeme, parameters_result:unwrap(), body_result:unwrap(), return_annotated_type, generics))
+    end
+
+    if start_token.type == "TypeTokenType" then
+        self:advance()
+        local name = self:advance()
+
+        if name.type ~= "IdentifierTokenType" then
+            return result.Err {
+                line = name.line,
+                current = name.column,
+                error_type = SyntaxError,
+                error_message = `Expected Identifier, got '{name.lexeme}'`,
+            }
+        end
+
+        local generics: { GenericAstType } = {}
+        
+        do
+            if self:peek().type == "LessTokenType" then
+                local generics_result = self:parse_generics()
+    
+                if generics_result:isErr() then
+                    return result.Err(generics_result:unwrapErr())
+                end
+
+                generics = generics_result:unwrap()
+            end
+        end
+
+        do
+            local token = self:advance()
+
+            if token.type ~= "EqualTokenType" then
+                return result.Err {
+                    line = token.line,
+                    current = token.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected '=', got '{token.lexeme}'`,
+                }
+            end
+        end
+
+        local ast_type_result = self:parse_ast_type()
+
+        if ast_type_result:isErr() then
+            return result.Err(ast_type_result:unwrapErr())
+        end
+
+        return result.Ok(TypeAstNode(name.lexeme, ast_type_result:unwrap(), generics))
+    end
+
+    if start_token.type == "PublicTokenType" then
+        self:advance()
+        local ast_node_result = self:parse_ast_node()
+
+        if ast_node_result:isErr() then
+            return ast_node_result
+        end
+
+        local ast_node = ast_node_result:unwrap()
+
+        if ast_node.type ~= "FunctionAstNode" and ast_node.type ~= "TypeAstNode" then
+            return result.Err {
+                line = start_token.line,
+                current = start_token.column,
+                error_type = SyntaxError,
+                error_message = `Expected FunctionAstNode or TypeAstNode, got '{ast_node.type}'`,
+            }
+        end
+
+        return result.Ok(PublicAstNode(ast_node))
     end
 
     if 

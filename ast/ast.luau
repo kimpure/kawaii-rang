@@ -508,6 +508,7 @@ export type BinaryExpression = {
 export type FunctionExpression = {
     parameters: { ParameterAstType },
     return_annotated_type: AstType?,
+    generics: { GenericAstType },
     body: Block,
     type: "FunctionExpression",
 }
@@ -569,11 +570,12 @@ function expression.BinaryExpression(left: Expression, operator: OperatorTokenTy
     }
 end
 
-function expression.FunctionExpression(body: Block, parameters: { ParameterAstType }, return_annotated_type: AstType?): FunctionExpression
+function expression.FunctionExpression(body: Block, parameters: { ParameterAstType }, return_annotated_type: AstType?, generics: { GenericAstType }): FunctionExpression
     return {
         parameters = parameters,
         return_annotated_type = return_annotated_type,
         body = body,
+        generics = generics,
         type = "FunctionExpression",
     }
 end
@@ -699,6 +701,7 @@ export type VariableAstNode = {
 export type FunctionAstNode = {
     name: string,
     parameters: { ParameterAstType },
+    generics: { GenericAstType },
     return_annotated_type: AstType?,
     body: Block,
     type: "FunctionAstNode",
@@ -711,14 +714,25 @@ export type TypeAstNode = {
     type: "TypeAstNode",
 }
 
+export type PublicAstNode = {
+    ast_node: PublicAstNodes,
+    type: "PublicAstNode",
+}
+
 export type ParameterAstType = {
     name: string,
     ast_type: AstType,
 }
 
+export type PublicAstNodes = 
+    | FunctionAstNode
+    | TypeAstNode
+
 export type AstNode =
     | VariableAstNode
     | FunctionAstNode
+    | TypeAstNode
+    | PublicAstNode
     | Statement
     | Expression
 
@@ -733,12 +747,13 @@ function ast_node.VariableAstNode(name: string, value: Expression, annotated_typ
     }
 end
 
-function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, body: Block, return_annotated_type: AstType?): FunctionAstNode
+function ast_node.FunctionAstNode(name: string, parameters: { ParameterAstType }, body: Block, return_annotated_type: AstType?, generics: { GenericAstType }): FunctionAstNode
     return {
         name = name,
         parameters = parameters,
         return_annotated_type = return_annotated_type,
         body = body,
+        generics = generics,
         type = "FunctionAstNode",
     }
 end
@@ -752,22 +767,12 @@ function ast_node.TypeAstNode(name: string, value: AstType, generics: { GenericA
     }
 end
 
---// TODO: add class, pub, import, type
---// TODO: add type, statement
---// TODO: compiler -> typeof
---// 튜플, 어레이, 오브젝트 같은거는 std 에 넣기
---// TODO: type std 도 만들기
---// TODO: parser 구조 생각해보기
---// TODO: parse expression 만들기
-
--- function astnode.ClassExpression()
-
--- end
-
-
--- function astnode.ImportExpression()
-
--- end
+function ast_node.PublicAstNode(ast_node: PublicAstNodes): PublicAstNode
+    return {
+        ast_node = ast_node,
+        type = "PublicAstNode",
+    }
+end
 
 return {
     tokens = tokens,
