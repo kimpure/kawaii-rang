@@ -655,36 +655,10 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                         return result.Err(condition_result:unwrapErr())
                     end
             
-                    do
-                        local token = self:advance()
-            
-                        if token.type ~= "LeftBraceTokenType" then
-                            return result.Err {
-                                line = token.line,
-                                current = token.column,
-                                error_type = SyntaxError,
-                                error_message = `Expected '\{', got '{token.lexeme}'`,
-                            }
-                        end
-                    end
-            
                     local body_result = self:parse_block()
             
                     if body_result:isErr() then
                         return result.Err(body_result:unwrapErr())
-                    end
-            
-                    do
-                        local token = self:advance()
-            
-                        if token.type ~= "RightBraceTokenType" then
-                            return result.Err {
-                                line = token.line,
-                                current = token.column,
-                                error_type = SyntaxError,
-                                error_message = `Expected '}', got '{token.lexeme}'`,
-                            }
-                        end
                     end
 
                     else_if_blocks[#else_if_blocks + 1] = {
@@ -705,37 +679,11 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                         error_message = "Multiple else clauses are not allowed in a single if statement.",
                     }
                 end
-                
-                do
-                    local token = self:advance()
-        
-                    if token.type ~= "LeftBraceTokenType" then
-                        return result.Err {
-                            line = token.line,
-                            current = token.column,
-                            error_type = SyntaxError,
-                            error_message = `Expected '\{', got '{token.lexeme}'`,
-                        }
-                    end
-                end
-        
+
                 local body_result = self:parse_block()
         
                 if body_result:isErr() then
                     return result.Err(body_result:unwrapErr())
-                end
-        
-                do
-                    local token = self:advance()
-        
-                    if token.type ~= "RightBraceTokenType" then
-                        return result.Err {
-                            line = token.line,
-                            current = token.column,
-                            error_type = SyntaxError,
-                            error_message = `Expected '}', got '{token.lexeme}'`,
-                        }
-                    end
                 end
 
                 else_block = body_result:unwrap()
@@ -750,37 +698,11 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
                 if condition_result:isErr() then
                     return result.Err(condition_result:unwrapErr())
                 end
-        
-                do
-                    local token = self:advance()
-        
-                    if token.type ~= "LeftBraceTokenType" then
-                        return result.Err {
-                            line = token.line,
-                            current = token.column,
-                            error_type = SyntaxError,
-                            error_message = `Expected '\{', got '{token.lexeme}'`,
-                        }
-                    end
-                end
                 
                 local body_result = self:parse_block()
         
                 if body_result:isErr() then
                     return result.Err(body_result:unwrapErr())
-                end
-        
-                do
-                    local token = self:advance()
-        
-                    if token.type ~= "RightBraceTokenType" then
-                        return result.Err {
-                            line = token.line,
-                            current = token.column,
-                            error_type = SyntaxError,
-                            error_message = `Expected '}', got '{token.lexeme}'`,
-                        }
-                    end
                 end
 
                 if body then
@@ -816,6 +738,10 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
             type = "ElseBlock" 
         }))
     end
+
+    if start_token.type == "ForTokenType" then
+        --// for i=1, 10, 1 
+    end
 end
 
 function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
@@ -823,6 +749,42 @@ function parser.parse_block(self: Parser): Result<Block, CustomErrorInfo>
         return result.Ok({})
     end
 
+    do
+        local token = self:advance()
+
+        if token.type ~= "LeftBraceTokenType" then
+            return result.Err {
+                line = token.line,
+                current = token.column,
+                error_type = SyntaxError,
+                error_message = `Expected '\{', got '{token.lexeme}'`,
+            }
+        end
+    end
+
+    local ast_nodes_result = self:parse_block()
+
+    if ast_nodes_result:isErr() then
+        return result.Err(ast_nodes_result:unwrapErr())
+    end
+
+    do
+        local token = self:advance()
+
+        if token.type ~= "RightBraceTokenType" then
+            return result.Err {
+                line = token.line,
+                current = token.column,
+                error_type = SyntaxError,
+                error_message = `Expected '}', got '{token.lexeme}'`,
+            }
+        end
+    end
+
+    return ast_nodes_result
+end
+
+function parser.parse_ast_node(self: Parser): Result<Block, CustomErrorInfo>
     return result.Ok({})
 end
 
