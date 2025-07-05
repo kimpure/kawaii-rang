@@ -11,6 +11,8 @@ export type ElseTokenType = "ElseTokenType"
 export type WhileTokenType = "WhileTokenType"
 export type ForTokenType = "ForTokenType"
 export type ReturnTokenType = "ReturnTokenType"
+export type BreakTokenType = "BreakTokenType"
+export type ContinueTokenType = "ContinueTokenType"
 export type AddTokenType = "AddTokenType"
 export type SubTokenType = "SubTokenType"
 export type MulTokenType = "MulTokenType"
@@ -63,6 +65,8 @@ export type TokenType =
     | WhileTokenType
     | ForTokenType
     | ReturnTokenType
+    | BreakTokenType
+    | ContinueTokenType
     | AddTokenType
     | SubTokenType
     | MulTokenType
@@ -156,6 +160,8 @@ local ElseTokenType: ElseTokenType = "ElseTokenType"
 local WhileTokenType: WhileTokenType = "WhileTokenType"
 local ForTokenType: ForTokenType = "ForTokenType"
 local ReturnTokenType: ReturnTokenType = "ReturnTokenType"
+local BreakTokenType: BreakTokenType = "BreakTokenType"
+local ContinueTokenType: ContinueTokenType = "ContinueTokenType"
 local AddTokenType: AddTokenType = "AddTokenType"
 local SubTokenType: SubTokenType = "SubTokenType"
 local MulTokenType: MulTokenType = "MulTokenType"
@@ -207,6 +213,8 @@ local ElseToken = createToken(ElseTokenType)
 local WhileToken = createToken(WhileTokenType)
 local ForToken = createToken(ForTokenType)
 local ReturnToken = createToken(ReturnTokenType)
+local BreakToken = createToken(BreakTokenType)
+local ContinueTokenType = createToken(ContinueTokenType)
 local AddToken = createToken(AddTokenType)
 local SubToken = createToken(SubTokenType)
 local MulToken = createToken(MulTokenType)
@@ -259,6 +267,8 @@ local tokens = {
     WhileToken = WhileToken,
     ForToken = ForToken,
     ReturnToken = ReturnToken,
+    BreakToken = BreakToken,
+    ContinueTokenType = ContinueTokenType,
     AddToken = AddToken,
     SubToken = SubToken,
     MulToken = MulToken,

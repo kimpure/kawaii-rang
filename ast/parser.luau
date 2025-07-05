@@ -930,7 +930,9 @@ local p, s = parser.create [[
 //for i=1, 10 {}
 //for i=1, 10, 2 {}
 
-while true {}
+//while true {}
+
+//return true
 ]], os.clock()
 local generics = p:unwrap():parse_statement()
 

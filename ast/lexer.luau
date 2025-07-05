@@ -20,6 +20,8 @@ local ElseToken = tokens.ElseToken
 local WhileToken = tokens.WhileToken
 local ForToken = tokens.ForToken
 local ReturnToken = tokens.ReturnToken
+local BreakToken = tokens.BreakToken
+local ContinueTokenType = tokens.ContinueTokenType
 local AddToken = tokens.AddToken
 local SubToken = tokens.SubToken
 local MulToken = tokens.MulToken
@@ -385,6 +387,14 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
 
         if identifier == "return" then
             return result.Ok(ReturnToken("return", self.line, self.line_current))
+        end
+
+        if identifier == "break" then
+            return result.Ok(BreakToken("break", self.line, self.line_current))
+        end
+
+        if identifier == "continue" then
+            return result.Ok(ContinueTokenType("continue", self.line, self.line_current))
         end
 
         if identifier == "function" then
