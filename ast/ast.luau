@@ -45,7 +45,6 @@ export type RightBraceTokenType = "RightBraceTokenType"
 export type LeftBrackTokenType = "LeftBrackTokenType"
 export type RightBrackTokenType = "RightBrackTokenType"
 export type ArrowTokenType = "ArrowTokenType"
-export type ExtendsTokenType = "ExtendsTokenType"
 export type TypeTokenType = "TypeTokenType"
 export type TypeofTokenType = "TypeofTokenType"
 export type PublicTokenType = "PublicTokenType"
@@ -100,7 +99,6 @@ export type TokenType =
     | LeftBrackTokenType
     | RightBrackTokenType
     | ArrowTokenType
-    | ExtendsTokenType
     | TypeTokenType
     | TypeofTokenType
     | PublicTokenType
@@ -196,7 +194,6 @@ local RightBraceTokenType: RightBraceTokenType = "RightBraceTokenType"
 local LeftBrackTokenType: LeftBrackTokenType = "LeftBrackTokenType"
 local RightBrackTokenType: RightBrackTokenType = "RightBrackTokenType"
 local ArrowTokenType: ArrowTokenType = "ArrowTokenType"
-local ExtendsTokenType: ExtendsTokenType = "ExtendsTokenType"
 local TypeTokenType: TypeTokenType = "TypeTokenType"
 local TypeofTokenType: TypeofTokenType = "TypeofTokenType"
 local PublicTokenType: PublicTokenType = "PublicTokenType"
@@ -250,7 +247,6 @@ local RightBraceToken = createToken(RightBraceTokenType)
 local LeftBrackToken = createToken(LeftBrackTokenType)
 local RightBrackToken = createToken(RightBrackTokenType)
 local ArrowToken = createToken(ArrowTokenType)
-local ExtendsToken = createToken(ExtendsTokenType)
 local TypeToken = createToken(TypeTokenType)
 local TypeofToken = createToken(TypeofTokenType)
 local PublicToken = createToken(PublicTokenType)
@@ -305,7 +301,6 @@ local tokens = {
     LeftBrackToken = LeftBrackToken,
     RightBrackToken = RightBrackToken,
     ArrowToken = ArrowToken,
-    ExtendsToken = ExtendsToken,
     TypeToken = TypeToken,
     TypeofToken = TypeofToken,
     PublicToken = PublicToken,
@@ -359,7 +354,6 @@ local token_types = {
     LeftBrackTokenType = LeftBrackTokenType,
     RightBrackTokenType = RightBrackTokenType,
     ArrowTokenType = ArrowTokenType,
-    ExtendsTokenType = ExtendsTokenType,
     TypeTokenType = TypeTokenType,
     TypeofTokenType = TypeofTokenType,
     PublicTokenType = PublicTokenType,

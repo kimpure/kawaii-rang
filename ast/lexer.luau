@@ -54,7 +54,6 @@ local RightBraceToken = tokens.RightBraceToken
 local LeftBrackToken = tokens.LeftBrackToken
 local RightBrackToken = tokens.RightBrackToken
 local ArrowToken = tokens.ArrowToken
-local ExtendsToken = tokens.ExtendsToken
 local TypeToken = tokens.TypeToken
 local TypeofToken = tokens.TypeofToken
 local PublicToken = tokens.PublicToken
@@ -412,10 +411,6 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
 
         if identifier == "not" then
             return result.Ok(NotToken("not", self.line, self.line_current))
-        end
-
-        if identifier == "extends" then
-            return result.Ok(ExtendsToken("extends", self.line, self.line_current))
         end
 
         if identifier == "type" then
