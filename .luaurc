@@ -4,8 +4,9 @@
     "LocalShadow": false
   },
   "aliases": {
-    "lune": "~/.lune/.typedefs/0.8.9/",
+    "ast": "ast/",
+    "compiler": "compiler/",
     "packages": "packages/",
-    "ast": "ast/"
+    "lune": "~/.lune/.typedefs/0.8.9/"
   }
 }
