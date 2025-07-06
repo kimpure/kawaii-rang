@@ -58,6 +58,7 @@ local ExtendsToken = tokens.ExtendsToken
 local TypeToken = tokens.TypeToken
 local TypeofToken = tokens.TypeofToken
 local PublicToken = tokens.PublicToken
+local ImportToken = tokens.ImportToken
 local EofToken = tokens.EofToken
 
 type TokenType = ast.TokenType
@@ -427,6 +428,10 @@ function lexer.next(self: Lexer): Result<Token, CustomErrorInfo>
 
         if identifier == "public" then
             return result.Ok(PublicToken("public", self.line, self.line_current))
+        end
+
+        if identifier == "import" then
+            return result.Ok(ImportToken("import", self.line, self.line_current))
         end
 
         if identifier == "" then

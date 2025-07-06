@@ -45,6 +45,7 @@ local VariableAstNode = ast_node.VariableAstNode
 local FunctionAstNode = ast_node.FunctionAstNode
 local TypeAstNode = ast_node.TypeAstNode
 local PublicAstNode = ast_node.PublicAstNode
+local ImportAstNode = ast_node.ImportAstNode
 
 type TokenType = ast.TokenType
 type Token<T> = ast.Token<T>
@@ -1151,6 +1152,23 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
         end
 
         return result.Ok(PublicAstNode(ast_node))
+    end
+
+    if start_token.type == "ImportTokenType" then
+        self:advance()
+
+        local path = self:advance()
+
+        if path.type ~= "StringTokenType" then
+            return result.Err {
+                line = path.line,
+                current = path.column,
+                error_type = SyntaxError,
+                error_message = `Expected string, got '{path.type}'`,
+            }
+        end
+
+        return result.Ok(ImportAstNode(path.lexeme))
     end
 
     if 

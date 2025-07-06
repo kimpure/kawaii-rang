@@ -49,6 +49,7 @@ export type ExtendsTokenType = "ExtendsTokenType"
 export type TypeTokenType = "TypeTokenType"
 export type TypeofTokenType = "TypeofTokenType"
 export type PublicTokenType = "PublicTokenType"
+export type ImportTokenType = "ImportTokenType"
 export type EofTokenType = "EofTokenType"
 
 export type TokenType = 
@@ -103,6 +104,7 @@ export type TokenType =
     | TypeTokenType
     | TypeofTokenType
     | PublicTokenType
+    | ImportTokenType
     | EofTokenType
 
 export type LiteralTokenTypes = 
@@ -198,6 +200,7 @@ local ExtendsTokenType: ExtendsTokenType = "ExtendsTokenType"
 local TypeTokenType: TypeTokenType = "TypeTokenType"
 local TypeofTokenType: TypeofTokenType = "TypeofTokenType"
 local PublicTokenType: PublicTokenType = "PublicTokenType"
+local ImportTokenType: ImportTokenType = "ImportTokenType"
 local EofTokenType: EofTokenType = "EofTokenType"
 
 local IdentifierToken = createToken(IdentifierTokenType)
@@ -251,6 +254,7 @@ local ExtendsToken = createToken(ExtendsTokenType)
 local TypeToken = createToken(TypeTokenType)
 local TypeofToken = createToken(TypeofTokenType)
 local PublicToken = createToken(PublicTokenType)
+local ImportToken = createToken(ImportTokenType)
 local EofToken = createToken(EofTokenType)
 
 local tokens = {
@@ -305,6 +309,7 @@ local tokens = {
     TypeToken = TypeToken,
     TypeofToken = TypeofToken,
     PublicToken = PublicToken,
+    ImportToken = ImportToken,
     EofToken = EofToken,
 }
 
@@ -719,6 +724,11 @@ export type PublicAstNode = {
     type: "PublicAstNode",
 }
 
+export type ImportAstNode = {
+    path: string,
+    type: "ImportAstNode",
+}
+
 export type ParameterAstType = {
     name: string,
     ast_type: AstType,
@@ -733,6 +743,7 @@ export type AstNode =
     | FunctionAstNode
     | TypeAstNode
     | PublicAstNode
+    | ImportAstNode
     | Statement
     | Expression
 
@@ -771,6 +782,13 @@ function ast_node.PublicAstNode(ast_node: PublicAstNodes): PublicAstNode
     return {
         ast_node = ast_node,
         type = "PublicAstNode",
+    }
+end
+
+function ast_node.ImportAstNode(path: string): ImportAstNode
+    return {
+        path = path,
+        type = "ImportAstNode",
     }
 end
 
