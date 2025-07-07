@@ -448,13 +448,20 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
     local start_token = self:advance()
     local expression: Expression
 
-    if
-        start_token.type == "StringTokenType" or
-        start_token.type == "NumberTokenType" or
-        start_token.type == "BooleanTokenType" or
-        start_token.type == "NilTokenType"
-    then
-        expression = LiteralExpression(start_token.type, start_token.lexeme)
+    if start_token.type == "StringTokenType" then
+        expression = LiteralExpression(StringAstType, start_token.lexeme)
+    end
+
+    if start_token.type == "NumberTokenType" then
+        expression = LiteralExpression(NumberAstType, start_token.lexeme)
+    end
+
+    if start_token.type == "BooleanTokenType" then
+        expression = LiteralExpression(BooleanAstType, start_token.lexeme)
+    end
+
+    if start_token.type == "NilTokenType" then
+        expression = LiteralExpression(nil, start_token.lexeme)
     end
 
     if start_token.type == "LeftParenTokenType" then
@@ -667,7 +674,7 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
             end
 
             ((expression :: any) :: { annotated_type: AstType }).annotated_type = ast_type_result:unwrap()
-            continue
+            break
         end
 
         break
@@ -872,7 +879,7 @@ function parser.parse_statement(self: Parser): Result<Statement, CustomErrorInfo
 
                 increment = increment_result:unwrap()
             else
-                increment = LiteralExpression("NumberTokenType", "1")
+                increment = LiteralExpression(NumberAstType, "1")
             end
         end
 
@@ -1022,7 +1029,7 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
 
             value = value_result:unwrap()
         else
-            value = LiteralExpression("NilTokenType", "nil")
+            value = LiteralExpression(nil, "nil")
         end
 
         return result.Ok(VariableAstNode(name.lexeme, value, annotated_type))

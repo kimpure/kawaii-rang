@@ -106,10 +106,9 @@ export type TokenType =
     | EofTokenType
 
 export type LiteralTokenTypes = 
-    | NumberTokenType
-    | StringTokenType
-    | BooleanTokenType
-    | NilTokenType
+    | NumberAstType
+    | StringAstType
+    | BooleanAstType
 
 export type OperatorTokenTypes = 
     | AddTokenType
@@ -380,16 +379,20 @@ local operator_precedence: { [OperatorTokenTypes]: number } = {
 }
 
 export type StringAstType = { 
-    type: "StringAstType", 
+    type: "StringAstType",
+    format: "string", 
 }
 export type NumberAstType = { 
-    type: "NumberAstType", 
+    type: "NumberAstType",
+    format: "number",
 }
 export type BooleanAstType = { 
-    type: "BooleanAstType", 
+    type: "BooleanAstType",
+    format: "boolean",
 }
 export type AnyAstType = { 
-    type: "AnyAstType", 
+    type: "AnyAstType",
+    format: "any", 
 }
 
 export type FunctionAstType = {
@@ -426,10 +429,26 @@ export type AstType =
     | CustomAstType
 
 local ast_type = {}
-ast_type.StringAstType = { type = "StringAstType" } :: StringAstType
-ast_type.NumberAstType = { type = "NumberAstType" } :: NumberAstType
-ast_type.BooleanAstType = { type = "BooleanAstType" } :: BooleanAstType
-ast_type.AnyAstType = { type = "AnyAstType" } :: AnyAstType
+
+ast_type.StringAstType = { 
+    type = "StringAstType", 
+    format = "string" 
+} :: StringAstType
+
+ast_type.NumberAstType = { 
+    type = "NumberAstType", 
+    format = "number" 
+} :: NumberAstType
+
+ast_type.BooleanAstType = { 
+    type = "BooleanAstType", 
+    format = "boolean" 
+} :: BooleanAstType
+
+ast_type.AnyAstType = { 
+    type = "AnyAstType", 
+    format = "any" 
+} :: AnyAstType
 
 local ast_node = {}
 
@@ -465,7 +484,7 @@ function ast_type.CustomAstType(name: string, generics: { GenericAstType }): Cus
 end
 
 export type LiteralExpression = {
-    data_type: LiteralTokenTypes,
+    data_type: LiteralTokenTypes?,
     value: string,
     annotated_type: AstType?,
     type: "LiteralExpression",
@@ -523,7 +542,7 @@ export type Expression =
 
 local expression = {}
 
-function expression.LiteralExpression(data_type: LiteralTokenTypes, value: string): LiteralExpression
+function expression.LiteralExpression(data_type: LiteralTokenTypes?, value: string): LiteralExpression
     return {
         data_type = data_type,
         value = value,

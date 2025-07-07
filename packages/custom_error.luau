@@ -3,8 +3,8 @@ custom_error.__index = custom_error
 
 export type CustomErrorInfo = {
     file: string?,
-    line: number,
-    current: number,
+    line: number | string,
+    current: number?,
     error_type: string,
     error_message: string,
 }
@@ -18,6 +18,7 @@ custom_error.error_type = {
     SyntaxError = "Syntax Error",
     LexicalError = "Lexical Error",
     UnexpectedError = "Unexpected Error",
+    TypeError = "Type Error"
 }
 
 function custom_error.new(file: string?): CustomError
@@ -32,7 +33,7 @@ function custom_error.push(self: CustomError, info: CustomErrorInfo)
     self.errors[#self.errors + 1] = info
 end
 
-function custom_error.extends(self: CustomError, line: number, cureent: number, file: string?)
+function custom_error.extends(self: CustomError, line: number, cureent: number?, file: string?)
     if #self.errors <= 0 then
         return self:push {
             file = file,
@@ -59,7 +60,7 @@ function custom_error.extends_errors(self: CustomError, extends_class: CustomErr
 end
 
 function custom_error.format_error(info: CustomErrorInfo): string
-    return `[{info.file and info.file .. ":" or "line "}{info.line}:{info.current}] {info.error_type}: {info.error_message}`
+    return `[{info.file and info.file .. ":" or ""}{info.line}{info.current and ":" .. info.current or ""}] {info.error_type}: {info.error_message}`
 end
 
 function custom_error.stdout(self: CustomError): string
