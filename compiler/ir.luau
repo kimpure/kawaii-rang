@@ -34,7 +34,7 @@ function ir.create(source: string): Result<Ir, CustomErrorInfo>
 end
 
 function ir.generate(self: Ir)
-    
+    --// TODO: 공부하기
 end
 
 return ir
