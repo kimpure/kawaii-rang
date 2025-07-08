@@ -380,19 +380,15 @@ local operator_precedence: { [OperatorTokenTypes]: number } = {
 
 export type StringAstType = { 
     type: "StringAstType",
-    format: "string", 
 }
 export type NumberAstType = { 
     type: "NumberAstType",
-    format: "number",
 }
 export type BooleanAstType = { 
     type: "BooleanAstType",
-    format: "boolean",
 }
 export type AnyAstType = { 
     type: "AnyAstType",
-    format: "any", 
 }
 
 export type FunctionAstType = {
@@ -432,22 +428,18 @@ local ast_type = {}
 
 ast_type.StringAstType = { 
     type = "StringAstType", 
-    format = "string" 
 } :: StringAstType
 
 ast_type.NumberAstType = { 
     type = "NumberAstType", 
-    format = "number" 
 } :: NumberAstType
 
 ast_type.BooleanAstType = { 
     type = "BooleanAstType", 
-    format = "boolean" 
 } :: BooleanAstType
 
 ast_type.AnyAstType = { 
     type = "AnyAstType", 
-    format = "any" 
 } :: AnyAstType
 
 local ast_node = {}

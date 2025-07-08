@@ -6,6 +6,7 @@
   "aliases": {
     "ast": "ast/",
     "compiler": "compiler/",
+    "semantic": "compiler/semantic/",
     "packages": "packages/",
     "lune": "~/.lune/.typedefs/0.8.9/"
   }
