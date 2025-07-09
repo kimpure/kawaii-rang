@@ -23,8 +23,6 @@ type BlockType =
 local error_type = custom_error.error_type
 local UnknownSymbol = error_type.UnknownSymbol
 
-local ok = result.Ok(nil)
-
 local ir = {}
 ir.__index = ir
 
@@ -52,14 +50,8 @@ function ir.create(nodes: Block, info: {
     }, ir)
 end
 
-function ir.variable_ast_node(self: Ir, variable_ast_node: VariableAstNode): Result<nil, CustomErrorInfo>
-    local result = self.variable_symbols:define(variable_ast_node.name, {})
-
-    if result:isErr() then
-        return result.Err(result:unwrapErr())
-    end
-
-    return ok
+function ir.variable_ast_node(self: Ir, variable_ast_node: VariableAstNode)
+    self.variable_symbols:define(variable_ast_node.name, {})
 end
 
 function ir.expression(self: Ir, expression: Expression): Result<nil, CustomErrorInfo>
@@ -72,10 +64,10 @@ function ir.expression(self: Ir, expression: Expression): Result<nil, CustomErro
             }
         end
 
-        return ok
+        return result.Ok(nil)
     end
 
-    return ok
+    return result.Ok(nil)
 end
 
 local parser, start = require"@ast/parser".create [[
@@ -99,12 +91,7 @@ a
         local node = ast_nodes[i]
     
         if node.type == "VariableAstNode" then
-            local result = static:variable_ast_node(node)
-    
-            if result:isErr() then
-                return print(custom_error.format_error(result:unwrapErr()))
-            end
-    
+            static:variable_ast_node(node)
             continue
         end
     

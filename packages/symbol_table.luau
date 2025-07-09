@@ -22,18 +22,8 @@ function symbol_table.new<T>(parent: SymbolTable<T>?): SymbolTable<T>
     }, symbol_table)
 end
 
-function symbol_table.define<T>(self: SymbolTable<T>, name: string, info: T): Result<nil, CustomErrorInfo>
-    if self.entries[name] then
-        return result.Err {
-            line = "Unknown global",
-            error_type = UnexpectedError,
-            error_message = `'{name}' is already included in the SymbolTable.`,
-        }
-    end
-
+function symbol_table.define<T>(self: SymbolTable<T>, name: string, info: T)
     self.entries[name] = info
-
-    return result.Ok(nil)
 end
 
 function symbol_table.lookup<T>(self: SymbolTable<T>, name: string): T?
