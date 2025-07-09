@@ -18,7 +18,8 @@ custom_error.error_type = {
     SyntaxError = "Syntax Error",
     LexicalError = "Lexical Error",
     UnexpectedError = "Unexpected Error",
-    TypeError = "Type Error"
+    TypeError = "Type Error",
+    UnknownSymbol = "Unknown Symbol",
 }
 
 function custom_error.new(file: string?): CustomError
