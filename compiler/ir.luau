@@ -25,22 +25,22 @@ local UnknownSymbol = error_type.UnknownSymbol
 
 local ok = result.Ok(nil)
 
-local static_semantic = {}
-static_semantic.__index = static_semantic
+local ir = {}
+ir.__index = ir
 
-export type StaticSemantic = typeof(setmetatable({} :: {
+export type Ir = typeof(setmetatable({} :: {
     variable_symbols: SymbolTable<{}>,
     function_symbols: SymbolTable<{}>,
     type_symbols: SymbolTable<{}>,
 
     nodes: Block,
     block_type: BlockType,
-}, static_semantic))
+}, ir))
 
-function static_semantic.create(nodes: Block, info: {
-    parent: StaticSemantic?, 
+function ir.create(nodes: Block, info: {
+    parent: Ir?, 
     block_type: BlockType
-}): StaticSemantic
+}): Ir
     local parent = info.parent
     return setmetatable({
         variable_symbols = symbol_table.new(parent and parent.variable_symbols or nil),
@@ -49,10 +49,10 @@ function static_semantic.create(nodes: Block, info: {
     
         nodes = nodes,
         block_type = info.block_type,
-    }, static_semantic)
+    }, ir)
 end
 
-function static_semantic.variable_ast_node(self: StaticSemantic, variable_ast_node: VariableAstNode): Result<nil, CustomErrorInfo>
+function ir.variable_ast_node(self: Ir, variable_ast_node: VariableAstNode): Result<nil, CustomErrorInfo>
     local result = self.variable_symbols:define(variable_ast_node.name, {})
 
     if result:isErr() then
@@ -62,7 +62,7 @@ function static_semantic.variable_ast_node(self: StaticSemantic, variable_ast_no
     return ok
 end
 
-function static_semantic.expression(self: StaticSemantic, expression: Expression): Result<nil, CustomErrorInfo>
+function ir.expression(self: Ir, expression: Expression): Result<nil, CustomErrorInfo>
     if expression.type == "VariableExpression" then
         if not self.variable_symbols:lookup(expression.name) then
             return result.Err {
@@ -91,7 +91,7 @@ a
     end
     
     local ast_nodes = result:unwrap()
-    local static = static_semantic.create(ast_nodes, { 
+    local static = ir.create(ast_nodes, { 
         block_type = "Program" 
     })
     
@@ -123,4 +123,4 @@ end)()
 
 print('\n\ntime: ', os.clock() - start)
 
-return static_semantic
+return ir
