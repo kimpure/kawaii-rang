@@ -37,14 +37,18 @@ export type StaticSemantic = typeof(setmetatable({} :: {
     block_type: BlockType,
 }, static_semantic))
 
-function static_semantic.create(nodes: Block, parent: StaticSemantic?, block_type: BlockType?): StaticSemantic
+function static_semantic.create(nodes: Block, info: {
+    parent: StaticSemantic?, 
+    block_type: BlockType
+}): StaticSemantic
+    local parent = info.parent
     return setmetatable({
         variable_symbols = symbol_table.new(parent and parent.variable_symbols or nil),
         function_symbols = symbol_table.new(parent and parent.function_symbols or nil),
         type_symbols = symbol_table.new(parent and parent.type_symbols or nil),
     
         nodes = nodes,
-        block_type = block_type or "Program" :: "Program",
+        block_type = info.block_type,
     }, static_semantic)
 end
 
@@ -87,7 +91,9 @@ a
     end
     
     local ast_nodes = result:unwrap()
-    local static = static_semantic.create(ast_nodes)
+    local static = static_semantic.create(ast_nodes, { 
+        block_type = "Program" 
+    })
     
     for i=1, #ast_nodes do
         local node = ast_nodes[i]

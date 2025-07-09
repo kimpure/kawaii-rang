@@ -1036,58 +1036,68 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
     end
 
     if start_token.type == "FunctionTokenType" then
-        self:advance()
-        local name = self:advance()
-
-        if name.type ~= "IdentifierTokenType" then
-            return result.Err {
-                line = name.line,
-                current = name.column,
-                error_type = SyntaxError,
-                error_message = `Expected Identifier, got '{name.lexeme}'`,
-            }
-        end
-
-        local generics: { GenericAstType } = {}
-        
-        do
-            if self:peek().type == "LessTokenType" then
-                local generics_result = self:parse_generics()
-    
-                if generics_result:isErr() then
-                    return result.Err(generics_result:unwrapErr())
-                end
-
-                generics = generics_result:unwrap()
-            end
-        end
-
-        local parameters_result = self:parse_parameters()
-    
-        if parameters_result:isErr() then
-            return result.Err(parameters_result:unwrapErr())
-        end
-
-        local return_annotated_type: AstType?
-        if self:peek().type == "ColonTokenType" then
+        if self:match_next_type "IdentifierTokenType" then
             self:advance()
+            local name = self:advance()
+    
+            if name.type ~= "IdentifierTokenType" then
+                return result.Err {
+                    line = name.line,
+                    current = name.column,
+                    error_type = SyntaxError,
+                    error_message = `Expected Identifier, got '{name.lexeme}'`,
+                }
+            end
+    
+            local generics: { GenericAstType } = {}
+            
+            do
+                if self:peek().type == "LessTokenType" then
+                    local generics_result = self:parse_generics()
+        
+                    if generics_result:isErr() then
+                        return result.Err(generics_result:unwrapErr())
+                    end
+    
+                    generics = generics_result:unwrap()
+                end
+            end
+    
+            local parameters_result = self:parse_parameters()
+        
+            if parameters_result:isErr() then
+                return result.Err(parameters_result:unwrapErr())
+            end
+    
+            local return_annotated_type: AstType?
+            if self:peek().type == "ColonTokenType" then
+                self:advance()
+    
+                local return_annotated_type_result = self:parse_ast_type()
+    
+                if return_annotated_type_result:isErr() then
+                    return result.Err(return_annotated_type_result:unwrapErr())
+                end
+    
+                return_annotated_type = return_annotated_type_result:unwrap()
+            end
+    
+            local body_result = self:parse_block()
+    
+            if body_result:isErr() then
+                return result.Err(body_result:unwrapErr())
+            end
+    
+            return result.Ok(FunctionAstNode(name.lexeme, parameters_result:unwrap(), body_result:unwrap(), return_annotated_type, generics))
+        else
+            local function_expression_result = self:parse_expression()
 
-            local return_annotated_type_result = self:parse_ast_type()
-
-            if return_annotated_type_result:isErr() then
-                return result.Err(return_annotated_type_result:unwrapErr())
+            if function_expression_result:isErr() then
+                return result.Err(function_expression_result:unwrapErr())
             end
 
-            return_annotated_type = return_annotated_type_result:unwrap()
+            return result.Ok(function_expression_result:unwrap())
         end
-
-        local body_result = self:parse_block()
-
-        if body_result:isErr() then
-            return result.Err(body_result:unwrapErr())
-        end
-
-        return result.Ok(FunctionAstNode(name.lexeme, parameters_result:unwrap(), body_result:unwrap(), return_annotated_type, generics))
     end
 
     if start_token.type == "TypeTokenType" then
@@ -1195,13 +1205,29 @@ function parser.parse_ast_node(self: Parser): Result<AstNode, CustomErrorInfo>
         return result.Ok(statement_result:unwrap())
     end
 
-    local expression_result = self:parse_expression()
-
-    if expression_result:isErr() then
-        return result.Err(expression_result:unwrapErr())
+    if start_token.type == "StringTokenType" or
+        start_token.type == "NumberTokenType" or
+        start_token.type == "BooleanTokenType" or
+        start_token.type == "NilTokenType" or
+        start_token.type == "LeftParenTokenType" or
+        start_token.type == "SubTokenType" or
+        start_token.type == "IdentifierTokenType"
+    then
+        local expression_result = self:parse_expression()
+    
+        if expression_result:isErr() then
+            return result.Err(expression_result:unwrapErr())
+        end
+    
+        return result.Ok(expression_result:unwrap())
     end
 
-    return result.Ok(expression_result:unwrap())
+    return result.Err {
+        line = start_token.line,
+        current = start_token.column,
+        error_type = SyntaxError,
+        error_message = `Expected AstNode, got '{start_token.lexeme}'`,
+    }
 end
 
 return parser
