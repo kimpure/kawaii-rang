@@ -13,6 +13,13 @@ type Result<T, U> = result.Result<T, U>
 type CustomErrorInfo = custom_error.CustomErrorInfo
 type SymbolTable<T> = symbol_table.SymbolTable<T>
 
+type BlockType = 
+    | "Program"
+    | "If"
+    | "For"
+    | "While"
+    | "Function"
+
 local error_type = custom_error.error_type
 local UnknownSymbol = error_type.UnknownSymbol
 
@@ -27,15 +34,17 @@ export type StaticSemantic = typeof(setmetatable({} :: {
     type_symbols: SymbolTable<{}>,
 
     nodes: Block,
+    block_type: BlockType,
 }, static_semantic))
 
-function static_semantic.create(nodes: Block, parent: StaticSemantic?): StaticSemantic
+function static_semantic.create(nodes: Block, parent: StaticSemantic?, block_type: BlockType?): StaticSemantic
     return setmetatable({
         variable_symbols = symbol_table.new(parent and parent.variable_symbols or nil),
         function_symbols = symbol_table.new(parent and parent.function_symbols or nil),
         type_symbols = symbol_table.new(parent and parent.type_symbols or nil),
     
         nodes = nodes,
+        block_type = block_type or "Program" :: "Program",
     }, static_semantic)
 end
 
