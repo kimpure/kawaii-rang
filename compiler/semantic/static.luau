@@ -1,19 +1,20 @@
 local ast = require("@ast/ast")
 local symbol_table = require("@packages/symbol_table")
 
-type Statement = ast.Statement
 type Expression = ast.Expression
+type Statement = ast.Statement
+type VariableAstNode = ast.VariableAstNode
 type AstNode = ast.AstNode
 type Block = ast.Block
 
-type SymbolTable = symbol_table.SymbolTable
+type SymbolTable<T> = symbol_table.SymbolTable<T>
 
 local static_semantic = {}
 
 export type StaticSemantic = typeof(setmetatable({} :: {
-    variable_symbols: SymbolTable,
-    function_symbols: SymbolTable,
-    type_symbols: SymbolTable,
+    variable_symbols: SymbolTable<{}>,
+    function_symbols: SymbolTable<{}>,
+    type_symbols: SymbolTable<{}>,
 
     nodes: Block,
 }, static_semantic))
@@ -28,7 +29,11 @@ function static_semantic.create(nodes: Block, parent: StaticSemantic?): StaticSe
     }, static_semantic)
 end
 
-function static_semantic.check(self: StaticSemantic, expression: Expression)
+function static_semantic.variable_ast_node(self: StaticSemantic, variable_ast_node: VariableAstNode)
+    self.variable_symbols:define(variable_ast_node.name, {})
+end
+
+function static_semantic.expression(self: StaticSemantic, expression: Expression)
     
 end
 

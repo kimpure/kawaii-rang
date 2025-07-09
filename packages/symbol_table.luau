@@ -10,23 +10,19 @@ symbol_table.__index = symbol_table
 type Result<T, U> = result.Result<T, U>
 type CustomErrorInfo = custom_error.CustomErrorInfo
 
-export type SymbolTableInfo = {
-    type: string,
-}
-
-export type SymbolTable = typeof(setmetatable({} :: {
-    parent: SymbolTable?,
-    entries: { [string]: SymbolTableInfo },
+export type SymbolTable<T> = typeof(setmetatable({} :: {
+    parent: SymbolTable<T>?,
+    entries: { [string]: T },
 }, symbol_table))
 
-function symbol_table.new(parent: SymbolTable?): SymbolTable
+function symbol_table.new<T>(parent: SymbolTable<T>?): SymbolTable<T>
     return setmetatable({
         parent = parent,
         entries = {},
     }, symbol_table)
 end
 
-function symbol_table.define(self: SymbolTable, name: string, info: SymbolTableInfo): Result<nil, CustomErrorInfo>
+function symbol_table.define<T>(self: SymbolTable<T>, name: string, info: T): Result<nil, CustomErrorInfo>
     if self.entries[name] then
         return result.Err {
             line = "Unknown global",
@@ -40,7 +36,7 @@ function symbol_table.define(self: SymbolTable, name: string, info: SymbolTableI
     return result.Ok(nil)
 end
 
-function symbol_table.lookup(self: SymbolTable, name: string): SymbolTableInfo?
+function symbol_table.lookup<T>(self: SymbolTable<T>, name: string): T?
     if self.entries[name] then 
         return self.entries[name]
     end
