@@ -490,8 +490,12 @@ export type GroupedExpression = {
 
 export type UnaryExpression = {
     expression: Expression,
-    annotated_type: AstType?,
     type: "UnaryExpression",
+}
+
+export type NotExpression = {
+    expression: Expression,
+    type: "NotExpression",
 }
 
 export type FunctionCallExpression = {
@@ -527,6 +531,7 @@ export type Expression =
     | LiteralExpression
     | GroupedExpression
     | UnaryExpression
+    | NotExpression
     | FunctionCallExpression
     | VariableExpression
     | BinaryExpression
@@ -553,6 +558,13 @@ function expression.UnaryExpression(expression: Expression): UnaryExpression
     return {
         expression = expression,
         type = "UnaryExpression",
+    }
+end
+
+function expression.NotExpression(expression: Expression): NotExpression
+    return {
+        expression = expression,
+        type = "NotExpression",
     }
 end
 

@@ -29,6 +29,7 @@ local CustomAstType = ast_type.CustomAstType
 local LiteralExpression = expression.LiteralExpression
 local GroupedExpression = expression.GroupedExpression
 local UnaryExpression = expression.UnaryExpression
+local NotExpression = expression.NotExpression
 local VariableExpression = expression.VariableExpression
 local FunctionExpression = expression.FunctionExpression
 local FunctionCallExpression = expression.FunctionCallExpression
@@ -495,6 +496,16 @@ function parser.parse_expression(self: Parser): Result<Expression, CustomErrorIn
         end
 
         expression = UnaryExpression(expression_result:unwrap())
+    end
+    
+    if start_token.type == "NotTokenType" then
+        local expression_result = self:parse_expression()
+
+        if expression_result:isErr() then
+            return expression_result
+        end
+
+        expression = NotExpression(expression_result:unwrap())
     end
 
     if start_token.type == "IdentifierTokenType" then
